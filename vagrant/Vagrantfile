@@ -1,0 +1,18 @@
+$n = 3
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.box_check_update = false
+  (1..$n).each do |i|
+    config.vm.define "vbox#{i}" do |vbox|
+      vbox.vm.hostname = "vbox#{i}"
+      vbox.vm.network "private_network", ip: "192.168.33.1#{i}"
+      vbox.vm.provision "shell", inline: <<-SHELL
+        /vagrant/src/dotfiles/vagrant/vagrant-provision #{i}
+      SHELL
+    end
+  end
+  config.vm.provider 'virtualbox' do |vb|
+    vb.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000 ]
+    vb.customize [ "modifyvm", :id, "--memory", "2048" ]
+  end
+end

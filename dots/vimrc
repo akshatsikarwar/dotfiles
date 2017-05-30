@@ -1,0 +1,29 @@
+syntax enable
+filetype on
+filetype plugin indent on
+
+map <space> :tabn<cr>
+map <bs> :tabp<cr>
+map <f2> :!format<cr>
+map <f3> :!format-sqlite<cr>
+map <f4> :set ts=8 sw=8 noet<cr>
+
+set nobackup
+set nocp
+set cindent
+set smartindent
+set autoindent
+set bs=indent,eol,start
+set noshowmatch
+set hlsearch
+set incsearch
+set ignorecase
+set number
+set statusline=%<%F\ %h%m%r%y%=%-14.(%l,%c%V%)\ %P
+set laststatus=2
+set nowrap
+set ts=4
+set sw=4
+set et
+set cinoptions=:0
+set path+=$HOME/comdb2/include

@@ -1,0 +1,58 @@
+#!/bin/bash
+export HOSTNAME=$(hostname)
+export COMDB2_ROOT=$HOME/comdb2
+name='akdb'
+pfx=$HOME/src/comdb2
+while [[ $# -gt 0 ]] ; do
+	key="$1"
+	case $key in
+	-d) debug="yes"
+	;;
+	-s) start="yes"
+	;;
+	-i) init="yes"
+	;;
+	-v) valgrind="yes"
+	;;
+	-n) name="$2"
+	shift
+	;;
+	*) pfx="$1"
+	;;
+	esac
+	shift
+done
+root=$HOME/db
+dir=$root/$name
+lrl=$dir/$name.lrl
+[[ -n $pfx ]] && pfx="$(go -p $pfx)/"
+comdb2="${pfx}comdb2"
+
+[[ ! -x ${comdb2} ]] && echo 'comdb2 binary?' && exit 1
+
+if [[ -n $init ]] ; then
+    cd $root
+	[[ -d $dir ]] && rm -rf $dir
+    mkdir -p $dir
+    echo "name $name" >> $lrl
+    echo "dir $dir" >> $lrl
+    echo "nowatch" >> $lrl
+    echo "cache 2 gb" >> $lrl
+    echo "allow_lua_print" >> $lrl
+    #echo "crypto $HOME/db/passwd" >> $lrl
+    #echo "dtastripe 8" >> $lrl
+    #echo "logmsg level debug" >> $lrl
+    $comdb2 $name --dir $dir --lrl $lrl --create
+    [[ $? -ne 0 ]] && figlet bad init && exit 1
+fi
+
+if [[ -n $valgrind ]] ; then
+	exec valgrind $comdb2 $name -lrl $lrl
+elif [[ -n $debug ]] ; then
+	exec gdb -q -ex run --arg $comdb2 $name -lrl $lrl
+elif [[ -n $start ]] ; then
+	exec gdb -q -ex start --arg $comdb2 $name -lrl $lrl
+else
+    echo $comdb2 $name -lrl $lrl 
+	$comdb2 $name --lrl $lrl
+fi

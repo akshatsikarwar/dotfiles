@@ -1,0 +1,16 @@
+function bashrc_path_add {
+    PATH=${PATH/":$1"/} # delete any instances in the middle or at the end 
+    PATH=${PATH/"$1:"/} # delete any instances at the beginning
+    PATH="$1:$PATH"
+}
+bashrc_path_add $HOME/percona/bin
+bashrc_path_add $HOME/comdb2/bin
+bashrc_path_add $HOME/bin
+
+export COMDB2_ROOT=$HOME/comdb2
+
+alias go=". go"
+alias v1="ssh vbox1"
+alias v2="ssh vbox2"
+alias v3="ssh vbox3"
+alias vim="vim -p"

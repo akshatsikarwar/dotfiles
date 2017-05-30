@@ -1,0 +1,29 @@
+#!/bin/bash
+
+EXCLUDE=" $$ "
+TMP="/tmp/$$.psef"
+HDR=1
+
+[[ $1 == "-q" ]] && shift && HDR=
+
+if [[ "$#" -lt "1" ]]
+then
+	echo "Usage: psef <string...>"
+	exit 1
+fi
+
+ps -ef > $TMP
+[[ -n $HDR ]] && head -n 1 < $TMP
+
+for proc in $@
+do
+	grep -i $proc < "$TMP" | grep -v "$EXCLUDE"
+done
+
+SKIP=`grep "$EXCLUDE" < "$TMP" | wc -l`
+rm "$TMP"
+if [[ "$SKIP" -ne "2" ]]
+then
+	echo "Skipped extra processes" >&2
+	exit 2
+fi

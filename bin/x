@@ -1,0 +1,4 @@
+resolution='1366x768'
+#resolution='1301x744'
+#resolution='1366x744'
+source $HOME/bin/xnest_common

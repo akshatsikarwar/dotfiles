@@ -1,0 +1,7 @@
+DB=$1
+shift
+if [[ $DB == "pmux" ]] ; then
+    echo $1 | nc localhost 5105
+else
+    cdb2sql $DB "exec procedure sys.cmd.send('$*')" | sed "s/^(out='//g;s/')$//g"
+fi

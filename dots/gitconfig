@@ -1,0 +1,11 @@
+[pull]
+	rebase = true
+[alias]
+	co = checkout
+	br = branch
+	st = status
+[user]
+	email = akshat.sikarwar@gmail.com
+	name = Akshat Sikarwar
+[push]
+	default = simple

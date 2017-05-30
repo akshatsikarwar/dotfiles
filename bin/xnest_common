@@ -1,0 +1,7 @@
+exec > /dev/null 2>&1
+cd $HOME
+Xnest :1 -sss -geometry $resolution &!
+sleep 0.1
+DISPLAY=:1 xset s off
+DISPLAY=:1 $HOME/bin/dwm &!
+DISPLAY=:1 $HOME/bin/t --separate &!

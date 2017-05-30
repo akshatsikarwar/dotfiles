@@ -1,0 +1,47 @@
+apt update
+apt install -y build-essential bison flex libprotobuf-c-dev libreadline-dev libsqlite3-dev libssl-dev libunwind-dev libz1 libz-dev make gawk protobuf-c-compiler uuid-dev liblz4-tool liblz4-dev libprotobuf-c1 libsqlite3-0 libuuid1 libz1 tzdata ncurses-dev tcl bc
+
+#get pstack to work
+sed -i 's/^kernel.yama.ptrace_scope = 1/kernel.yama.ptrace_scope = 0/' /etc/sysctl.d/10-ptrace.conf
+
+#add hostnames
+function hostadd {
+    grep -qP "^192.*\t${1}$" /etc/hosts && sed -i "s/^192.*\t${1}$/192.168.33.${2}\t${1}/" /etc/hosts || echo -e "192.168.33.${2}\t${1}" >> /etc/hosts
+}
+hostadd thinkpad 1
+hostadd vbox1 11
+hostadd vbox2 12
+hostadd vbox3 13
+
+#add default user
+function sikarwaradd {
+useradd -m -s /bin/bash sikarwar
+
+home="/home/sikarwar"
+
+echo 'PATH=$PATH:$home/comdb2/bin' > $home/x
+echo 'export COMDB2_ROOT=$home/comdb2' >> $home/x
+cat $home/.bashrc >> $home/x
+mv $home/x $home/.bashrc
+
+ln -s /vagrant/src/dotfiles/dots/inputrc $home/.inputrc
+
+mkdir -p $home/bin
+ln -s /vagrant/src/dotfiles/bin/psef $home/bin/
+ln -s /vagrant/src/dotfiles/bin/pstack $home/bin/
+#ln -s /vagrant/src/dotfiles/vagrant/comdb2install $home/bin/
+
+mkdir $home/.ssh
+cp /vagrant/src/keys/id_rsa_${HOSTNAME}* $home/.ssh/
+cat /vagrant/src/keys/id_rsa_vbox*.pub > $home/.ssh/authorized_keys
+cat >$home/.ssh/config <<EOF
+Host thinkpad vbox*
+    IdentityFile ${home}/.ssh/id_rsa_${HOSTNAME}
+    StrictHostKeyChecking no
+EOF
+
+chown -R sikarwar:sikarwar $home
+}
+#id -u sikarwar &>/dev/null || sikarwaradd
+userdel -f -r sikarwar
+sikarwaradd

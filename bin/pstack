@@ -1,0 +1,1 @@
+gdb -q -batch -p $1 -ex 'thread apply all where'

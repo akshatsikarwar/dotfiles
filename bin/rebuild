@@ -1,0 +1,5 @@
+if [[ ! -f common.mk ]] || [[ ! -f main.mk ]] || [[ ! -f libs.mk ]] ; then
+    echo "not a comdb2 dir"
+    exit 1
+fi
+git clean -xdf && ctags --recurse && time make -j

@@ -1,0 +1,3 @@
+DEST=$HOME/src/keys
+mkdir -p $DEST
+for i in $(seq 0 3); do ssh-keygen -C sikarwar@vbox${i} -P "" -f ${DEST}/id_rsa_vbox${i}; done
