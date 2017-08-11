@@ -26,4 +26,9 @@ set ts=4
 set sw=4
 set et
 set cinoptions=:0
-set path+=$HOME/comdb2/include
+set path+=$HOME/.local/comdb2/include
+
+let g:yankring_history_dir=expand('/tmp')
+
+set background=dark
+"colorscheme solarized

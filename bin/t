@@ -1,2 +1,0 @@
-#exec gnome-terminal --display :1 --app-id foo.bar --hide-menubar --window-with-profile noname
-exec konsole --profile noname --hide-tabbar --hide-menubar $@

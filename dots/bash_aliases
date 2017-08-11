@@ -3,14 +3,16 @@ function bashrc_path_add {
     PATH=${PATH/"$1:"/} # delete any instances at the beginning
     PATH="$1:$PATH"
 }
-bashrc_path_add $HOME/percona/bin
-bashrc_path_add $HOME/comdb2/bin
-bashrc_path_add $HOME/bin
 
-export COMDB2_ROOT=$HOME/comdb2
+#bashrc_path_add $HOME/.local/pgsql/bin
+#bashrc_path_add $HOME/.local/percona/bin
+bashrc_path_add $HOME/.local/comdb2/bin
+
+export COMDB2_ROOT=$HOME/.local/comdb2
+export VAGRANT_CWD=$HOME/.local
 
 alias go=". go"
 alias v1="ssh vbox1"
 alias v2="ssh vbox2"
 alias v3="ssh vbox3"
-alias vim="vim -p"
+alias vim="vim -X -p"

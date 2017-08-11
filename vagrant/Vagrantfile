@@ -1,7 +1,11 @@
 $n = 3
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/xenial64"
+# config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "bento/centos-7.2"
   config.vm.box_check_update = false
+  config.vm.synced_folder "/home/sikarwar", "/vagrant",
+    owner: "sikarwar",
+    group: "sikarwar"
   (1..$n).each do |i|
     config.vm.define "vbox#{i}" do |vbox|
       vbox.vm.hostname = "vbox#{i}"

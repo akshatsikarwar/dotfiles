@@ -1,4 +1,0 @@
-exec > /dev/null 2>&1
-resolution='1920x1080'
-#resolution='1855x1056'
-source $HOME/bin/xnest_common
