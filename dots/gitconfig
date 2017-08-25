@@ -4,6 +4,7 @@
 	co = checkout
 	br = branch
 	st = status
+	wt = worktree
 [user]
 	email = akshat.sikarwar@gmail.com
 	name = Akshat Sikarwar

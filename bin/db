@@ -22,7 +22,7 @@ while [[ $# -gt 0 ]] ; do
 	shift
 done
 
-dir=$HOME/work/db/$name
+dir=$HOME/db/comdb2/$name
 lrl=$dir/$name.lrl
 [[ -n $pfx ]] && pfx="$(go -p $pfx)/"
 comdb2="${pfx}comdb2"
@@ -37,8 +37,8 @@ if [[ -n $init ]] ; then
     echo "nowatch" >> $lrl
     echo "cache 256 mb" >> $lrl
     echo "allow_lua_print" >> $lrl
-    #echo "crypto $HOME/work/db/passwd" >> $lrl
-    #echo "enable_sql_stmt_caching all" >> $lrl
+    #echo "crypto $HOME/db/comdb2/passwd" >> $lrl
+    echo "enable_sql_stmt_caching all" >> $lrl
     echo "dtastripe 1" >> $lrl
     #echo "enable_snapshot_isolation" >> $lrl
     #echo "logmsg level debug" >> $lrl
