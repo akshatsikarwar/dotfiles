@@ -1,12 +1,31 @@
-function bashrc_path_add {
-    PATH=${PATH/":$1"/} # delete any instances in the middle or at the end 
-    PATH=${PATH/"$1:"/} # delete any instances at the beginning
-    PATH="$1:$PATH"
+pathremove () {
+    local IFS=':'
+    local NEWPATH
+    local DIR
+    local PATHVARIABLE=${2:-PATH}
+    for DIR in ${!PATHVARIABLE} ; do
+        if [ "$DIR" != "$1" ] ; then
+          NEWPATH=${NEWPATH:+$NEWPATH:}$DIR
+        fi
+    done
+    export $PATHVARIABLE="$NEWPATH"
 }
 
-#bashrc_path_add $HOME/.local/pgsql/bin
-#bashrc_path_add $HOME/.local/percona/bin
-bashrc_path_add $HOME/.local/comdb2/bin
+pathprepend () {
+    pathremove $1 $2
+    local PATHVARIABLE=${2:-PATH}
+    export $PATHVARIABLE="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
+}
+
+pathappend () {
+    pathremove $1 $2
+    local PATHVARIABLE=${2:-PATH}
+    export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
+}
+
+pathappend $HOME/.local/bin
+
+unset pathremove pathprepend pathappend
 
 export COMDB2_ROOT=$HOME/.local/comdb2
 export VAGRANT_CWD=$HOME/.local

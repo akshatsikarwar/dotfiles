@@ -29,6 +29,3 @@ set cinoptions=:0
 set path+=$HOME/.local/comdb2/include
 
 let g:yankring_history_dir=expand('/tmp')
-
-set background=dark
-"colorscheme solarized

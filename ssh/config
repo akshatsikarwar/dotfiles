@@ -1,6 +1,6 @@
 Host github.com
     User git
-    IdentityFile /home/sikarwar/.ssh/id_rsa_github
+    IdentityFile ~/.ssh/id_rsa_github
 Host localhost thinkpad vbox*
-    IdentityFile /home/sikarwar/.ssh/id_rsa_thinkpad
+    IdentityFile ~/.ssh/id_rsa_thinkpad
     StrictHostKeyChecking no
