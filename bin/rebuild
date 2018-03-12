@@ -1,8 +1,0 @@
-if [[ ! -f common.mk ]] || [[ ! -f main.mk ]] || [[ ! -f libs.mk ]] ; then
-    echo "not a comdb2 dir"
-    exit 1
-fi
-
-untracked=$(git ls-files --others --exclude-standard | wc -l)
-[[ $untracked -ne 0 ]] && echo "untracked files present" && exit 1
-git clean -xdf && ctags --recurse && time make -j 12

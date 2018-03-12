@@ -4,21 +4,23 @@ shopt -s nocasematch
 
 SRC="$HOME/src"
 COMDB2="$SRC/comdb2"
+MASTER="$COMDB2/master"
 SCRATCH="$SRC/scratch"
-DEFAULT="$COMDB2"
+DEFAULT="$MASTER"
 DIRS=()
 
 DIRS+=("$COMDB2")
 DIRS+=("$SCRATCH")
 DIRS+=("$SRC")
 DIRS+=("$HOME")
+DIRS+=("/opt/bb/var/cdb2")
 
 #for d in $SRC/* $SCRATCH/*
 #do
 #	[[ -d "$d" ]] && DIRS+=("$d")
 #done
 
-DIRS+=("$COMDB2/tools")
+#DIRS+=("$COMDB2/tools")
 
 function usage()
 {
@@ -94,6 +96,14 @@ else
 	if [[ "$FIRST" == "." ]] || [[ "$FIRST" == "/" ]]
 	then
 		cd $TARGET
+    elif [[ "$TARGET" == "data" ]]
+    then
+        echo /opt/bb/var/cdb2
+        cd /opt/bb/var/cdb2
+    elif [[ "$TARGET" == "bb" ]]
+    then
+        echo /opt/bb
+        cd /opt/bb
 	else
 		find_and_go
 	fi

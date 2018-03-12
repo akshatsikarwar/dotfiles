@@ -2,6 +2,8 @@ ROOT=$PWD
 SAV=$HOME/dotfiles.sav
 mkdir -p $SAV/bin $SAV/ssh $SAV/keys
 
+for d in Documents Downloads; do ln -s $PWD/$d/* $HOME/$d/; done
+
 cd $ROOT/dots
 for f in *; do mv $HOME/.$f $SAV/$f; ln -s $PWD/$f $HOME/.$f; done
 
@@ -9,9 +11,6 @@ cd $ROOT/bin
 X="$HOME/.local"
 mkdir -p $X/bin
 for f in *; do mv $X/bin/$f $SAV/bin/$f; ln -s $PWD/$f $X/bin/$f; done
-
-cd $ROOT/vagrant
-for f in Vagrantfile; do mv $X/$f $SAV/$f; ln -s $PWD/$f $X/$f; done
 
 cd $ROOT/ssh
 mkdir -p $HOME/.ssh && chmod go-rwx $HOME/.ssh

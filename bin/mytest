@@ -1,0 +1,1 @@
+TESTDIRROOT=/opt/bb/var/cdb2 BUILDSFX=ninja make $*

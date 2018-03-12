@@ -1,0 +1,5 @@
+#!/bin/bash
+
+DIR=${1:-/opt/bb}
+sudo mkdir -p ${DIR}
+sudo mount -t tmpfs -o size=1g tmpfs ${DIR}

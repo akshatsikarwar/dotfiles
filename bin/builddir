@@ -1,0 +1,5 @@
+#!/bin/bash
+
+DIR=${1:-ninja}
+mkdir -p ${DIR}
+sudo mount -t tmpfs -o size=256m tmpfs $PWD/${DIR}

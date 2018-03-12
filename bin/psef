@@ -15,9 +15,9 @@ fi
 ps -ef > $TMP
 [[ -n $HDR ]] && head -n 1 < $TMP
 
-for proc in $@
+for proc in "$@"
 do
-	grep -i $proc < "$TMP" | grep -v "$EXCLUDE"
+	grep -i "$proc" < "$TMP" | grep -v "$EXCLUDE"
 done
 
 SKIP=`grep "$EXCLUDE" < "$TMP" | wc -l`

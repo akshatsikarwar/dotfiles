@@ -5,14 +5,14 @@ filetype plugin indent on
 map <space> :tabn<cr>
 map <bs> :tabp<cr>
 map <f2> :!format<cr>
-map <f3> :!format-sqlite<cr>
+map <f3> :!format-berk<cr>
 map <f4> :set ts=8 sw=8 noet<cr>
+map <f5> :set ts=4 sw=4 et<cr>
+"map <f5> :!format-sqlite<cr>
 
 set nobackup
 set nocp
-set cindent
-set smartindent
-set autoindent
+"set cindent
 set bs=indent,eol,start
 set noshowmatch
 set hlsearch
@@ -26,6 +26,13 @@ set ts=4
 set sw=4
 set et
 set cinoptions=:0
-set path+=$HOME/.local/comdb2/include
+"set path+=$HOME/.local/comdb2/include
 
 let g:yankring_history_dir=expand('/tmp')
+
+"set background=dark
+"colo solarized
+"colo molokai
+"colo ron
+
+set wildmenu

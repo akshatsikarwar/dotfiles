@@ -1,0 +1,1 @@
+exec clang-format -style="{BasedOnStyle: llvm, IndentWidth: 8, UseTab: Always, BreakBeforeBraces: Linux, SortIncludes: false, IndentCaseLabels: false, AlwaysBreakTemplateDeclarations: true, AllowShortFunctionsOnASingleLine: true, AllowShortCaseLabelsOnASingleLine: true, AllowShortIfStatementsOnASingleLine: false}" $@

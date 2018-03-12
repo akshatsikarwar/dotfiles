@@ -1,7 +1,6 @@
 #!/bin/bash
 export HOSTNAME=$(hostname)
 name='akdb'
-pfx=$HOME/src/comdb2
 while [[ $# -gt 0 ]] ; do
 	key="$1"
 	case $key in
@@ -21,15 +20,17 @@ while [[ $# -gt 0 ]] ; do
 	esac
 	shift
 done
-
-dir=$HOME/db/comdb2/$name
-lrl=$dir/$name.lrl
-[[ -n $pfx ]] && pfx="$(go -p $pfx)/"
-comdb2="${pfx}comdb2"
+pfx=${pfx:-log-bound}
+pfx="$(go -p $pfx)"
+[[ -d $pfx/ninja ]] && pfx=$pfx/ninja
+[[ -d $pfx/build ]] && pfx=$pfx/build
+comdb2="${pfx}/db/comdb2"
 
 [[ ! -x ${comdb2} ]] && echo 'comdb2 binary?' && exit 1
 
 if [[ -n $init ]] ; then
+    dir=/opt/bb/var/cdb2/$name
+    lrl=$dir/$name.lrl
 	[[ -d $dir ]] && rm -rf $dir
     mkdir -p $dir
     echo "name $name" >> $lrl
@@ -37,25 +38,34 @@ if [[ -n $init ]] ; then
     echo "nowatch" >> $lrl
     echo "cache 256 mb" >> $lrl
     echo "allow_lua_print" >> $lrl
-    #echo "crypto $HOME/db/comdb2/passwd" >> $lrl
-    echo "enable_sql_stmt_caching all" >> $lrl
+    #echo "crypto $HOME/.local/db/comdb2/passwd" >> $lrl
+    #echo "enable_sql_stmt_caching all" >> $lrl
     echo "dtastripe 1" >> $lrl
     #echo "enable_snapshot_isolation" >> $lrl
     #echo "logmsg level debug" >> $lrl
-    $comdb2 $name --dir $dir --lrl $lrl --create
+    #echo "perfect_ckp 0" >> $lrl
+    echo "setattr directio 0" >> $lrl
+
+    if [[ -n $debug ]] ; then
+        echo gdb -q -ex run --arg $comdb2 $name --dir $dir --lrl $lrl --create
+        gdb -q -ex run --arg $comdb2 $name --dir $dir --lrl $lrl --create
+    else
+        echo $comdb2 $name --dir $dir --lrl $lrl --create
+        $comdb2 $name --dir $dir --lrl $lrl --create
+    fi
     [[ $? -ne 0 ]] && figlet bad init && exit 1
 fi
 
 if [[ -n $valgrind ]] ; then
-	echo valgrind $comdb2 $name -lrl $lrl
-	exec valgrind $comdb2 $name -lrl $lrl
+	echo valgrind $comdb2 $name #--lrl $lrl
+	exec valgrind $comdb2 $name #--lrl $lrl
 elif [[ -n $debug ]] ; then
-	echo gdb -q -ex run --arg $comdb2 $name -lrl $lrl
-	exec gdb -q -ex run --arg $comdb2 $name -lrl $lrl
+	echo gdb -q -ex run --arg $comdb2 $name
+	exec gdb -q -ex run --arg $comdb2 $name
 elif [[ -n $start ]] ; then
-	echo gdb -q -ex start --arg $comdb2 $name -lrl $lrl
-	exec gdb -q -ex start --arg $comdb2 $name -lrl $lrl
+	echo gdb -q -ex start --arg $comdb2 $name
+	exec gdb -q -ex start --arg $comdb2 $name
 else
-    echo $comdb2 $name -lrl $lrl 
-	$comdb2 $name --lrl $lrl
+    echo $comdb2 $name #--lrl $lrl 
+	exec $comdb2 $name #--lrl $lrl
 fi

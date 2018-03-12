@@ -23,15 +23,23 @@ pathappend () {
     export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 }
 
-pathappend $HOME/.local/bin
+#pathappend $HOME/.local/bin
+pathappend $HOME/.cargo/bin
+pathappend /opt/bb/bin
+pathappend /opt/mysql/bin
+pathappend /opt/pgsql/bin
 
 unset pathremove pathprepend pathappend
 
-export COMDB2_ROOT=$HOME/.local/comdb2
-export VAGRANT_CWD=$HOME/.local
+export SKIPSSL=1
+
+export PGDATA=/opt/pgsql/data
+export PGDATABASE=postgres
 
 alias go=". go"
-alias v1="ssh vbox1"
-alias v2="ssh vbox2"
-alias v3="ssh vbox3"
-alias vim="vim -X -p"
+alias u1="ssh u1"
+alias u2="ssh u2"
+alias u3="ssh u3"
+alias vim="vim -p -X"
+
+export EDITOR=vim
