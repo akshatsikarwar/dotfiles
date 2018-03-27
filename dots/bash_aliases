@@ -43,3 +43,4 @@ alias u3="ssh u3"
 alias vim="vim -p -X"
 
 export EDITOR=vim
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=1

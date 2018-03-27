@@ -47,8 +47,8 @@ if [[ -n $init ]] ; then
     echo "setattr directio 0" >> $lrl
 
     if [[ -n $debug ]] ; then
-        echo gdb -q -ex run --arg $comdb2 $name --dir $dir --lrl $lrl --create
-        gdb -q -ex run --arg $comdb2 $name --dir $dir --lrl $lrl --create
+        echo gdb -batch -q -ex run --arg $comdb2 $name --dir $dir --lrl $lrl --create
+        gdb -batch -q -ex run --arg $comdb2 $name --dir $dir --lrl $lrl --create
     else
         echo $comdb2 $name --dir $dir --lrl $lrl --create
         $comdb2 $name --dir $dir --lrl $lrl --create
@@ -57,8 +57,8 @@ if [[ -n $init ]] ; then
 fi
 
 if [[ -n $valgrind ]] ; then
-	echo valgrind $comdb2 $name #--lrl $lrl
-	exec valgrind $comdb2 $name #--lrl $lrl
+	echo valgrind --leak-check=full $comdb2 $name #--lrl $lrl
+	exec valgrind --leak-check=full $comdb2 $name #--lrl $lrl
 elif [[ -n $debug ]] ; then
 	echo gdb -q -ex run --arg $comdb2 $name
 	exec gdb -q -ex run --arg $comdb2 $name
