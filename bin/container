@@ -1,72 +1,122 @@
 #!/bin/bash
 
 function usage {
-    echo >&2 "Usage: container <bridge|bootstrap> <start|stop|create|delete> [name]"
+    cat >&2 <<'EOF'
+Usage: container COMMAND [NAME..]
+
+Where COMMAND is one of:
+  bootstrap     Setup template dir with pacstrap
+  bridge        Setup network bridge
+  create <name> Create container in btrfs subvolume
+  delete <name> Delete container and btrfs subvolume
+  list          List running containers
+  root <name>   Get root shell in named container  
+  start <name>  Start named container
+  stop <name>   Stop named container
+  trust <a> <b> Add a, b to each other's authorized keys
+EOF
     exit 1
 }
 
 if [[ $# -eq 1 ]]; then
-   if [[ $1 != "bridge" ]] && [[ $1 != bootstrap ]]; then
+   if [[ $1 != "bridge" ]] && [[ $1 != bootstrap ]] && [[ $1 != list ]]; then
        usage
    fi
-elif [[ $# -ne 2 ]]; then
+elif [[ $# -lt 2 ]]; then
     usage
 fi
 
 CMD=$1
-NAME=$2
+shift
+NAME=$1
+shift
+
 ROOT=$HOME/data
 SRC=$HOME/src/comdb2
+USER=comdb2
+STARTCMD="-q --boot --directory $ROOT/$NAME --network-bridge=br0 --network-veth --machine=$NAME --bind-ro=$SRC"
+CREATECMD="$STARTCMD --template=$ROOT/template"
 
 function start {
-    sudo systemd-nspawn         \
-        -b                      \
-        -D $ROOT/$NAME          \
-        --network-bridge=br0    \
-        --network-veth          \
-        --machine=$NAME         \
-        --bind-ro=$SRC
-    exit
+    sudo systemd-nspawn $STARTCMD >/dev/null 2>&1 &
+}
+
+function root {
+    sudo machinectl -q shell $NAME
+}
+
+function list {
+    sudo machinectl list
 }
 
 function stop {
-    sudo machinectl poweroff $NAME
-    exit
+    sudo machinectl -q poweroff $NAME
+}
+
+function setup {
+    HOST_PUBLIC_KEY=$(<$HOME/.ssh/id_rsa_thinkpad.pub)
+    read -d '' STRICT_CHECK <<EOF
+Host *
+    StrictHostKeyChecking no
+EOF
+    sudo systemd-run --pipe --machine=$NAME /bin/bash > /dev/null <<EOF
+/usr/bin/systemctl enable systemd-networkd
+/usr/bin/systemctl enable systemd-resolved
+/usr/bin/systemctl enable sshd.socket
+/usr/bin/hostnamectl set-hostname $NAME
+/usr/bin/useradd $USER --create-home --user-group
+/usr/bin/su -c 'ssh-keygen -q -f /home/$USER/.ssh/id_rsa -N ""' $USER
+/usr/bin/su -c 'echo "$HOST_PUBLIC_KEY" > /home/$USER/.ssh/authorized_keys' $USER
+/usr/bin/su -c 'echo "$STRICT_CHECK" > /home/$USER/.ssh/config' $USER
+EOF
 }
 
 function create {
-    sudo systemd-nspawn         \
-        -b                      \
-        -D $ROOT/$NAME          \
-        --network-bridge=br0    \
-        --network-veth          \
-        --machine=$NAME         \
-        --bind-ro=$SRC          \
-        --template=$ROOT/template
-    exit
+    tmux split-window sudo systemd-nspawn $CREATECMD
+    echo -n "Press a key to run setup"
+    read
+    setup
+    stop
+    sleep 2
+    start
+    sleep 3
+    list | grep $NAME
 }
 
 function delete {
     sudo btrfs subvolume delete $ROOT/$NAME
-    exit
 }
 
 function bridge {
     sudo brctl addbr br0
-    exit
+    sudo ip link set up br0
 }
 
 function bootstrap {
     sudo pacstrap -i -c $ROOT/template base protobuf-c openssh
-    exit
 }
 
-case "$1" in
-    start) start ;;
-    stop) stop ;;
-    create) create ;;
-    delete) delete ;;
-    bridge) bridge ;;
-    bootstrap) bootstrap ;;
-    *) ;;
+function make_trust {
+    ssh $1 cat .ssh/id_rsa.pub | ssh $2 tee --append .ssh/authorized_keys > /dev/null
+}
+
+function trust {
+    for M in $*; do
+        [[ $M == $NAME ]] && continue
+        make_trust $NAME $M
+    done
+}
+
+case $CMD in
+    bootstrap) bootstrap ; exit ;;
+    bridge) bridge ; exit ;;
+    create) create ; exit ;;
+    delete) delete ; exit ;;
+    list) list ; exit ;;
+    root) root ; exit ;;
+    setup) setup ; exit ;;
+    start) start ; exit ;;
+    stop) stop ; exit ;;
+    trust) trust $* ; exit ;;
+    *) usage ;;
 esac
