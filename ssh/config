@@ -1,8 +1,9 @@
 Host github.com
     User git
     IdentityFile ~/.ssh/id_rsa_github
-Host u1 u2 u3
+Host comdb2*
     IdentityFile ~/.ssh/id_rsa_thinkpad
+    StrictHostKeyChecking no
     User comdb2
 Host mac
     IdentityFile ~/.ssh/id_rsa_thinkpad

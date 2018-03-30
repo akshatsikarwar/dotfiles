@@ -21,7 +21,7 @@ while [[ $# -gt 0 ]] ; do
 	shift
 done
 pfx=${pfx:-log-bound}
-pfx="$(go -p $pfx)"
+pfx="$(go.sh -p $pfx)"
 [[ -d $pfx/ninja ]] && pfx=$pfx/ninja
 [[ -d $pfx/build ]] && pfx=$pfx/build
 comdb2="${pfx}/db/comdb2"

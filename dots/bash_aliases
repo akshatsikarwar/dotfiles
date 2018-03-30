@@ -41,6 +41,8 @@ alias u1="ssh u1"
 alias u2="ssh u2"
 alias u3="ssh u3"
 alias vim="vim -p -X"
+alias builddir="DIR=ninja MEM=256 tmpdir"
+alias dbdir="DIR=/opt/bb/bin MEM=1024 tmpdir"
 
 export EDITOR=vim
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1

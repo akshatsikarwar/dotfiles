@@ -1,3 +1,15 @@
+export EDITOR=vim
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+export PATH=$HOME/.local/bin:/opt/bb/bin:/opt/mysql/bin:/opt/pgsql/bin:$PATH
+export PGDATA=/opt/pgsql/data
+export PGDATABASE=postgres
+export SKIPSSL=1
+
+alias builddir="DIR=ninja MEM=256 tmpdir"
+alias cont=container
+alias dbdir="DIR=/opt/bb/bin MEM=1024 tmpdir"
+alias go=". go"
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -8,6 +20,7 @@ export ZSH=$HOME/src/dotfiles/oh-my-zsh
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="agnoster"
+export DEFAULT_USER=sikarwar
 
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
@@ -93,11 +106,4 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-export PATH=$HOME/.local/bin:/opt/bb/bin:/opt/mysql/bin:/opt/pgsql/bin:$PATH
-export SKIPSSL=1
-export PGDATA=/opt/pgsql/data
-export PGDATABASE=postgres
-export EDITOR=vim
-export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-alias go=". go"
 bindkey -v
