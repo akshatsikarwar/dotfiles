@@ -1,0 +1,72 @@
+#!/bin/bash
+
+function usage {
+    echo >&2 "Usage: container <bridge|bootstrap> <start|stop|create|delete> [name]"
+    exit 1
+}
+
+if [[ $# -eq 1 ]]; then
+   if [[ $1 != "bridge" ]] && [[ $1 != bootstrap ]]; then
+       usage
+   fi
+elif [[ $# -ne 2 ]]; then
+    usage
+fi
+
+CMD=$1
+NAME=$2
+ROOT=$HOME/data
+SRC=$HOME/src/comdb2
+
+function start {
+    sudo systemd-nspawn         \
+        -b                      \
+        -D $ROOT/$NAME          \
+        --network-bridge=br0    \
+        --network-veth          \
+        --machine=$NAME         \
+        --bind-ro=$SRC
+    exit
+}
+
+function stop {
+    sudo machinectl poweroff $NAME
+    exit
+}
+
+function create {
+    sudo systemd-nspawn         \
+        -b                      \
+        -D $ROOT/$NAME          \
+        --network-bridge=br0    \
+        --network-veth          \
+        --machine=$NAME         \
+        --bind-ro=$SRC          \
+        --template=$ROOT/template
+    exit
+}
+
+function delete {
+    sudo btrfs subvolume delete $ROOT/$NAME
+    exit
+}
+
+function bridge {
+    sudo brctl addbr br0
+    exit
+}
+
+function bootstrap {
+    sudo pacstrap -i -c $ROOT/template base protobuf-c openssh
+    exit
+}
+
+case "$1" in
+    start) start ;;
+    stop) stop ;;
+    create) create ;;
+    delete) delete ;;
+    bridge) bridge ;;
+    bootstrap) bootstrap ;;
+    *) ;;
+esac
