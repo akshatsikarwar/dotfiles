@@ -1,44 +1,38 @@
 #!/bin/bash
 
 function usage {
-    cat >&2 <<'EOF'
+cat >&2 <<'EOF'
 Usage: container COMMAND [NAME..]
 
 Where COMMAND is one of:
   bootstrap     Setup template dir with pacstrap
-  bridge        Setup network bridge
   create <name> Create container in btrfs subvolume
   delete <name> Delete container and btrfs subvolume
   list          List running containers
-  root <name>   Get root shell in named container  
+  root <name>   Get root shell in named container
   start <name>  Start named container
   stop <name>   Stop named container
-  trust <a> <b> Add a, b to each other's authorized keys
+  trust <name> <other..> Add name to other machines' authorized_keys
 EOF
-    exit 1
+exit 1
 }
 
-if [[ $# -eq 1 ]]; then
-   if [[ $1 != "bridge" ]] && [[ $1 != bootstrap ]] && [[ $1 != list ]]; then
-       usage
-   fi
-elif [[ $# -lt 2 ]]; then
-    usage
-fi
-
 CMD=$1
+[[ -z $CMD ]] && usage
 shift
+
 NAME=$1
+[[ -z $NAME ]] && [[ $CMD != bootstrap ]] && [[ $CMD != list ]] && usage
 shift
 
 ROOT=$HOME/data
 SRC=$HOME/src/comdb2
 USER=comdb2
-STARTCMD="-q --boot --directory $ROOT/$NAME --network-bridge=br0 --network-veth --machine=$NAME --bind-ro=$SRC"
+STARTCMD="-q --boot --directory $ROOT/$NAME --network-bridge=br0"
 CREATECMD="$STARTCMD --template=$ROOT/template"
 
 function start {
-    sudo systemd-nspawn $STARTCMD >/dev/null 2>&1 &
+    sudo systemd-nspawn $STARTCMD --bind=$SRC:/home/$USER/comdb2 >/dev/null 2>&1 &
 }
 
 function root {
@@ -54,33 +48,68 @@ function stop {
 }
 
 function setup {
-    HOST_PUBLIC_KEY=$(<$HOME/.ssh/id_rsa_thinkpad.pub)
-    read -d '' STRICT_CHECK <<EOF
-Host *
+HOST_PUBLIC_KEY=$(<$HOME/.ssh/id_rsa_thinkpad.pub)
+
+read -d '' BASHRC <<'EOF'
+PATH=/opt/bb/bin:\\\$PATH
+alias installcomdb2=\\\"tar -C /opt/bb --strip-components=3 -x -f comdb2.tar.gz\\\"
+EOF
+
+read -d '' STRICT_CHECK <<'EOF'
+Host \*
     StrictHostKeyChecking no
 EOF
-    sudo systemd-run --pipe --machine=$NAME /bin/bash > /dev/null <<EOF
+
+read -d '' INPUTRC <<'EOF'
+set editing-mode vi
+
+set keymap vi-command
+Control-l: clear-screen
+
+set keymap vi-insert
+Control-l: clear-screen
+EOF
+
+read -d '' GDBINIT <<'EOF'
+set print thread-events off
+set height 0
+set print pretty on
+set confirm off
+
+define whereall
+thread apply all where
+end
+
+document whereall
+Alias for \\\"thread apply all where\\\"
+end
+EOF
+
+sudo systemd-run --pipe --machine=$NAME /bin/bash > /dev/null <<EOF
 /usr/bin/systemctl enable systemd-networkd
 /usr/bin/systemctl enable systemd-resolved
 /usr/bin/systemctl enable sshd.socket
 /usr/bin/hostnamectl set-hostname $NAME
 /usr/bin/useradd $USER --create-home --user-group
+/usr/bin/mkdir -p /opt/bb
+/usr/bin/chown $USER:$USER /opt/bb
 /usr/bin/su -c 'ssh-keygen -q -f /home/$USER/.ssh/id_rsa -N ""' $USER
 /usr/bin/su -c 'echo "$HOST_PUBLIC_KEY" > /home/$USER/.ssh/authorized_keys' $USER
 /usr/bin/su -c 'echo "$STRICT_CHECK" > /home/$USER/.ssh/config' $USER
+/usr/bin/su -c 'echo "$BASHRC" >> /home/$USER/.bashrc' $USER
+/usr/bin/su -c 'echo "$INPUTRC" >> /home/$USER/.inputrc' $USER
+/usr/bin/su -c 'echo "$GDBINIT" >> /home/$USER/.gdbinit' $USER
 EOF
 }
 
 function create {
-    tmux split-window sudo systemd-nspawn $CREATECMD
+    tmux split-window -p 50 -h sudo systemd-nspawn $CREATECMD
+    tmux select-pane -t 0
     echo -n "Press a key to run setup"
     read
     setup
     stop
-    sleep 2
-    start
-    sleep 3
-    list | grep $NAME
+    sleep 1
 }
 
 function delete {
@@ -88,12 +117,16 @@ function delete {
 }
 
 function bridge {
-    sudo brctl addbr br0
-    sudo ip link set up br0
+    if ! brctl show br0 > /dev/null 2>&1; then
+        sudo brctl addbr br0
+    fi
+    if ! ip link show br0 | grep UP > /dev/null ; then
+        sudo ip link set up br0
+    fi
 }
 
 function bootstrap {
-    sudo pacstrap -i -c $ROOT/template base protobuf-c openssh
+    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c
 }
 
 function make_trust {
@@ -109,13 +142,11 @@ function trust {
 
 case $CMD in
     bootstrap) bootstrap ; exit ;;
-    bridge) bridge ; exit ;;
-    create) create ; exit ;;
+    create) bridge; create ; exit ;;
     delete) delete ; exit ;;
     list) list ; exit ;;
     root) root ; exit ;;
-    setup) setup ; exit ;;
-    start) start ; exit ;;
+    start) bridge; start ; exit ;;
     stop) stop ; exit ;;
     trust) trust $* ; exit ;;
     *) usage ;;
