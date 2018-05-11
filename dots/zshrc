@@ -5,11 +5,6 @@ export PGDATA=/opt/pgsql/data
 export PGDATABASE=postgres
 export SKIPSSL=1
 
-alias builddir="DIR=ninja MEM=256 tmpdir"
-alias cont=container
-alias dbdir="DIR=/opt/bb/bin MEM=1024 tmpdir"
-alias go=". go"
-
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -20,6 +15,7 @@ export ZSH=$HOME/src/dotfiles/oh-my-zsh
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="agnoster"
+
 export DEFAULT_USER=sikarwar
 
 # Set list of themes to load
@@ -105,5 +101,13 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+alias builddir="DIR=ninja MEM=256 tmpdir"
+alias dbdir="DIR=/opt/bb MEM=1024 tmpdir"
+alias cont=container
+alias go=". go"
+alias gg="git grep"
+alias vit="vim -t"
+alias akdb="vim /opt/bb/var/cdb2/akdb/akdb.lrl"
 
 bindkey -v

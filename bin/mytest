@@ -1,1 +1,3 @@
-TESTDIRPFX=/opt/bb/var/cdb2 BUILDSFX=ninja make $*
+testname=$1
+[[ -z $testname ]] && echo "defaulting to sp" && testname="sp"
+TESTDIRPFX=/opt/bb/var/cdb2 BUILDSFX=ninja make $testname

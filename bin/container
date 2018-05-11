@@ -1,10 +1,16 @@
 #!/bin/bash
 
-function usage {
-cat >&2 <<'EOF'
-Usage: container COMMAND [NAME..]
+ROOT=$HOME/containers
+SRC=$HOME/src/comdb2
 
-Where COMMAND is one of:
+function usage {
+cat >&2 <<EOF
+Usage: container [OPTION] COMMAND [NAME..]
+
+OPTION:
+  --all         Apply start/stop/delete/trust to all containers under $ROOT
+
+COMMAND:
   bootstrap     Setup template dir with pacstrap
   create <name> Create container in btrfs subvolume
   delete <name> Delete container and btrfs subvolume
@@ -12,27 +18,40 @@ Where COMMAND is one of:
   root <name>   Get root shell in named container
   start <name>  Start named container
   stop <name>   Stop named container
-  trust <name> <other..> Add name to other machines' authorized_keys
+  trust <name> <other..>    Add name to others' authorized_keys
 EOF
 exit 1
 }
+
+[[ $1 == "--all" ]] && all=1 && shift
 
 CMD=$1
 [[ -z $CMD ]] && usage
 shift
 
-NAME=$1
+if [[ -z $all ]]; then
+    NAME=( $* )
+else
+    NAME=()
+    allnames=( $(find $ROOT -type d -maxdepth 1 2>/dev/null) )
+    for name in ${allnames[@]}; do
+        [[ $name == $ROOT ]] && continue
+        [[ $(basename $name) == "template" ]] && continue
+        NAME+=($(basename $name))
+    done
+fi
+
 [[ -z $NAME ]] && [[ $CMD != bootstrap ]] && [[ $CMD != list ]] && usage
 shift
 
-ROOT=$HOME/data
-SRC=$HOME/src/comdb2
 USER=comdb2
-STARTCMD="-q --boot --directory $ROOT/$NAME --network-bridge=br0"
+STARTCMD="-q --boot --network-bridge=br0"
 CREATECMD="$STARTCMD --template=$ROOT/template"
 
 function start {
-    sudo systemd-nspawn $STARTCMD --bind=$SRC:/home/$USER/comdb2 >/dev/null 2>&1 &
+    for name in ${NAME[@]}; do
+        sudo systemd-nspawn $STARTCMD --bind=$SRC:/home/$USER/comdb2 --directory $ROOT/$name >/dev/null 2>&1 &
+    done
 }
 
 function root {
@@ -44,10 +63,13 @@ function list {
 }
 
 function stop {
-    sudo machinectl -q poweroff $NAME
+    for name in ${NAME[@]}; do
+        sudo machinectl -q poweroff $name
+    done
 }
 
 function setup {
+name=$1
 HOST_PUBLIC_KEY=$(<$HOME/.ssh/id_rsa_thinkpad.pub)
 
 read -d '' BASHRC <<'EOF'
@@ -85,11 +107,11 @@ Alias for \\\"thread apply all where\\\"
 end
 EOF
 
-sudo systemd-run --pipe --machine=$NAME /bin/bash > /dev/null <<EOF
+sudo systemd-run --pipe --machine=$name /bin/bash > /dev/null <<EOF
 /usr/bin/systemctl enable systemd-networkd
 /usr/bin/systemctl enable systemd-resolved
 /usr/bin/systemctl enable sshd.socket
-/usr/bin/hostnamectl set-hostname $NAME
+/usr/bin/hostnamectl set-hostname $name
 /usr/bin/useradd $USER --create-home --user-group
 /usr/bin/mkdir -p /opt/bb
 /usr/bin/chown $USER:$USER /opt/bb
@@ -103,17 +125,21 @@ EOF
 }
 
 function create {
-    tmux split-window -p 50 -h sudo systemd-nspawn $CREATECMD
-    tmux select-pane -t 0
-    echo -n "Press a key to run setup"
-    read
-    setup
-    stop
-    sleep 1
+    for name in ${NAME[@]}; do
+        tmux split-window -p 50 -h sudo systemd-nspawn $CREATECMD --directory $ROOT/$name
+        tmux select-pane -t 0
+        echo -n "Press a key to run setup"
+        read
+        setup $name
+        sudo machinectl -q poweroff $name
+        sleep 1
+    done
 }
 
 function delete {
-    sudo btrfs subvolume delete $ROOT/$NAME
+    for name in ${NAME[@]}; do
+        sudo btrfs subvolume delete $ROOT/$name
+    done
 }
 
 function bridge {
@@ -126,7 +152,7 @@ function bridge {
 }
 
 function bootstrap {
-    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c
+    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim
 }
 
 function make_trust {
@@ -134,10 +160,19 @@ function make_trust {
 }
 
 function trust {
-    for M in $*; do
-        [[ $M == $NAME ]] && continue
-        make_trust $NAME $M
-    done
+    if [[ -z $all ]]; then
+        for M in $*; do
+            [[ $M == $NAME ]] && continue
+            make_trust $NAME $M
+        done
+    else
+        for name in ${NAME[@]}; do
+            for M in ${NAME[@]}; do
+                [[ $M == $name ]] && continue
+                make_trust $name $M
+            done
+        done
+    fi
 }
 
 case $CMD in

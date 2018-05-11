@@ -7,6 +7,14 @@ define whereall
 thread apply all where
 end
 
+define wa
+thread apply all where
+end
+
 document whereall
+Alias for 'thread apply all where'
+end
+
+document wa
 Alias for 'thread apply all where'
 end
