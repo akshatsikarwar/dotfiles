@@ -30,28 +30,25 @@ comdb2="${pfx}/db/comdb2"
 
 if [[ -n $init ]] ; then
     dir=/opt/bb/var/cdb2/$name
-    lrl=$dir/$name.lrl
 	[[ -d $dir ]] && rm -rf $dir
     mkdir -p $dir
-    echo "name $name" >> $lrl
-    echo "dir $dir" >> $lrl
-    echo "nowatch" >> $lrl
-    echo "cache 256 mb" >> $lrl
-    echo "allow_lua_print" >> $lrl
-    #echo "crypto $HOME/.local/db/comdb2/passwd" >> $lrl
-    #echo "enable_sql_stmt_caching all" >> $lrl
-    echo "dtastripe 1" >> $lrl
-    #echo "enable_snapshot_isolation" >> $lrl
-    #echo "logmsg level debug" >> $lrl
-    #echo "perfect_ckp 0" >> $lrl
-    echo "setattr directio 0" >> $lrl
+    tunables=()
+    tunables+=(--tunable "allow_lua_print")
+    tunables+=(--tunable "dtastripe 1")
+    tunables+=(--tunable "nowatch")
+    tunables+=(--tunable "setattr directio 0")
+
+    #tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
+    #tunables+=(--tunable "enable_snapshot_isolation")
+    #tunables+=(--tunable "enable_sql_stmt_caching all")
+    #tunables+=(--tunable "logmsg level debug")
+    #tunables+=(--tunable "perfect_ckp 0")
 
     if [[ -n $debug ]] ; then
-        echo gdb -batch -q -ex run --arg $comdb2 $name --dir $dir --lrl $lrl --create
-        gdb -batch -q -ex run --arg $comdb2 $name --dir $dir --lrl $lrl --create
+        gdb -batch -q -ex run --arg $comdb2 "${tunables[@]}" --create $name
     else
-        echo $comdb2 $name --dir $dir --lrl $lrl --create
-        $comdb2 $name --dir $dir --lrl $lrl --create
+        echo $comdb2 "${tunables[@]}" --create $name
+        $comdb2 "${tunables[@]}" --create $name
     fi
     [[ $? -ne 0 ]] && figlet bad init && exit 1
 fi
@@ -66,6 +63,6 @@ elif [[ -n $start ]] ; then
 	echo gdb -q -ex start --arg $comdb2 $name
 	exec gdb -q -ex start --arg $comdb2 $name
 else
-    echo $comdb2 $name #--lrl $lrl 
-	exec $comdb2 $name #--lrl $lrl
+    echo $comdb2 $name
+    exec $comdb2 $name
 fi

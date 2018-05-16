@@ -3,7 +3,6 @@ export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 export PATH=$HOME/.local/bin:/opt/bb/bin:/opt/mysql/bin:/opt/pgsql/bin:$PATH
 export PGDATA=/opt/pgsql/data
 export PGDATABASE=postgres
-export SKIPSSL=1
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -102,12 +101,12 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias builddir="DIR=ninja MEM=256 tmpdir"
+alias builddir="DIR=ninja MEM=512 tmpdir"
 alias dbdir="DIR=/opt/bb MEM=1024 tmpdir"
-alias cont=container
 alias go=". go"
 alias gg="git grep"
 alias vit="vim -t"
 alias akdb="vim /opt/bb/var/cdb2/akdb/akdb.lrl"
 
 bindkey -v
+bindkey -v '^?' backward-delete-char
