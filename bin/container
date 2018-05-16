@@ -4,11 +4,12 @@ ROOT=$HOME/containers
 SRC=$HOME/src/comdb2
 
 function usage {
-cat >&2 <<EOF
+cat <<EOF
 Usage: container [OPTION] COMMAND [NAME..]
 
 OPTION:
-  --all         Apply start/stop/delete/trust to all containers under $ROOT
+  --all         start/stop/delete/trust all containers at:'$ROOT'
+  --help        Display this help and exit
 
 COMMAND:
   bootstrap     Setup template dir with pacstrap
@@ -20,13 +21,12 @@ COMMAND:
   stop <name>   Stop named container
   trust <name> <other..>    Add name to others' authorized_keys
 EOF
+[[ $CMD == "help" ]] && exit 0
 exit 1
 }
 
-[[ $1 == "--all" ]] && all=1 && shift
-
+[[ "$1" == "--all" ]] && all=1 && shift
 CMD=$1
-[[ -z $CMD ]] && usage
 shift
 
 if [[ -z $all ]]; then
@@ -45,12 +45,16 @@ fi
 shift
 
 USER=comdb2
-STARTCMD="-q --boot --network-bridge=br0"
-CREATECMD="$STARTCMD --template=$ROOT/template"
 
 function start {
     for name in ${NAME[@]}; do
-        sudo systemd-nspawn $STARTCMD --bind=$SRC:/home/$USER/comdb2 --directory $ROOT/$name >/dev/null 2>&1 &
+        sudo systemd-nspawn                 \
+            -q                              \
+            --boot                          \
+            --network-bridge=br0            \
+            --bind=$SRC:/home/$USER/comdb2  \
+            --tmpfs=/opt/bb:uid=1000        \
+            --directory $ROOT/$name > /dev/null 2>&1 &
     done
 }
 
@@ -59,7 +63,15 @@ function root {
 }
 
 function list {
-    sudo machinectl list
+    echo "MACHINES ON DISK:"
+    allnames=( $(find $ROOT -type d -maxdepth 1 2>/dev/null) )
+    for name in ${allnames[@]}; do
+        [[ $name == $ROOT ]] && continue
+        [[ $(basename $name) == "template" ]] && continue
+        echo $name
+    done
+    echo -e "\nMACHINES RUNNING:"
+    sudo machinectl --no-legend list
 }
 
 function stop {
@@ -126,7 +138,13 @@ EOF
 
 function create {
     for name in ${NAME[@]}; do
-        tmux split-window -p 50 -h sudo systemd-nspawn $CREATECMD --directory $ROOT/$name
+        tmux split-window -p 50 -h          \
+            sudo systemd-nspawn             \
+            -q                              \
+            --boot                          \
+            --network-bridge=br0            \
+            --template=$ROOT/template       \
+            --directory $ROOT/$name
         tmux select-pane -t 0
         echo -n "Press a key to run setup"
         read
@@ -147,12 +165,12 @@ function bridge {
         sudo brctl addbr br0
     fi
     if ! ip link show br0 | grep UP > /dev/null ; then
-        sudo ip link set up br0
+        sudo ip link set dev br0 up
     fi
 }
 
 function bootstrap {
-    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim
+    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim ninja cmake
 }
 
 function make_trust {
@@ -177,12 +195,13 @@ function trust {
 
 case $CMD in
     bootstrap) bootstrap ; exit ;;
-    create) bridge; create ; exit ;;
+    create) bridge ; create ; exit ;;
     delete) delete ; exit ;;
     list) list ; exit ;;
     root) root ; exit ;;
-    start) bridge; start ; exit ;;
+    start) bridge ; start ; exit ;;
     stop) stop ; exit ;;
     trust) trust $* ; exit ;;
-    *) usage ;;
+    --help) usage ; exit ;;
+    *) echo -e "container: invalid option -- '$CMD'\nTry 'container --help' for more information." >&2
 esac
