@@ -20,11 +20,15 @@ while [[ $# -gt 0 ]] ; do
 	esac
 	shift
 done
-pfx=${pfx:-log-bound}
-pfx="$(go.sh -p $pfx)"
-[[ -d $pfx/ninja ]] && pfx=$pfx/ninja
-[[ -d $pfx/build ]] && pfx=$pfx/build
-comdb2="${pfx}/db/comdb2"
+pfx=${pfx:-refactor}
+if [[ $pfx == "bb" ]]; then
+    comdb2="/opt/bb/bin/comdb2"
+else
+    pfx="$(go.sh -p $pfx)"
+    [[ -d $pfx/ninja ]] && pfx=$pfx/ninja
+    [[ -d $pfx/build ]] && pfx=$pfx/build
+    comdb2="${pfx}/db/comdb2"
+fi
 
 [[ ! -x ${comdb2} ]] && echo 'comdb2 binary?' && exit 1
 
