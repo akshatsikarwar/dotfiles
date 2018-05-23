@@ -2,6 +2,7 @@
 
 ROOT=$HOME/containers
 SRC=$HOME/src/comdb2
+USER=comdb2
 
 function usage {
 cat <<EOF
@@ -24,27 +25,6 @@ EOF
 [[ $CMD == "help" ]] && exit 0
 exit 1
 }
-
-[[ "$1" == "--all" ]] && all=1 && shift
-CMD=$1
-shift
-
-if [[ -z $all ]]; then
-    NAME=( $* )
-else
-    NAME=()
-    allnames=( $(find $ROOT -type d -maxdepth 1 2>/dev/null) )
-    for name in ${allnames[@]}; do
-        [[ $name == $ROOT ]] && continue
-        [[ $(basename $name) == "template" ]] && continue
-        NAME+=($(basename $name))
-    done
-fi
-
-[[ -z $NAME ]] && [[ $CMD != bootstrap ]] && [[ $CMD != list ]] && usage
-shift
-
-USER=comdb2
 
 function start {
     for name in ${NAME[@]}; do
@@ -170,7 +150,7 @@ function bridge {
 }
 
 function bootstrap {
-    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim ninja cmake
+    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim valgrind
 }
 
 function make_trust {
@@ -179,19 +159,37 @@ function make_trust {
 
 function trust {
     if [[ -z $all ]]; then
-        for M in $*; do
-            [[ $M == $NAME ]] && continue
-            make_trust $NAME $M
+        M=${NAME[0]}
+        NAME=(${NAME[@]/$M})
+        for name in ${NAME[@]}; do
+            [[ $M == $name ]] && continue
+            make_trust $M $name
         done
     else
-        for name in ${NAME[@]}; do
-            for M in ${NAME[@]}; do
+        for M in ${NAME[@]}; do
+            for name in ${NAME[@]}; do
                 [[ $M == $name ]] && continue
-                make_trust $name $M
+                make_trust $M $name
             done
         done
     fi
 }
+
+[[ "$1" == "--all" ]] && all=1 && shift
+CMD=$1
+shift
+
+if [[ -z $all ]]; then
+    NAME=( $* )
+else
+    NAME=()
+    allnames=( $(find $ROOT -type d -maxdepth 1 2>/dev/null) )
+    for name in ${allnames[@]}; do
+        [[ $name == $ROOT ]] && continue
+        [[ $(basename $name) == "template" ]] && continue
+        NAME+=($(basename $name))
+    done
+fi
 
 case $CMD in
     bootstrap) bootstrap ; exit ;;
@@ -201,7 +199,7 @@ case $CMD in
     root) root ; exit ;;
     start) bridge ; start ; exit ;;
     stop) stop ; exit ;;
-    trust) trust $* ; exit ;;
+    trust) trust ; exit ;;
     --help) usage ; exit ;;
     *) echo -e "container: invalid option -- '$CMD'\nTry 'container --help' for more information." >&2
 esac
