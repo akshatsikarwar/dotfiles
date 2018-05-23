@@ -23,26 +23,27 @@ pathappend () {
     export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 }
 
-#pathappend $HOME/.local/bin
-pathappend $HOME/.cargo/bin
+pathappend $HOME/.local/bin
+#pathappend $HOME/.cargo/bin
 pathappend /opt/bb/bin
-pathappend /opt/mysql/bin
-pathappend /opt/pgsql/bin
+#pathappend /opt/mysql/bin
+#pathappend /opt/pgsql/bin
 
 unset pathremove pathprepend pathappend
 
-export SKIPSSL=1
+export EDITOR=vim
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
+export PGHOST=/opt/pgsql/data/
 export PGDATA=/opt/pgsql/data
 export PGDATABASE=postgres
 
-alias go=". go"
+alias builddir="DIR=ninja MEM=256 tmpdir"
+alias dbdir="DIR=/opt/bb/bin MEM=1024 tmpdir"
+alias go=". go.sh"
 alias u1="ssh u1"
 alias u2="ssh u2"
 alias u3="ssh u3"
 alias vim="vim -p -X"
-alias builddir="DIR=ninja MEM=256 tmpdir"
-alias dbdir="DIR=/opt/bb/bin MEM=1024 tmpdir"
-
-export EDITOR=vim
-export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+alias vit="vim -t"
+alias vi="vim"

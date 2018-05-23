@@ -105,7 +105,9 @@ alias builddir="DIR=ninja MEM=512 tmpdir"
 alias dbdir="DIR=/opt/bb MEM=1024 tmpdir"
 alias go=". go"
 alias gg="git grep"
+alias vim="vim -p -X"
 alias vit="vim -t"
+alias vi="vim"
 alias akdb="vim /opt/bb/var/cdb2/akdb/akdb.lrl"
 
 bindkey -v
