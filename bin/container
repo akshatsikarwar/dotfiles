@@ -44,7 +44,7 @@ function root {
 
 function list {
     echo "MACHINES ON DISK:"
-    allnames=( $(find $ROOT -type d -maxdepth 1 2>/dev/null) )
+    allnames=( $(find $ROOT -mindepth 1 -maxdepth 1 -type d -not -name 'template*') )
     for name in ${allnames[@]}; do
         [[ $name == $ROOT ]] && continue
         [[ $(basename $name) == "template" ]] && continue
@@ -104,7 +104,7 @@ sudo systemd-run --pipe --machine=$name /bin/bash > /dev/null <<EOF
 /usr/bin/systemctl enable systemd-resolved
 /usr/bin/systemctl enable sshd.socket
 /usr/bin/hostnamectl set-hostname $name
-/usr/bin/useradd $USER --create-home --user-group
+/usr/sbin/adduser $USER --create-home --user-group
 /usr/bin/mkdir -p /opt/bb
 /usr/bin/chown $USER:$USER /opt/bb
 /usr/bin/su -c 'ssh-keygen -q -f /home/$USER/.ssh/id_rsa -N ""' $USER
@@ -150,7 +150,20 @@ function bridge {
 }
 
 function bootstrap {
-    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim valgrind
+    #cat /etc/yum/repos.d/fedora.repo
+    #[fedora]
+    #name=fedora
+    #baseurl=http://mirrors.aliyun.com/fedora/releases/28/Server/x86_64/os/
+    #baseurl=http://archive.fedoraproject.org/pub/fedora/linux/releases/28/Server/x86_64/os/
+    #enabled=1
+
+    #sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim valgrind
+    #sudo dnf --releasever=28 --installroot=$ROOT/template --nogpgcheck groupinstall "Minimal Install"
+    #sudo dnf --releasever=28 --installroot=$ROOT/template --nogpgcheck install systemd passwd dnf fedora-release
+    sudo dnf -y --releasever=28 --nogpgcheck --installroot=$ROOT/template   \
+        --disablerepo='*' --enablerepo=fedora --enablerepo=updates          \
+        install systemd passwd dnf fedora-release vim-minimal openssh-server openssh-clients \
+        openssl-libs protobuf-c libunwind
 }
 
 function make_trust {
@@ -183,10 +196,8 @@ if [[ -z $all ]]; then
     NAME=( $* )
 else
     NAME=()
-    allnames=( $(find $ROOT -type d -maxdepth 1 2>/dev/null) )
+    allnames=( $(find $ROOT -mindepth 1 -maxdepth 1 -type d -not -name 'template*') )
     for name in ${allnames[@]}; do
-        [[ $name == $ROOT ]] && continue
-        [[ $(basename $name) == "template" ]] && continue
         NAME+=($(basename $name))
     done
 fi
