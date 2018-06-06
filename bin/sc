@@ -1,0 +1,19 @@
+#!/bin/bash
+
+db="$1"
+shift
+
+cmd="$1"
+shift
+
+tbl="$1"
+shift
+
+arg="$@"
+
+case $cmd in
+add) cdb2sql $db "create table $tbl {$(<$arg)}" ;;
+drop) cdb2sql $db "drop table $tbl" ;;
+fastinit) cdb2sql $db "truncate table $tbl" ;;
+*) echo >&2 "unknown cmd:$cmd" ;;
+esac

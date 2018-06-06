@@ -1,6 +1,7 @@
 #!/bin/bash
 export HOSTNAME=$(hostname)
 name='akdb'
+tunables=()
 while [[ $# -gt 0 ]] ; do
 	key="$1"
 	case $key in
@@ -14,12 +15,16 @@ while [[ $# -gt 0 ]] ; do
 	;;
 	-n) name="$2"
 	shift
+    ;;
+    --tunable) tunables+=(--tunable "$2")
+    shift
 	;;
 	*) pfx="$1"
 	;;
 	esac
 	shift
 done
+
 pfx=${pfx:-refactor}
 if [[ $pfx == "bb" ]]; then
     comdb2="/opt/bb/bin/comdb2"
@@ -36,7 +41,6 @@ if [[ -n $init ]] ; then
     dir=/opt/bb/var/cdb2/$name
 	[[ -d $dir ]] && rm -rf $dir
     mkdir -p $dir
-    tunables=()
     tunables+=(--tunable "allow_lua_print")
     tunables+=(--tunable "dtastripe 1")
     tunables+=(--tunable "nowatch")
@@ -58,15 +62,15 @@ if [[ -n $init ]] ; then
 fi
 
 if [[ -n $valgrind ]] ; then
-	echo valgrind --leak-check=full $comdb2 $name #--lrl $lrl
-	exec valgrind --leak-check=full $comdb2 $name #--lrl $lrl
+	echo valgrind --leak-check=full $comdb2 --pidfile /tmp/comdb2.$name.pid $name
+	exec valgrind --leak-check=full $comdb2 --pidfile /tmp/comdb2.$name.pid $name
 elif [[ -n $debug ]] ; then
-	echo gdb -q -ex run --arg $comdb2 $name
-	exec gdb -q -ex run --arg $comdb2 $name
+	echo gdb -q -ex run --arg $comdb2 --pidfile /tmp/comdb2.$name.pid $name
+	exec gdb -q -ex run --arg $comdb2 --pidfile /tmp/comdb2.$name.pid $name
 elif [[ -n $start ]] ; then
-	echo gdb -q -ex start --arg $comdb2 $name
-	exec gdb -q -ex start --arg $comdb2 $name
+	echo gdb -q -ex start --arg $comdb2 --pidfile /tmp/comdb2.$name.pid $name
+	exec gdb -q -ex start --arg $comdb2 --pidfile /tmp/comdb2.$name.pid $name
 else
-    echo $comdb2 $name
-    exec $comdb2 $name
+    echo $comdb2 --pidfile /tmp/comdb2.$name.pid $name
+    exec $comdb2 --pidfile /tmp/comdb2.$name.pid $name
 fi
