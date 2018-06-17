@@ -9,8 +9,8 @@ map <f3> :!format-berk<cr>
 map <f4> :set ts=8 sw=8 noet<cr>
 map <f5> :set ts=4 sw=4 et<cr>
 "map <f5> :!format-sqlite<cr>
-map ,m :!ninja -C ninja<cr>
 
+set termguicolors
 set nobackup
 set nocp
 set bs=indent,eol,start
@@ -28,5 +28,6 @@ set et
 set cinoptions=:0
 set wildmenu
 set mouse=""
+set makeprg=mymake
 
 let g:yankring_history_dir=expand('/tmp')

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+[ -d ninja ] && exec ninja -C ninja $@
+exec make $@

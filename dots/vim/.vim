@@ -1,1 +1,0 @@
-/home/sikarwar/src/dotfiles/dots/vim
