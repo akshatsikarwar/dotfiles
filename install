@@ -19,4 +19,22 @@ for f in *; do mv $HOME/.ssh/$f $SAV/ssh/$f; ln -s $PWD/$f $HOME/.ssh/$f; done
 cd $HOME/src/keys
 for f in *; do mv $HOME/.ssh/$f $SAV/keys/$f; ln -s $PWD/$f $HOME/.ssh/$f; done
 
-#$ROOT/fonts/install.sh
+mkdir $HOME/.local/share/fonts
+find $ROOT/fonts/mine -name '*tf' -exec ln -s {} $HOME/.local/share/fonts \;
+fc-cache $HOME/.local/share/fonts
+
+if [ -d $ROOT/vimcolors ]; then
+    for d in $ROOT/vimcolors/*; do cd $d && git pull; done
+else
+    mkdir $ROOT/vimcolors
+    cd $ROOT/vimcolors
+    git clone https://github.com/ciaranm/inkpot.git
+    git clone https://github.com/tomasr/molokai.git
+    git clone https://github.com/veloce/vim-aldmeris.git
+    git clone https://github.com/altercation/vim-colors-solarized.git
+    git clone https://github.com/rakr/vim-one.git
+    git clone https://github.com/jpo/vim-railscasts-theme.git
+    git clone https://github.com/ErichDonGubler/vim-sublime-monokai.git
+fi
+mkdir $HOME/.vim/colors
+for n in $(find $ROOT/vimcolors -name *.vim | grep \/colors\/); do ln -s $n $HOME/.vim/colors; done

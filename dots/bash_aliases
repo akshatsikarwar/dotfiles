@@ -106,3 +106,7 @@ alias gsb='git status -sb'
 alias gss='git status -s'
 alias gst='git status'
 alias gshow='git show'
+
+alias gwta='git worktree add'
+alias gwtl='git worktree list'
+alias gwtp='git worktree prune'

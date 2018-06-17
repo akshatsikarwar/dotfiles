@@ -114,6 +114,8 @@ sudo systemd-run --pipe --machine=$name /bin/bash > /dev/null <<EOF
 /usr/bin/su -c 'echo "$INPUTRC" >> /home/$USER/.inputrc' $USER
 /usr/bin/su -c 'echo "$GDBINIT" >> /home/$USER/.gdbinit' $USER
 EOF
+
+sed -i "/${NAME},/d" $HOME/.ssh/known_hosts
 }
 
 function create {
