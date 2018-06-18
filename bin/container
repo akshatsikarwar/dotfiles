@@ -165,7 +165,7 @@ function bootstrap {
     sudo dnf -y --releasever=28 --nogpgcheck --installroot=$ROOT/template   \
         --disablerepo='*' --enablerepo=fedora --enablerepo=updates          \
         install systemd passwd dnf fedora-release vim-minimal openssh-server openssh-clients \
-        openssl-libs protobuf-c libunwind
+        gcc gcc-c++ ninja-build cmake3 protobuf-c libunwind libunwind-devel protobuf-c-devel byacc flex openssl openssl-devel openssl-libs readline-devel sqlite sqlite-devel libuuid libuuid-devel zlib-devel zlib lz4-devel gawk tcl lz4 rpm-build which
 }
 
 function make_trust {
@@ -191,8 +191,8 @@ function trust {
 }
 
 [[ "$1" == "--all" ]] && all=1 && shift
-CMD=$1
-shift
+CMD=$1 && shift
+[[ "$1" == "--all" ]] && all=1 && shift
 
 if [[ -z $all ]]; then
     NAME=( $* )
