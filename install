@@ -38,3 +38,10 @@ else
 fi
 mkdir $HOME/.vim/colors
 for n in $(find $ROOT/vimcolors -name *.vim | grep \/colors\/); do ln -s $n $HOME/.vim/colors; done
+
+if [ -d $ROOT/bash-powerline ]; then
+    cd $ROOT/bash-powerline && git pull
+else
+    cd $ROOT && git clone git@github.com:akshatsikarwar/bash-powerline.git
+fi
+ln -s $ROOT/bash-powerline/powerline.bash $HOME/.bash_powerline
