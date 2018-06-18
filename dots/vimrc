@@ -10,7 +10,6 @@ map <f4> :set ts=8 sw=8 noet<cr>
 map <f5> :set ts=4 sw=4 et<cr>
 "map <f5> :!format-sqlite<cr>
 
-set termguicolors
 set nobackup
 set nocp
 set bs=indent,eol,start
@@ -31,3 +30,7 @@ set mouse=""
 set makeprg=mymake
 
 let g:yankring_history_dir=expand('/tmp')
+
+let g:aldmeris_transparent = 1
+let g:aldmeris_termcolors = "tango"
+colo aldmeris
