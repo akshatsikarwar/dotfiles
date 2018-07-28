@@ -4,33 +4,12 @@ ROOT=$HOME/containers
 SRC=$HOME/src/comdb2
 USER=comdb2
 
-function usage {
-cat <<EOF
-Usage: container [OPTION] COMMAND [NAME..]
-
-OPTION:
-  --all         start/stop/delete/trust all containers at:'$ROOT'
-  --help        Display this help and exit
-
-COMMAND:
-  bootstrap     Setup template dir with pacstrap
-  create <name> Create container in btrfs subvolume
-  delete <name> Delete container and btrfs subvolume
-  list          List running containers
-  root <name>   Get root shell in named container
-  start <name>  Start named container
-  stop <name>   Stop named container
-  trust <name> <other..>    Add name to others' authorized_keys
-EOF
-[[ $CMD == "help" ]] && exit 0
-exit 1
-}
-
 function start {
     for name in ${NAME[@]}; do
         sudo systemd-nspawn                 \
             -q                              \
             --boot                          \
+            --network-veth                  \
             --network-bridge=br0            \
             --bind=$SRC:/home/$USER/comdb2  \
             --tmpfs=/opt/bb:uid=1000        \
@@ -67,6 +46,7 @@ HOST_PUBLIC_KEY=$(<$HOME/.ssh/id_rsa_thinkpad.pub)
 read -d '' BASHRC <<'EOF'
 PATH=/opt/bb/bin:\\\$PATH
 alias installcomdb2=\\\"tar -C /opt/bb --strip-components=3 -x -f comdb2.tar.gz\\\"
+alias vim=vi
 EOF
 
 read -d '' STRICT_CHECK <<'EOF'
@@ -100,9 +80,10 @@ end
 EOF
 
 sudo systemd-run --pipe --machine=$name /bin/bash > /dev/null <<EOF
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 /usr/bin/systemctl enable systemd-networkd
 /usr/bin/systemctl enable systemd-resolved
-/usr/bin/systemctl enable sshd.socket
+/usr/bin/systemctl enable sshd
 /usr/bin/hostnamectl set-hostname $name
 /usr/sbin/adduser $USER --create-home --user-group
 /usr/bin/mkdir -p /opt/bb
@@ -111,6 +92,7 @@ sudo systemd-run --pipe --machine=$name /bin/bash > /dev/null <<EOF
 /usr/bin/su -c 'echo "$HOST_PUBLIC_KEY" > /home/$USER/.ssh/authorized_keys' $USER
 /usr/bin/su -c 'echo "$STRICT_CHECK" > /home/$USER/.ssh/config' $USER
 /usr/bin/su -c 'echo "$BASHRC" >> /home/$USER/.bashrc' $USER
+/usr/bin/su -c 'echo "export HOSTNAME=$name" >> /home/$USER/.bashrc' $USER
 /usr/bin/su -c 'echo "$INPUTRC" >> /home/$USER/.inputrc' $USER
 /usr/bin/su -c 'echo "$GDBINIT" >> /home/$USER/.gdbinit' $USER
 EOF
@@ -151,21 +133,34 @@ function bridge {
     fi
 }
 
-function bootstrap {
-    #cat /etc/yum/repos.d/fedora.repo
-    #[fedora]
-    #name=fedora
-    #baseurl=http://mirrors.aliyun.com/fedora/releases/28/Server/x86_64/os/
-    #baseurl=http://archive.fedoraproject.org/pub/fedora/linux/releases/28/Server/x86_64/os/
-    #enabled=1
+function bootstrap_arch {
+    sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim valgrind
+}
 
-    #sudo pacstrap -i -c $ROOT/template base gdb make openssh protobuf-c vim valgrind
-    #sudo dnf --releasever=28 --installroot=$ROOT/template --nogpgcheck groupinstall "Minimal Install"
-    #sudo dnf --releasever=28 --installroot=$ROOT/template --nogpgcheck install systemd passwd dnf fedora-release
-    sudo dnf -y --releasever=28 --nogpgcheck --installroot=$ROOT/template   \
-        --disablerepo='*' --enablerepo=fedora --enablerepo=updates          \
-        install systemd passwd dnf fedora-release vim-minimal openssh-server openssh-clients \
-        gcc gcc-c++ ninja-build cmake3 protobuf-c libunwind libunwind-devel protobuf-c-devel byacc flex openssl openssl-devel openssl-libs readline-devel sqlite sqlite-devel libuuid libuuid-devel zlib-devel zlib lz4-devel gawk tcl lz4 rpm-build which
+function bootstrap_fedora {
+    DNF_ARG=(-y --releasever=28 --nogpgcheck --disablerepo='*' --enablerepo=fedora --enablerepo=updates)
+    if [ ! -f /etc/yum/repos.d/fedora.repo ]; then
+        sudo mkdir -p /etc/yum/repos.d
+        cat <<'EOF' | sudo tee /etc/yum/repos.d/fedora.repo > /dev/null
+[fedora]
+name=fedora
+baseurl=http://archive.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os
+enabled=1
+
+[updates]
+name=updates
+baseurl=http://archive.fedoraproject.org/pub/fedora/linux/updates/28/Everything/x86_64
+enabled=1
+EOF
+    #sudo dnf ${DNF_ARG[@]} update
+    fi
+    sudo dnf ${DNF_ARG[@]} \
+        --installroot=$ROOT/template install systemd passwd dnf fedora-release vim-minimal openssh-server openssh-clients iputils iproute \
+        gcc gcc-c++ make ninja-build cmake3 protobuf-c libunwind libunwind-devel protobuf-c-devel byacc flex openssl openssl-devel openssl-libs readline-devel sqlite sqlite-devel libuuid libuuid-devel zlib-devel zlib lz4-devel gawk tcl lz4 rpm-build which nc
+}
+
+function bootstrap {
+    bootstrap_fedora
 }
 
 function make_trust {
@@ -177,17 +172,36 @@ function trust {
         M=${NAME[0]}
         NAME=(${NAME[@]/$M})
         for name in ${NAME[@]}; do
-            [[ $M == $name ]] && continue
+            #[[ $M == $name ]] && continue
             make_trust $M $name
         done
     else
         for M in ${NAME[@]}; do
             for name in ${NAME[@]}; do
-                [[ $M == $name ]] && continue
                 make_trust $M $name
             done
         done
     fi
+}
+
+function getip {
+    ip=$(ssh $1 /sbin/ip addr | grep 'inet 169' | awk '{print $2}' | sed 's/\/.*$//')
+}
+
+function ipaddr {
+    for M in ${NAME[@]}; do
+        for N in ${NAME[@]}; do
+            [[ $M == $N ]] && continue
+            getip $N
+            sudo machinectl -q shell $M /usr/bin/sh -c "/bin/echo $ip $N >> /etc/hosts" > /dev/null
+        done
+    done
+}
+
+function cmd {
+    for M in ${NAME[@]}; do
+        ssh $M "$@"
+    done
 }
 
 [[ "$1" == "--all" ]] && all=1 && shift
@@ -204,6 +218,28 @@ else
     done
 fi
 
+function usage {
+cat <<EOF
+Usage: container [OPTION] COMMAND [NAME..]
+
+OPTION:
+  --all         start/stop/delete/trust all containers at:'$ROOT'
+  --help        Display this help and exit
+
+COMMAND:
+  bootstrap     Setup template dir with pacstrap
+  create <name> Create container in btrfs subvolume
+  delete <name> Delete container and btrfs subvolume
+  list          List running containers
+  root <name>   Get root shell in named container
+  start <name>  Start named container
+  stop <name>   Stop named container
+  trust <name> <other..>    Add name to others' authorized_keys
+EOF
+[[ $CMD == "help" ]] && exit 0
+exit 1
+}
+
 case $CMD in
     bootstrap) bootstrap ; exit ;;
     create) bridge ; create ; exit ;;
@@ -213,6 +249,8 @@ case $CMD in
     start) bridge ; start ; exit ;;
     stop) stop ; exit ;;
     trust) trust ; exit ;;
+    ipaddr) ipaddr; exit;;
+    cmd) cmd $@; exit;;
     --help) usage ; exit ;;
     *) echo -e "container: invalid option -- '$CMD'\nTry 'container --help' for more information." >&2
 esac
