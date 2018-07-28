@@ -84,11 +84,12 @@ alias gfo='git fetch origin'
 alias gg='git grep'
 
 alias gl='git pull'
-alias glg='git log --stat'
-alias glog='git log --oneline --decorate --graph'
-alias gloga='git log --oneline --decorate --graph --all'
+alias glog='tig'
+alias glg='git log --oneline --decorate --graph'
+alias glga='git log --oneline --decorate --graph --all'
 
 alias gp='git push'
+alias gp!='git push --force'
 alias gpd='git push --dry-run'
 
 alias gr='git remote'
@@ -110,3 +111,7 @@ alias gshow='git show'
 alias gwta='git worktree add'
 alias gwtl='git worktree list'
 alias gwtp='git worktree prune'
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
