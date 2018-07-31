@@ -25,7 +25,7 @@ pathappend () {
 
 pathappend $HOME/.local/bin
 #pathappend $HOME/.cargo/bin
-pathappend /opt/bb/bin
+#pathappend /opt/bb/bin
 #pathappend /opt/mysql/bin
 #pathappend /opt/pgsql/bin
 
@@ -36,17 +36,14 @@ export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 export PGHOST=/opt/pgsql/data/
 export PGDATA=/opt/pgsql/data
 export PGDATABASE=postgres
-#export PS1="\W \\$ \[$(tput sgr0)\]"
 
 alias l="ls -F"
 alias ll="ls -l"
+alias ltr="ls -ltr"
 alias builddir="DIR=ninja MEM=512 tmpdir"
 alias dbdir="DIR=/opt/bb MEM=1024 tmpdir"
 alias go=". go.sh"
 alias golang="/usr/bin/go"
-alias u1="ssh u1"
-alias u2="ssh u2"
-alias u3="ssh u3"
 alias vim="vim -p -X"
 alias vit="vim -t"
 alias vi="vim"
