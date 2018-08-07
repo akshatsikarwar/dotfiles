@@ -6,7 +6,7 @@ SRC="$HOME/src"
 COMDB2="$SRC/comdb2"
 MASTER="$COMDB2/master"
 SCRATCH="$SRC/scratch"
-DEFAULT="$MASTER"
+DEFAULT="$SRC"
 DIRS=()
 
 DIRS+=("$COMDB2")
