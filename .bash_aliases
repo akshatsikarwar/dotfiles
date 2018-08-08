@@ -23,8 +23,6 @@ pathappend () {
     export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 }
 
-pathappend $HOME/.local/bin
-#pathappend $HOME/.cargo/bin
 #pathappend /opt/bb/bin
 #pathappend /opt/mysql/bin
 #pathappend /opt/pgsql/bin
@@ -42,7 +40,7 @@ alias ll="ls -l"
 alias ltr="ls -ltr"
 alias builddir="DIR=ninja MEM=512 tmpdir"
 alias dbdir="DIR=/opt/bb MEM=1024 tmpdir"
-alias go=". go.sh"
+alias go=". $HOME/bin/go"
 alias golang="/usr/bin/go"
 alias vim="vim -p -X"
 alias vit="vim -t"

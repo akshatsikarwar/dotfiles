@@ -1,6 +1,0 @@
-#!/bin/zsh
-
-d=$(go.sh -p $@)
-[[ -d $d ]] && cd $d && return
-echo go: no such file or directory: $@
-return 1
