@@ -1,16 +1,10 @@
 syntax enable
 filetype plugin indent on
 
-function! ToggleIndent()
-  let &ts = &ts > 2 ? (&ts > 4 ? 2 : 8) : 4
-  let &sw = &sw > 2 ? (&sw > 4 ? 2 : 8) : 4
-endfunction
-
 map <space> :tabn<cr>
 map <bs> :tabp<cr>
 map <f2> :!format<cr>
 map <f3> :!format-berk<cr>
-map <f4> :call ToggleIndent()<cr>
 map ,r :!%:p<cr>
 map ,x :!cx %:p<cr>
 
