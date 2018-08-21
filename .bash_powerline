@@ -111,10 +111,8 @@ __powerline() {
 
   __git_block() {
     __block_text=''
-    if [[ ! -d .git ]] && [[ ! -f .git ]]; then
-      return
-    elif ! git rev-parse --is-inside-git-dir > /dev/null 3> /dev/null ; then
-      return
+    if ! git rev-parse --is-inside-git-dir > /dev/null 3> /dev/null ; then
+        return
     fi
 
     # get current branch name or short SHA1 hash for detached head
