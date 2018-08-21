@@ -111,7 +111,9 @@ __powerline() {
 
   __git_block() {
     __block_text=''
-    if ! git rev-parse --is-inside-git-dir > /dev/null 3> /dev/null ; then
+    if git check-ignore -q $PWD 2>/dev/null; then
+        return
+    elif ! git rev-parse --is-inside-git-dir > /dev/null 2> /dev/null ; then
         return
     fi
 
@@ -151,11 +153,11 @@ __powerline() {
     local fg=$BLACK
 
     # check if HEAD is dirty
-    if ! (git diff --no-ext-diff --cached --quiet); then
+    if ! (git diff --no-ext-diff --cached --quiet 2>/dev/null); then
       bg=$YELLOW
       marks+=" $GIT_BRANCH_ADDED_SYMBOL"
     fi
-    if ! (git diff --no-ext-diff --quiet); then
+    if ! (git diff --no-ext-diff --quiet 2>/dev/null); then
       bg=$YELLOW
       marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
     fi

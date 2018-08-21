@@ -13,10 +13,12 @@
 /.profile
 /.ssh/id_*
 /.ssh/known_hosts
+/.tig_history
 /.vim/.netrwhist
 /.vim/colors
 /.viminfo
 /.wget-hsts
 /.xsession-errors*
+/Documents
 /Downloads
 /src
