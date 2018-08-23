@@ -7,9 +7,11 @@
 /.dbus/
 /.dmrc
 /.esd_auth
+/.fonts
 /.lesshst
 /.local/share/
 /.mozilla/
+/.pki
 /.profile
 /.ssh/id_*
 /.ssh/known_hosts
@@ -21,4 +23,6 @@
 /.xsession-errors*
 /Documents
 /Downloads
+/documents
+/downloads
 /src
