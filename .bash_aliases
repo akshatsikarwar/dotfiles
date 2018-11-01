@@ -1,6 +1,7 @@
 source $HOME/.bash_powerline
 bind -f $HOME/.inputrc
 
+export PATH=/opt/bb/bin:$PATH
 export EDITOR=vim
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 export PGHOST=/opt/pgsql/data/
@@ -67,6 +68,7 @@ alias grbc='git rebase --continue'
 alias grbi='git rebase -i'
 alias grbm='git rebase master'
 alias grbs='git rebase --skip'
+alias grbu='git rebase upstream/master'
 alias grh='git reset HEAD'
 alias grhh='git reset HEAD --hard'
 
