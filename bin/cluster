@@ -1,0 +1,72 @@
+#!/bin/bash
+
+set -e
+
+function build {
+  DIR=$(mktemp -d)
+  cp $HOME/var/comdb2.tar.gz $DIR/
+  cp $HOME/var/akdb.tar.gz $DIR/
+  pushd $DIR
+  cat > Dockerfile <<EOF
+FROM ubuntu:bionic
+RUN apt update
+RUN apt install -y          \
+    gdb                     \
+    libevent-2.1            \
+    libevent-pthreads-2.1   \
+    libprotobuf-c1          \
+    libreadline7            \
+    libsqlite3-0            \
+    libunwind8              \
+    netcat-openbsd          \
+    openssl                 \
+    tzdata                  \
+    vim
+RUN echo "set editing-mode vi"      >> /root/.inputrc
+RUN echo "set keymap vi-command"    >> /root/.inputrc
+RUN echo "Control-l: clear-screen"  >> /root/.inputrc
+RUN echo "set keymap vi-insert"     >> /root/.inputrc
+RUN echo "Control-l: clear-screen"  >> /root/.inputrc
+RUN echo "PATH=\$PATH:/opt/bb/bin:$HOME/bin"    >> /root/.bashrc
+COPY comdb2.tar.gz /opt/
+RUN tar xzf /opt/comdb2.tar.gz --strip 1
+COPY akdb.tar.gz /opt/
+RUN tar xzf /opt/akdb.tar.gz -C /opt/bb/var/cdb2
+RUN rm /opt/*.gz
+EOF
+  docker build -t sikarwar:comdb2 .
+  popd
+  rm -rf $DIR
+}
+
+function run {
+  n=$1
+  for((i=1;i<=$n;++i)); do
+      docker run -it -d --privileged --rm --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $HOME/src:$HOME/src --name c${i} --hostname c${i} sikarwar:comdb2 /bin/bash
+  done
+}
+
+function init {
+  if [[ "$HOSTNAME" == "c1" ]]; then
+      echo "event_net on" >> /opt/bb/var/cdb2/akdb/akdb.lrl
+  else
+      echo "event_net off" >> /opt/bb/var/cdb2/akdb/akdb.lrl
+  fi
+  n=$1
+  nodes="cluster nodes"
+  for((i=1;i<=$n-1;++i)); do
+      nodes="$nodes c$i"
+  done
+  echo "$nodes" >> /opt/bb/var/cdb2/akdb/akdb.lrl
+  export PATH=/home/sikarwar/src/net-thds/build/db:$PATH
+}
+
+if [[ "$1" == "build" ]]; then
+  build
+elif [[ "$1" == "run" ]]; then
+  run $2
+elif [[ "$1" == "init" ]]; then
+  init $2
+else
+  echo "Usage: cluster <build|run|init> [#nodes]"
+fi
