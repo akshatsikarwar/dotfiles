@@ -4,16 +4,17 @@ set -e
 
 function build {
   DIR=$(mktemp -d)
-  cp $HOME/var/comdb2.tar.gz $DIR/
-  cp $HOME/var/akdb.tar.gz $DIR/
+  cp $HOME/comdb2.tar.gz $DIR/
+  cp $HOME/akdb.tar.gz $DIR/
+  cp $HOME/.ssh/id_rsa.pub $DIR/
   pushd $DIR
   cat > Dockerfile <<EOF
-FROM ubuntu:bionic
+FROM debian:stretch
 RUN apt update
 RUN apt install -y          \
     gdb                     \
-    libevent-2.1            \
-    libevent-pthreads-2.1   \
+    libevent-2.0            \
+    libevent-pthreads-2.0   \
     libprotobuf-c1          \
     libreadline7            \
     libsqlite3-0            \
@@ -22,11 +23,12 @@ RUN apt install -y          \
     openssl                 \
     tzdata                  \
     vim
-RUN echo "set editing-mode vi"      >> /root/.inputrc
-RUN echo "set keymap vi-command"    >> /root/.inputrc
-RUN echo "Control-l: clear-screen"  >> /root/.inputrc
-RUN echo "set keymap vi-insert"     >> /root/.inputrc
-RUN echo "Control-l: clear-screen"  >> /root/.inputrc
+RUN echo "set editing-mode vi"                  >> /root/.inputrc
+RUN echo "set editing-mode vi"                  >> /root/.inputrc
+RUN echo "set keymap vi-command"                >> /root/.inputrc
+RUN echo "Control-l: clear-screen"              >> /root/.inputrc
+RUN echo "set keymap vi-insert"                 >> /root/.inputrc
+RUN echo "Control-l: clear-screen"              >> /root/.inputrc
 RUN echo "PATH=\$PATH:/opt/bb/bin:$HOME/bin"    >> /root/.bashrc
 COPY comdb2.tar.gz /opt/
 RUN tar xzf /opt/comdb2.tar.gz --strip 1
@@ -42,31 +44,14 @@ EOF
 function run {
   n=$1
   for((i=1;i<=$n;++i)); do
-      docker run -it -d --privileged --rm --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $HOME/src:$HOME/src --name c${i} --hostname c${i} sikarwar:comdb2 /bin/bash
+      docker run -it -d --privileged --rm --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $HOME/src:$HOME/src --name c${i} --hostname c${i} sikarwar:comdb2 /opt/bb/bin/pmux -f
   done
-}
-
-function init {
-  if [[ "$HOSTNAME" == "c1" ]]; then
-      echo "event_net on" >> /opt/bb/var/cdb2/akdb/akdb.lrl
-  else
-      echo "event_net off" >> /opt/bb/var/cdb2/akdb/akdb.lrl
-  fi
-  n=$1
-  nodes="cluster nodes"
-  for((i=1;i<=$n-1;++i)); do
-      nodes="$nodes c$i"
-  done
-  echo "$nodes" >> /opt/bb/var/cdb2/akdb/akdb.lrl
-  export PATH=/home/sikarwar/src/net-thds/build/db:$PATH
 }
 
 if [[ "$1" == "build" ]]; then
   build
 elif [[ "$1" == "run" ]]; then
   run $2
-elif [[ "$1" == "init" ]]; then
-  init $2
 else
-  echo "Usage: cluster <build|run|init> [#nodes]"
+  echo "Usage: cluster <build|run #nodes>"
 fi

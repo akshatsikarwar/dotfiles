@@ -1,4 +1,4 @@
-#source $HOME/.bash_powerline
+source $HOME/.bash_powerline
 bind -f $HOME/.inputrc
 
 export PATH=$HOME/bin:/opt/bb/bin:$PATH
@@ -7,6 +7,10 @@ export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 export PGHOST=/opt/pgsql/data/
 export PGDATA=/opt/pgsql/data
 export PGDATABASE=postgres
+
+function c {
+    docker exec -it c${1} /bin/bash
+}
 
 alias l="ls -F"
 alias ll="ls -l"
@@ -84,9 +88,3 @@ alias gwtp='git worktree prune'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-
-alias c1='docker attach c1'
-alias c2='docker attach c2'
-alias c3='docker attach c3'
-alias c4='docker attach c4'
-alias c5='docker attach c5'
