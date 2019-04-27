@@ -111,7 +111,9 @@ __powerline() {
 
   __git_block() {
     __block_text=''
-    if git check-ignore -q $PWD 2>/dev/null; then
+    if [ $(echo $PWD | rev | cut -d'/' -f2- |rev) != $HOME/src ]; then
+        return
+    elif git check-ignore -q $PWD 3>/dev/null; then
         return
     elif ! git rev-parse --is-inside-git-dir > /dev/null 2> /dev/null ; then
         return
