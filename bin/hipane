@@ -4,6 +4,6 @@ if [[ ${1} = "on" ]]; then
   tmux set-option window-status-style "bg=colour124"
   tmux set-option pane-active-border-style "fg=colour124"
 else
-  tmux set-option window-status-style "bg=colour31"
-  tmux set-option pane-active-border-style "fg=colour31"
+  tmux set-option window-status-style "bg=colour106"
+  tmux set-option pane-active-border-style "fg=colour106"
 fi
