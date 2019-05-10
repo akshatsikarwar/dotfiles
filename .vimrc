@@ -25,13 +25,16 @@ set et
 set cinoptions=:0
 set wildmenu
 set mouse=""
-set makeprg=mymake
+set makeprg=vim-make
 
 let g:yankring_history_dir=expand('/tmp')
 
-let g:aldmeris_transparent = 1
-let g:aldmeris_termcolors = "tango"
-colo aldmeris
+"let g:aldmeris_transparent = 1
+"let g:aldmeris_termcolors = "tango"
+"colo aldmeris
+
+set background=dark
+colorscheme solarized
 
 "set background=dark
 "set termguicolors

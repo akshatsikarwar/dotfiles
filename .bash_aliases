@@ -12,13 +12,15 @@ function c {
     docker exec -it c${1} /bin/bash
 }
 
+alias c1="c 1"
+alias c2="c 2"
+alias c3="c 3"
+alias c4="c 4"
+alias c5="c 5"
 alias l="ls -F"
 alias ll="ls -l"
 alias ltr="ls -ltr"
-alias builddir="DIR=ninja MEM=512 tmpdir"
-alias dbdir="DIR=/opt/bb MEM=1024 tmpdir"
 alias go=". $HOME/bin/go"
-alias golang="/usr/bin/go"
 alias vim="vim -p -X"
 alias vit="vim -t"
 alias vi="vim"

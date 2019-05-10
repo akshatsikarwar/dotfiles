@@ -1,6 +1,0 @@
-#!/bin/bash
-
-DIR=${DIR:-tmp}
-MEM=${MEM:-256}
-mkdir -p ${DIR}
-sudo mount -t tmpfs -o size=${MEM}m tmpfs ${DIR}

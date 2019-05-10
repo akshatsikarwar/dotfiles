@@ -16,6 +16,8 @@ while [[ $# -gt 0 ]] ; do
 	-n) name="$2"
 	shift
     ;;
+	-x) set -x
+    ;;
     --tunable) tunables+=(--tunable "$2")
     shift
 	;;
@@ -29,7 +31,7 @@ pfx=${pfx:-refactor}
 if [[ $pfx == "bb" ]]; then
     comdb2="/opt/bb/bin/comdb2"
 else
-    pfx="$(go.sh -p $pfx)"
+    pfx="$(go -p $pfx)"
     [[ -d $pfx/ninja ]] && pfx=$pfx/ninja
     [[ -d $pfx/build ]] && pfx=$pfx/build
     comdb2="${pfx}/db/comdb2"
@@ -45,7 +47,7 @@ if [[ -n $init ]] ; then
     tunables+=(--tunable "dtastripe 1")
     tunables+=(--tunable "nowatch")
     tunables+=(--tunable "setattr directio 0")
-
+    tunables+=(--tunable "event_net on")
     #tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
     #tunables+=(--tunable "enable_snapshot_isolation")
     #tunables+=(--tunable "enable_sql_stmt_caching all")

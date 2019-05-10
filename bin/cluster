@@ -1,12 +1,10 @@
 #!/bin/bash
 
 set -e
-
+SRC=$HOME/src
+NAME="thisverylonghostname0"
 function build {
   DIR=$(mktemp -d)
-  cp $HOME/comdb2.tar.gz $DIR/
-  cp $HOME/akdb.tar.gz $DIR/
-  cp $HOME/.ssh/id_rsa.pub $DIR/
   pushd $DIR
   cat > Dockerfile <<EOF
 FROM debian:stretch
@@ -29,12 +27,26 @@ RUN echo "set keymap vi-command"                >> /root/.inputrc
 RUN echo "Control-l: clear-screen"              >> /root/.inputrc
 RUN echo "set keymap vi-insert"                 >> /root/.inputrc
 RUN echo "Control-l: clear-screen"              >> /root/.inputrc
-RUN echo "PATH=\$PATH:/opt/bb/bin:$HOME/bin"    >> /root/.bashrc
-COPY comdb2.tar.gz /opt/
-RUN tar xzf /opt/comdb2.tar.gz --strip 1
-COPY akdb.tar.gz /opt/
-RUN tar xzf /opt/akdb.tar.gz -C /opt/bb/var/cdb2
-RUN rm /opt/*.gz
+RUN echo "PATH=\\\$PATH:$HOME/bin"                >> /root/.bashrc
+RUN echo "PATH=\\\$PATH:$SRC/build/db"            >> /root/.bashrc
+RUN echo "PATH=\\\$PATH:$SRC/build/tools/cdb2sql" >> /root/.bashrc
+RUN echo "PATH=\\\$PATH:$SRC/build/tools/pmux"    >> /root/.bashrc
+RUN echo "set print thread-events off"          >> /root/.gdbinit
+RUN echo "set height 0"                         >> /root/.gdbinit
+RUN echo "set print pretty on"                  >> /root/.gdbinit
+RUN echo "set confirm off"                      >> /root/.gdbinit
+RUN echo "define whereall"                      >> /root/.gdbinit
+RUN echo "thread apply all where"               >> /root/.gdbinit
+RUN echo "end"                                  >> /root/.gdbinit
+RUN echo "define wa"                            >> /root/.gdbinit
+RUN echo "thread apply all where"               >> /root/.gdbinit
+RUN echo "end"                                  >> /root/.gdbinit
+RUN echo "document whereall"                    >> /root/.gdbinit
+RUN echo "Alias for 'thread apply all where'"   >> /root/.gdbinit
+RUN echo "end"                                  >> /root/.gdbinit
+RUN echo "document wa"                          >> /root/.gdbinit
+RUN echo "Alias for 'thread apply all where'"   >> /root/.gdbinit
+RUN echo "end"                                  >> /root/.gdbinit
 EOF
   docker build -t sikarwar:comdb2 .
   popd
@@ -44,14 +56,40 @@ EOF
 function run {
   n=$1
   for((i=1;i<=$n;++i)); do
-      docker run -it -d --privileged --rm --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $HOME/src:$HOME/src --name c${i} --hostname c${i} sikarwar:comdb2 /opt/bb/bin/pmux -f
+    docker run -it -d --privileged --rm --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $SRC:$SRC --name ${NAME}${i} --hostname ${NAME}${i} sikarwar:comdb2 /bin/cat
   done
+}
+
+function do_docker {
+  n=$1
+  for((i=1;i<=$n;++i)); do
+    docker $1 ${NAME}${i}
+  done
+}
+
+function tmux {
+  /usr/bin/tmux new-window
+  /usr/bin/tmux send-keys "$HOME/bin/c 1" Enter
+  n=$1
+  for((i=2;i<=$n;++i)); do
+    /usr/bin/tmux split-window
+    /usr/bin/tmux send-keys "$HOME/bin/c ${i}" Enter
+  done
+  /usr/bin/tmux select-layout tiled
 }
 
 if [[ "$1" == "build" ]]; then
   build
 elif [[ "$1" == "run" ]]; then
   run $2
+elif [[ "$1" == "stop" ]]; then
+  do_docker stop
+elif [[ "$1" == "kill" ]]; then
+  do_docker kill
+elif [[ "$1" == "start" ]]; then
+  do_docker start
+elif [[ "$1" == "tmux" ]]; then
+  tmux $2
 else
   echo "Usage: cluster <build|run #nodes>"
 fi

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+NAME="thisverylonghostname0${1}"
+docker exec -it ${NAME} /bin/bash

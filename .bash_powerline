@@ -1,6 +1,8 @@
 #!/bin/bash
 # https://github.com/akshatsikarwar/bash-powerline
 
+#__prompt_block
+
 __powerline() {
 
   readonly MAX_PATH_LENGTH=30
@@ -113,8 +115,8 @@ __powerline() {
     __block_text=''
     if [ $(echo $PWD | rev | cut -d'/' -f2- |rev) != $HOME/src ]; then
         return
-    elif git check-ignore -q $PWD 3>/dev/null; then
-        return
+    #elif git check-ignore -q $PWD 3>/dev/null; then
+    #    return
     elif ! git rev-parse --is-inside-git-dir > /dev/null 2> /dev/null ; then
         return
     fi
@@ -184,8 +186,9 @@ __powerline() {
           pwd="${s:0:1}/$pwd"
       done
     fi
-    __prompt_block $BLACK_BRIGHT $WHITE_BRIGHT "$pwd"
-    #__prompt_block $BLUE $WHITE "$pwd"
+
+    #__prompt_block $BLACK_BRIGHT $WHITE_BRIGHT "$pwd"
+    __prompt_block $BLUE $WHITE "$pwd"
   }
 
   # Build the prompt

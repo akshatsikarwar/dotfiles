@@ -3,6 +3,7 @@
 /.Xauthority
 /.bash*
 /.cache
+/.cdb2sql_history
 /.cert
 /.config
 /.conky/
