@@ -24,6 +24,7 @@
 /.mozilla
 /.pki
 /.profile
+/.sqlite_history
 /.ssh/id_*
 /.ssh/known_hosts
 /.sudo_as_admin_successful

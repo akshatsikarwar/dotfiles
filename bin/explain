@@ -1,3 +1,4 @@
+#!/bin/bash
 DB=$1
 shift
 cdb2sql -s $DB -<<EOF | sed "s/^(Plan='//g;s/')$//g"

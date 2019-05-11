@@ -1,8 +1,6 @@
 #!/bin/bash
-
 set -e
 SRC=$HOME/src
-NAME="thisverylonghostname0"
 function build {
   DIR=$(mktemp -d)
   pushd $DIR
@@ -56,15 +54,18 @@ EOF
 function run {
   n=$1
   for((i=1;i<=$n;++i)); do
-    docker run -it -d --privileged --rm --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $SRC:$SRC --name ${NAME}${i} --hostname ${NAME}${i} sikarwar:comdb2 /bin/cat
+    name=$(container-name $i)
+    docker run -it -d --privileged --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $SRC:$SRC --name ${name} --hostname ${name} sikarwar:comdb2 /bin/cat
   done
 }
 
 function do_docker {
   n=$1
+  declare -a names
   for((i=1;i<=$n;++i)); do
-    docker $1 ${NAME}${i}
+    names+=($(container-name $i))
   done
+  docker $2 ${names[@]}
 }
 
 function tmux {
@@ -74,20 +75,22 @@ function tmux {
   for((i=2;i<=$n;++i)); do
     /usr/bin/tmux split-window
     /usr/bin/tmux send-keys "$HOME/bin/c ${i}" Enter
+    /usr/bin/tmux select-layout tiled
   done
-  /usr/bin/tmux select-layout tiled
 }
 
 if [[ "$1" == "build" ]]; then
   build
 elif [[ "$1" == "run" ]]; then
   run $2
+elif [[ "$1" == "rm" ]]; then
+  do_docker $2 rm
 elif [[ "$1" == "stop" ]]; then
-  do_docker stop
+  do_docker $2 stop
 elif [[ "$1" == "kill" ]]; then
-  do_docker kill
+  do_docker $2 kill
 elif [[ "$1" == "start" ]]; then
-  do_docker start
+  do_docker $2 start
 elif [[ "$1" == "tmux" ]]; then
   tmux $2
 else
