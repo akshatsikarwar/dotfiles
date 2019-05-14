@@ -5,14 +5,14 @@ function build {
   DIR=$(mktemp -d)
   pushd $DIR
   cat > Dockerfile <<EOF
-FROM debian:stretch
+FROM ubuntu:disco
 RUN apt update
 RUN apt install -y          \
     gdb                     \
-    libevent-2.0            \
-    libevent-pthreads-2.0   \
+    libevent-2.1            \
+    libevent-pthreads-2.1   \
     libprotobuf-c1          \
-    libreadline7            \
+    libreadline8            \
     libsqlite3-0            \
     libunwind8              \
     netcat-openbsd          \
@@ -94,5 +94,6 @@ elif [[ "$1" == "start" ]]; then
 elif [[ "$1" == "tmux" ]]; then
   tmux $2
 else
-  echo "Usage: cluster <build|run #nodes>"
+  echo >&2 "Usage: cluster <build|run|rm|stop|kill|start|tmux>"
+  exit 1
 fi

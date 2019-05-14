@@ -1,4 +1,4 @@
-source $HOME/.bash_powerline
+#source $HOME/.bash_powerline
 bind -f $HOME/.inputrc
 
 export PATH=$HOME/bin:/opt/bb/bin:$PATH

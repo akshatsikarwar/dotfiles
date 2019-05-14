@@ -3,6 +3,7 @@ filetype plugin indent on
 
 map <space> :tabn<cr>
 map <bs> :tabp<cr>
+map <f5> :!format-berk<cr>
 map <f6> :!format<cr>
 map ,r :!%:p<cr>
 map ,x :!cx %:p<cr>
@@ -32,8 +33,8 @@ let g:yankring_history_dir=expand('/tmp')
 "let g:aldmeris_termcolors = "tango"
 "colo aldmeris
 
-set background=dark
-colorscheme solarized
+"set background=dark
+"colorscheme solarized
 
 "set background=dark
 "set termguicolors

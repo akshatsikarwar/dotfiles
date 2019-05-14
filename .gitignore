@@ -15,6 +15,7 @@
 /.fonts
 /.gconf/
 /.gksu.lock
+/.gnupg
 /.gtk-2.0/
 /.gtkrc-2.0
 /.gvfs
