@@ -31,6 +31,7 @@ RUN echo "PATH=\\\$PATH:$SRC/build/tools/cdb2sql" >> /root/.bashrc
 RUN echo "PATH=\\\$PATH:$SRC/build/tools/pmux"    >> /root/.bashrc
 RUN echo "set print thread-events off"          >> /root/.gdbinit
 RUN echo "set height 0"                         >> /root/.gdbinit
+RUN echo "set pagination off"                   >> /root/.gdbinit
 RUN echo "set print pretty on"                  >> /root/.gdbinit
 RUN echo "set confirm off"                      >> /root/.gdbinit
 RUN echo "define whereall"                      >> /root/.gdbinit
@@ -53,6 +54,7 @@ EOF
 
 function run {
   n=$1
+  put clusternum $1
   for((i=1;i<=$n;++i)); do
     name=$(container-name $i)
     docker run -it -d --privileged --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $SRC:$SRC --name ${name} --hostname ${name} sikarwar:comdb2 /bin/cat
@@ -60,18 +62,19 @@ function run {
 }
 
 function do_docker {
-  n=$1
   declare -a names
-  for((i=1;i<=$n;++i)); do
+  n=$(get clusternum)
+  for ((i=1;i<=${n};++i)); do
     names+=($(container-name $i))
   done
-  docker $2 ${names[@]}
+  docker $1 ${names[@]}
 }
 
 function tmux {
   /usr/bin/tmux new-window
   /usr/bin/tmux send-keys "$HOME/bin/c 1" Enter
-  n=$1
+  n=$(get clusternum)
+  n=$((n-1))
   for((i=2;i<=$n;++i)); do
     /usr/bin/tmux split-window
     /usr/bin/tmux send-keys "$HOME/bin/c ${i}" Enter
@@ -79,20 +82,31 @@ function tmux {
   done
 }
 
+function akdb {
+  tmux
+  /usr/bin/tmux set-window-option synchronize-panes
+  /usr/bin/tmux send-keys "cd /akdb" Enter
+  /usr/bin/tmux send-keys "gdb -ex run -args comdb2 akdb" Enter
+  /usr/bin/tmux set-option window-status-style "bg=colour124"
+  /usr/bin/tmux set-option pane-active-border-style "fg=colour124"
+}
+
 if [[ "$1" == "build" ]]; then
   build
 elif [[ "$1" == "run" ]]; then
   run $2
 elif [[ "$1" == "rm" ]]; then
-  do_docker $2 rm
+  do_docker rm
 elif [[ "$1" == "stop" ]]; then
-  do_docker $2 stop
+  do_docker stop
 elif [[ "$1" == "kill" ]]; then
-  do_docker $2 kill
+  do_docker kill
 elif [[ "$1" == "start" ]]; then
-  do_docker $2 start
+  do_docker start
 elif [[ "$1" == "tmux" ]]; then
-  tmux $2
+  tmux
+elif [[ "$1" == "akdb" ]]; then
+  akdb
 else
   echo >&2 "Usage: cluster <build|run|rm|stop|kill|start|tmux>"
   exit 1
