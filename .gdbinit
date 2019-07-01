@@ -1,5 +1,6 @@
 set print thread-events off
 set height 0
+set pagination off
 set print pretty on
 set confirm off
 

@@ -17,7 +17,7 @@ fi
 DB=$1
 shift
 if [[ $DB == "pmux" ]]; then
-    echo $1 | telnet $host 5105
+    echo $1 | nc $host 5105
 else
     echo -e "select 'comdb2_host='||comdb2_host() as out\nexec procedure sys.cmd.send('$*')" | cdb2sql -s $DB @${host} - | sed "s/^(out='//g;s/')$//g"
 fi

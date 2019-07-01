@@ -4,12 +4,12 @@ shopt -s nocasematch
 
 SRC="$HOME/src"
 COMDB2="$SRC/comdb2"
-DEFAULT="$SRC"
+DEFAULT="$COMDB2"
 
 DIRS=()
 DIRS+=("$SRC")
 DIRS+=("$HOME")
-DIRS+=("/opt/bb/var/cdb2")
+#DIRS+=("/opt/bb/var/cdb2")
 
 function usage() {
 echo "Usage: go [-h] [DIRECTORY]
