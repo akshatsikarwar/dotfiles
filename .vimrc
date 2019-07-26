@@ -29,13 +29,6 @@ set makeprg=vim-make
 
 let g:yankring_history_dir=expand('/tmp')
 
-"let g:aldmeris_transparent = 1
-"let g:aldmeris_termcolors = "tango"
-"colo aldmeris
-
-"set background=dark
-"colorscheme solarized
-
-"set background=dark
-"set termguicolors
-"colorscheme breezy
+set background=light
+set termguicolors
+colorscheme breezy
