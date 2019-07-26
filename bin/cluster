@@ -4,8 +4,20 @@ SRC=$HOME/src
 function build {
   DIR=$(mktemp -d)
   pushd $DIR
-  cat > Dockerfile <<EOF
-FROM ubuntu:disco
+  if [ -f /etc/redhat-release ]; then
+  cat >> Dockerfile <<EOF
+FROM fedora:latest
+RUN dnf install -y          \
+    gdb                     \
+    libunwind               \
+    protobuf-c              \
+    sqlite                  \
+    valgrind                \
+    vim
+EOF
+  else
+  cat >> Dockerfile <<EOF
+FROM ubuntu:latest
 RUN apt update
 RUN apt install -y          \
     gdb                     \
@@ -19,6 +31,9 @@ RUN apt install -y          \
     openssl                 \
     tzdata                  \
     vim
+EOF
+  fi
+  cat >> Dockerfile <<EOF
 RUN echo "set editing-mode vi"                  >> /root/.inputrc
 RUN echo "set editing-mode vi"                  >> /root/.inputrc
 RUN echo "set keymap vi-command"                >> /root/.inputrc
@@ -94,20 +109,14 @@ function akdb {
 if [[ "$1" == "build" ]]; then
   build
 elif [[ "$1" == "run" ]]; then
-  run $2
-elif [[ "$1" == "rm" ]]; then
-  do_docker rm
-elif [[ "$1" == "stop" ]]; then
-  do_docker stop
-elif [[ "$1" == "kill" ]]; then
-  do_docker kill
-elif [[ "$1" == "start" ]]; then
-  do_docker start
+  run $(($2+1))
+elif [ "$1" == "rm" ] || [ "$1" == "stop" ] || [ "$1" == "kill" ] || [ "$1" == "start" ]; then
+  do_docker "$1"
 elif [[ "$1" == "tmux" ]]; then
   tmux
 elif [[ "$1" == "akdb" ]]; then
   akdb
 else
-  echo >&2 "Usage: cluster <build|run|rm|stop|kill|start|tmux>"
+  echo >&2 "Usage: cluster <build|rm|stop|kill|start|tmux>|<run size>"
   exit 1
 fi

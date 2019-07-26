@@ -1,6 +1,7 @@
 #!/bin/bash
 
 sqlite3 $HOME/.local/getput.sqlite3 <<EOF
+create table if not exists getput(k, v);
 delete from getput where k='$1';
 insert into getput(k, v) values('$1', '$2');
 EOF
