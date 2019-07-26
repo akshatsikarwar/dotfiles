@@ -10,6 +10,7 @@ export PGDATABASE=postgres
 
 alias l="ls -F"
 alias ll="ls -l"
+alias lla="ls -la"
 alias ltr="ls -ltr"
 alias go=". $HOME/bin/go"
 alias vim="vim -p -X"
@@ -31,6 +32,7 @@ alias gcn!='git commit -v --no-edit --amend'
 alias gca='git commit -v -a'
 alias gcam='git commit -v -a -m'
 alias gca!='git commit -v -a --amend'
+alias gcm='git commit -m'
 alias gclean='git clean -fd'
 alias gpristine='git reset --hard && git clean -dfx'
 alias gco='git checkout'
@@ -55,6 +57,8 @@ alias glg='git log --oneline --decorate --graph'
 alias glga='git log --oneline --decorate --graph --all'
 
 alias gp='git push'
+alias gpo='git push origin'
+alias gpu='git push upstream'
 alias gp!='git push --force'
 alias gpd='git push --dry-run'
 
@@ -67,8 +71,8 @@ alias grbi='git rebase -i'
 alias grbm='git rebase master'
 alias grbs='git rebase --skip'
 alias grbu='git rebase upstream/master'
-alias grh='git reset HEAD'
-alias grhh='git reset HEAD --hard'
+alias grh='git reset --hard'
+alias grhh='git reset --hard HEAD'
 
 alias gsb='git status -sb'
 alias gss='git status -s'
