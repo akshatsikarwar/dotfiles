@@ -116,7 +116,10 @@ elif [[ "$1" == "tmux" ]]; then
   tmux
 elif [[ "$1" == "akdb" ]]; then
   akdb
+elif [[ "$1" == "ls" ]]; then
+  figlet $(get clusternum)
+  docker ps -a
 else
-  echo >&2 "Usage: cluster <build|rm|stop|kill|start|tmux>|<run size>"
+  echo >&2 "Usage: cluster <build|ls|akdb|rm|stop|kill|start|tmux>|<run size>"
   exit 1
 fi
