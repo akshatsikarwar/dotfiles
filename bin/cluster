@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 SRC=$HOME/src
+LRL=/opt/bb/var/cdb2/akdb/akdb.lrl
+
 function build {
   DIR=$(mktemp -d)
   pushd $DIR
@@ -8,10 +10,15 @@ function build {
   cat >> Dockerfile <<EOF
 FROM fedora:latest
 RUN dnf install -y          \
+    figlet                  \
     gdb                     \
     libunwind               \
+    nmap-ncat               \
     protobuf-c              \
+    procps                  \
     sqlite                  \
+    strace                  \
+    telnet                  \
     valgrind                \
     vim
 EOF
@@ -30,6 +37,8 @@ RUN apt install -y          \
     netcat-openbsd          \
     openssl                 \
     tzdata                  \
+    strace                  \
+    valgrind                \
     vim
 EOF
   fi
@@ -45,8 +54,8 @@ RUN echo "PATH=\\\$PATH:$SRC/build/db"            >> /root/.bashrc
 RUN echo "PATH=\\\$PATH:$SRC/build/tools/cdb2sql" >> /root/.bashrc
 RUN echo "PATH=\\\$PATH:$SRC/build/tools/pmux"    >> /root/.bashrc
 RUN echo "set print thread-events off"          >> /root/.gdbinit
-RUN echo "set height 0"                         >> /root/.gdbinit
-RUN echo "set pagination off"                   >> /root/.gdbinit
+RUN echo "set height unlimited"                 >> /root/.gdbinit
+RUN echo "set width unlimited"                  >> /root/.gdbinit
 RUN echo "set print pretty on"                  >> /root/.gdbinit
 RUN echo "set confirm off"                      >> /root/.gdbinit
 RUN echo "define whereall"                      >> /root/.gdbinit
@@ -69,6 +78,7 @@ EOF
 
 function run {
   n=$1
+  [[ $n -eq 1 ]] && usage
   put clusternum $1
   for((i=1;i<=$n;++i)); do
     name=$(container-name $i)
@@ -97,29 +107,88 @@ function tmux {
   done
 }
 
-function akdb {
+function gdb {
   tmux
   /usr/bin/tmux set-window-option synchronize-panes
-  /usr/bin/tmux send-keys "cd /akdb" Enter
-  /usr/bin/tmux send-keys "gdb -ex run -args comdb2 akdb" Enter
+  /usr/bin/tmux send-keys "gdb -q -ex run -args comdb2 akdb" Enter
   /usr/bin/tmux set-option window-status-style "bg=colour124"
   /usr/bin/tmux set-option pane-active-border-style "fg=colour124"
+}
+
+function vg {
+  tmux
+  /usr/bin/tmux set-window-option synchronize-panes
+  /usr/bin/tmux send-keys "valgrind comdb2 akdb" Enter
+  /usr/bin/tmux set-option window-status-style "bg=colour124"
+  /usr/bin/tmux set-option pane-active-border-style "fg=colour124"
+}
+
+function usage {
+  cat >&2 <<EOF
+Usage: cluster <cmd> [arg]
+cmd list:
+  akdb  --------------- Start database
+  build --------------- Build docker image
+  copy  --------------- Setup /opt/bb
+  ev [on|off] --------- Set, clear, check event_net
+  gdb   --------------- Start database under gdb
+  kill  --------------- Kill containers
+  ps    --------------- List containers
+  rm    --------------- Remove containers
+  run <cluster-size> -- Initial run of containers
+  start --------------- Start containers
+  stop  --------------- Stop containers
+  tmux  --------------- Container tmux panes
+  vg    --------------- Start database under valgrind
+EOF
+  exit 1
+}
+
+function copy {
+  cp -r /home/sikarwar/src/bb /opt
+  #me=$HOSTNAME
+  #if [[ $me == 'c1' ]]; then
+  #    me=""
+  #fi
+  #echo cluster nodes c1 $me >> $LRL
+}
+
+function ev {
+  have=$(egrep '^event_net ' $LRL | wc -l)
+  if [[ "$1" == "on" ]] || [[ "$1" == "off" ]]; then
+    if [[ $have -eq 1 ]]; then
+      sed -i 's/^event_net .*$/event_net '"$1/" $LRL
+    else
+      echo event_net $1 >> $LRL
+    fi
+    have=1
+  fi
+  if [[ $have -eq 1 ]]; then
+    figlet $(grep event_net $LRL | awk '{print $2}')
+  else
+    figlet missing
+  fi
 }
 
 if [[ "$1" == "build" ]]; then
   build
 elif [[ "$1" == "run" ]]; then
   run $(($2+1))
-elif [ "$1" == "rm" ] || [ "$1" == "stop" ] || [ "$1" == "kill" ] || [ "$1" == "start" ]; then
+elif [[ "$1" == "rm" ]] || [[ "$1" == "stop" ]] || [[ "$1" == "kill" ]] || [[ "$1" == "start" ]]; then
   do_docker "$1"
 elif [[ "$1" == "tmux" ]]; then
   tmux
-elif [[ "$1" == "akdb" ]]; then
-  akdb
-elif [[ "$1" == "ls" ]]; then
+elif [[ "$1" == "gdb" ]]; then
+  gdb
+elif [[ "$1" == "vg" ]]; then
+  vg
+elif [[ "$1" == "ps" ]]; then
   figlet $(get clusternum)
   docker ps -a
+elif [[ "$1" == "copy" ]]; then
+  copy
+elif [[ "$1" == "ev" ]]; then
+  ev "$2"
 else
-  echo >&2 "Usage: cluster <build|ls|akdb|rm|stop|kill|start|tmux>|<run size>"
-  exit 1
+  usage
 fi

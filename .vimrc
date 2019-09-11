@@ -2,11 +2,9 @@ syntax enable
 filetype plugin indent on
 
 map <space> :tabn<cr>
-map <bs> :tabp<cr>
-map <f5> :!format-berk<cr>
-map <f6> :!format<cr>
-map ,r :!%:p<cr>
-map ,x :!cx %:p<cr>
+map    <bs> :tabp<cr>
+map    <f5> :!format-berk<cr>
+map    <f6> :!format<cr>
 
 set nobackup
 set nocp
@@ -29,6 +27,5 @@ set makeprg=vim-make
 
 let g:yankring_history_dir=expand('/tmp')
 
-set background=light
 set termguicolors
-colorscheme breezy
+colo breezy
