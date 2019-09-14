@@ -26,6 +26,3 @@ set mouse=""
 set makeprg=vim-make
 
 let g:yankring_history_dir=expand('/tmp')
-
-set termguicolors
-colo breezy

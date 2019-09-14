@@ -16,7 +16,7 @@ Control-l: clear-screen
 EOF
 
     cat > bashrc <<'EOF'
-PATH=$PATH:$HOME/bin:$HOME/src/build/db:$HOME/src/build/tools/cdb2sql:$HOME/src/build/tools/pmux
+PATH=$PATH:$HOME/bin:$HOME/src/build/db:$HOME/src/build/tools/cdb2sql:$HOME/src/build/tools/pmux:$HOME/src/build/tools/cdb2sockpool
 PS1='[\u@\h \W]\$ '
 alias go=". $HOME/bin/go"
 EOF
@@ -61,22 +61,39 @@ RUN dnf install -y          \
 EOF
   else
   cat >> Dockerfile <<EOF
-FROM ubuntu:latest
-RUN apt update
-RUN apt install -y          \
-    gdb                     \
-    libevent-2.1            \
-    libevent-pthreads-2.1   \
-    libprotobuf-c1          \
-    libreadline8            \
-    libsqlite3-0            \
-    libunwind8              \
-    netcat-openbsd          \
-    openssl                 \
-    tzdata                  \
-    strace                  \
-    valgrind                \
-    vim
+FROM ubuntu:disco
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update
+RUN apt-get install -y \
+bison \
+build-essential \
+cmake \
+cmake-curses-gui \
+flex \
+gdb \
+libevent-dev \
+liblz4-dev \
+libncurses5-dev \
+libprotobuf-c-dev \
+libprotobuf-c1 \
+libreadline-dev \
+libreadline8 \
+libsqlite3-0 \
+libsqlite3-dev \
+libssl-dev \
+libunwind-dev \
+libunwind8 \
+netcat-openbsd \
+ninja-build \
+openssl \
+protobuf-c-compiler \
+strace \
+tcl \
+tzdata \
+uuid-dev \
+valgrind \
+vim \
+zlib1g-dev
 EOF
   fi
     cat >> Dockerfile <<EOF
@@ -97,6 +114,17 @@ function run {
     name=$(container-name $i)
     docker run -it -d --privileged --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /bin/cat
   done
+  declare -a names
+  for((i=1;i<$n;++i)); do
+    names+=($(container-name $i))
+  done
+  sed -i '/^cluster nodes/d' $HOME/src/bb/var/cdb2/akdb/akdb.lrl
+  echo "cluster nodes ${names[@]}" >> $HOME/src/bb/var/cdb2/akdb/akdb.lrl
+  mkdir -p $HOME/src/bb/etc/cdb2/config.d
+  cat > $HOME/src/bb/etc/cdb2/config.d/akdb.cfg <<EOF
+akdb ${names[@]}
+comdb2_config: default_type dev
+EOF
 }
 
 function do_docker {
@@ -159,11 +187,6 @@ EOF
 
 function copy {
   cp -r $HOME/src/bb /opt
-  #me=$HOSTNAME
-  #if [[ $me == 'c1' ]]; then
-  #    me=""
-  #fi
-  #echo cluster nodes c1 $me >> $LRL
 }
 
 function ev {
