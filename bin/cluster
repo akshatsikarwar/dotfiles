@@ -6,12 +6,48 @@ LRL=/opt/bb/var/cdb2/akdb/akdb.lrl
 function build {
   DIR=$(mktemp -d)
   pushd $DIR
+    cat > inputrc <<'EOF'
+set editing-mode vi
+set editing-mode vi
+set keymap vi-command
+Control-l: clear-screen
+set keymap vi-insert
+Control-l: clear-screen
+EOF
+
+    cat > bashrc <<'EOF'
+PATH=$PATH:$HOME/bin:$HOME/src/build/db:$HOME/src/build/tools/cdb2sql:$HOME/src/build/tools/pmux
+PS1='[\u@\h \W]\$ '
+alias go=". $HOME/bin/go"
+EOF
+
+    cat > gdbinit <<'EOF'
+set print thread-events off
+set height unlimited
+set width unlimited
+set print pretty on
+set confirm off
+define whereall
+thread apply all where
+end
+define wa
+thread apply all where
+end
+document whereall
+Alias for 'thread apply all where'
+end
+document wa
+Alias for 'thread apply all where'
+end
+EOF
+
   if [ -f /etc/redhat-release ]; then
   cat >> Dockerfile <<EOF
 FROM fedora:latest
 RUN dnf install -y          \
     figlet                  \
     gdb                     \
+    iputils                 \
     libunwind               \
     nmap-ncat               \
     protobuf-c              \
@@ -19,6 +55,7 @@ RUN dnf install -y          \
     sqlite                  \
     strace                  \
     telnet                  \
+    tcputils                \
     valgrind                \
     vim
 EOF
@@ -42,34 +79,10 @@ RUN apt install -y          \
     vim
 EOF
   fi
-  cat >> Dockerfile <<EOF
-RUN echo "set editing-mode vi"                  >> /root/.inputrc
-RUN echo "set editing-mode vi"                  >> /root/.inputrc
-RUN echo "set keymap vi-command"                >> /root/.inputrc
-RUN echo "Control-l: clear-screen"              >> /root/.inputrc
-RUN echo "set keymap vi-insert"                 >> /root/.inputrc
-RUN echo "Control-l: clear-screen"              >> /root/.inputrc
-RUN echo "PATH=\\\$PATH:$HOME/bin"                >> /root/.bashrc
-RUN echo "PATH=\\\$PATH:$SRC/build/db"            >> /root/.bashrc
-RUN echo "PATH=\\\$PATH:$SRC/build/tools/cdb2sql" >> /root/.bashrc
-RUN echo "PATH=\\\$PATH:$SRC/build/tools/pmux"    >> /root/.bashrc
-RUN echo "set print thread-events off"          >> /root/.gdbinit
-RUN echo "set height unlimited"                 >> /root/.gdbinit
-RUN echo "set width unlimited"                  >> /root/.gdbinit
-RUN echo "set print pretty on"                  >> /root/.gdbinit
-RUN echo "set confirm off"                      >> /root/.gdbinit
-RUN echo "define whereall"                      >> /root/.gdbinit
-RUN echo "thread apply all where"               >> /root/.gdbinit
-RUN echo "end"                                  >> /root/.gdbinit
-RUN echo "define wa"                            >> /root/.gdbinit
-RUN echo "thread apply all where"               >> /root/.gdbinit
-RUN echo "end"                                  >> /root/.gdbinit
-RUN echo "document whereall"                    >> /root/.gdbinit
-RUN echo "Alias for 'thread apply all where'"   >> /root/.gdbinit
-RUN echo "end"                                  >> /root/.gdbinit
-RUN echo "document wa"                          >> /root/.gdbinit
-RUN echo "Alias for 'thread apply all where'"   >> /root/.gdbinit
-RUN echo "end"                                  >> /root/.gdbinit
+    cat >> Dockerfile <<EOF
+COPY inputrc /root/.inputrc
+COPY bashrc  /root/.bashrc
+COPY gdbinit /root/.gdbinit
 EOF
   docker build -t sikarwar:comdb2 .
   popd
@@ -82,7 +95,7 @@ function run {
   put clusternum $1
   for((i=1;i<=$n;++i)); do
     name=$(container-name $i)
-    docker run -it -d --privileged --network host --network comdb2 -v $HOME/bin:$HOME/bin -v $SRC:$SRC --name ${name} --hostname ${name} sikarwar:comdb2 /bin/cat
+    docker run -it -d --privileged --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /bin/cat
   done
 }
 
@@ -145,7 +158,7 @@ EOF
 }
 
 function copy {
-  cp -r /home/sikarwar/src/bb /opt
+  cp -r $HOME/src/bb /opt
   #me=$HOSTNAME
   #if [[ $me == 'c1' ]]; then
   #    me=""

@@ -19,5 +19,5 @@ shift
 if [[ $DB == "pmux" ]]; then
     echo $1 | nc $host 5105
 else
-    echo -e "select 'comdb2_host='||comdb2_host() as out\nexec procedure sys.cmd.send('$*')" | cdb2sql -s $DB @${host} - | sed "s/^(out='//g;s/')$//g"
+    echo -e "select 'comdb2_host='||comdb2_host() as out\nexec procedure sys.cmd.send('$*')" | cdb2sql -s --admin $DB @${host} - | sed "s/^(out='//g;s/')$//g"
 fi
