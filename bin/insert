@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cdb2sql akdb default "drop table if exists t"
+cdb2sql akdb default "create table t (i int)"
+num=8
+for((i=1;i<=$num;++i));do
+    for ((j=1;j<=24;++j));do
+        cdb2sql akdb @c$i "insert into t select * from generate_series limit 500" > /dev/null &
+    done
+done
+time wait

@@ -112,18 +112,25 @@ function run {
   put clusternum $1
   for((i=1;i<=$n;++i)); do
     name=$(container-name $i)
-    docker run -it -d --privileged --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /bin/cat
+    docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /bin/cat
   done
   declare -a names
   for((i=1;i<$n;++i)); do
     names+=($(container-name $i))
   done
-  sed -i '/^cluster nodes/d' $HOME/src/bb/var/cdb2/akdb/akdb.lrl
-  echo "cluster nodes ${names[@]}" >> $HOME/src/bb/var/cdb2/akdb/akdb.lrl
+  cmd='s/^num=.*$/num='"$((n - 1))/"
+  sed -i "$cmd" $HOME/bin/insert
   mkdir -p $HOME/src/bb/etc/cdb2/config.d
   cat > $HOME/src/bb/etc/cdb2/config.d/akdb.cfg <<EOF
 akdb ${names[@]}
 comdb2_config: default_type dev
+EOF
+  cat <<EOF > $HOME/src/bb/var/cdb2/akdb/akdb.lrl
+name akdb
+dir /opt/bb/var/cdb2/akdb
+cluster nodes ${names[@]}"
+setattr directio off
+on parallel_count
 EOF
 }
 
@@ -170,6 +177,7 @@ Usage: cluster <cmd> [arg]
 cmd list:
   akdb  --------------- Start database
   build --------------- Build docker image
+  client -------------- Client container
   copy  --------------- Setup /opt/bb
   ev [on|off] --------- Set, clear, check event_net
   gdb   --------------- Start database under gdb
@@ -187,6 +195,11 @@ EOF
 
 function copy {
   cp -r $HOME/src/bb /opt
+}
+
+function client {
+  n=$(get clusternum)
+  c $n
 }
 
 function ev {
@@ -221,6 +234,8 @@ elif [[ "$1" == "vg" ]]; then
 elif [[ "$1" == "ps" ]]; then
   figlet $(get clusternum)
   docker ps -a
+elif [[ "$1" == "client" ]] || [[ "$1" == "cl" ]]; then
+  client
 elif [[ "$1" == "copy" ]]; then
   copy
 elif [[ "$1" == "ev" ]]; then

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+t=${1:-t}
+cdb2sql akdb default "select count(*) from $t"
