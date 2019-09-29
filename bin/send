@@ -1,23 +1,13 @@
-function usage {
-    echo "Usage: send [-m machine] dbname cmd args...]"
-    exit 1
-}
-
-if [[ "$#" -eq 0 ]]; then
-    usage
-fi
-
-host=$HOSTNAME
-if [[ "$1" == "-m" ]]; then
-    shift
-    host="$1"
-    shift
-fi
+#!/bin/bash
 
 DB=$1
 shift
 if [[ $DB == "pmux" ]]; then
-    echo $1 | nc $host 5105
+    exec 3<>/dev/tcp/localhost/5105
+    echo "$*" >&3
+    cat <&3 &
+    sleep 0.05
+    kill %1
 else
-    echo -e "select 'comdb2_host='||comdb2_host() as out\nexec procedure sys.cmd.send('$*')" | cdb2sql -s --admin $DB @${host} - | sed "s/^(out='//g;s/')$//g"
+    cdb2sql -s $DB local "@send $*" | sed "s/^(out='//g;s/')$//g"
 fi

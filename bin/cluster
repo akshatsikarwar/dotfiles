@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+
 SRC=$HOME/src
 LRL=/opt/bb/var/cdb2/akdb/akdb.lrl
 
@@ -69,6 +69,7 @@ bison \
 build-essential \
 cmake \
 cmake-curses-gui \
+figlet \
 flex \
 gdb \
 libevent-dev \
@@ -112,7 +113,9 @@ function run {
   put clusternum $1
   for((i=1;i<=$n;++i)); do
     name=$(container-name $i)
-    docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /bin/cat
+    #docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /root/src/build/tools/pmux/pmux -f -n
+    docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /usr/bin/cat
+    docker exec -it $(container-name $i) /root/bin/cluster copy
   done
   declare -a names
   for((i=1;i<$n;++i)); do
@@ -128,9 +131,10 @@ EOF
   cat <<EOF > $HOME/src/bb/var/cdb2/akdb/akdb.lrl
 name akdb
 dir /opt/bb/var/cdb2/akdb
-cluster nodes ${names[@]}"
+cluster nodes ${names[@]}
 setattr directio off
 on parallel_count
+cache 512 mb
 EOF
 }
 
@@ -153,6 +157,14 @@ function tmux {
     /usr/bin/tmux send-keys "$HOME/bin/c ${i}" Enter
     /usr/bin/tmux select-layout tiled
   done
+}
+
+function akdb {
+  tmux
+  /usr/bin/tmux set-window-option synchronize-panes
+  /usr/bin/tmux send-keys "comdb2 akdb" Enter
+  /usr/bin/tmux set-option window-status-style "bg=colour124"
+  /usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
 function gdb {
@@ -219,14 +231,25 @@ function ev {
   fi
 }
 
+function stop {
+  n=$(get clusternum)
+  for ((i=1;i<=${n};++i)); do
+    docker exec -it $(container-name $i) /root/bin/send pmux exit
+  done
+}
+
 if [[ "$1" == "build" ]]; then
   build
 elif [[ "$1" == "run" ]]; then
   run $(($2+1))
+elif [[ "$1" == "stop" ]]; then
+  stop $(($2+1))
 elif [[ "$1" == "rm" ]] || [[ "$1" == "stop" ]] || [[ "$1" == "kill" ]] || [[ "$1" == "start" ]]; then
   do_docker "$1"
 elif [[ "$1" == "tmux" ]]; then
   tmux
+elif [[ "$1" == "akdb" ]]; then
+  akdb
 elif [[ "$1" == "gdb" ]]; then
   gdb
 elif [[ "$1" == "vg" ]]; then
