@@ -24,5 +24,7 @@ set cinoptions=:0
 set wildmenu
 set mouse=""
 set makeprg=vim-make
-colo elflord
-let g:yankring_history_dir=expand('/tmp')
+
+"set termguicolors
+set background=dark
+colorscheme solarized

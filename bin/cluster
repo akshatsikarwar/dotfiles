@@ -6,43 +6,8 @@ LRL=/opt/bb/var/cdb2/akdb/akdb.lrl
 function build {
   DIR=$(mktemp -d)
   pushd $DIR
-    cat > inputrc <<'EOF'
-set editing-mode vi
-set editing-mode vi
-set keymap vi-command
-Control-l: clear-screen
-set keymap vi-insert
-Control-l: clear-screen
-EOF
-
-    cat > bashrc <<'EOF'
-PATH=$PATH:$HOME/bin:$HOME/src/build/db:$HOME/src/build/tools/cdb2sql:$HOME/src/build/tools/pmux:$HOME/src/build/tools/cdb2sockpool
-PS1='[\u@\h \W]\$ '
-alias go=". $HOME/bin/go"
-EOF
-
-    cat > gdbinit <<'EOF'
-set print thread-events off
-set height unlimited
-set width unlimited
-set print pretty on
-set confirm off
-define whereall
-thread apply all where
-end
-define wa
-thread apply all where
-end
-document whereall
-Alias for 'thread apply all where'
-end
-document wa
-Alias for 'thread apply all where'
-end
-EOF
-
   if [ -f /etc/redhat-release ]; then
-  cat >> Dockerfile <<EOF
+    cat >> Dockerfile <<EOF
 FROM fedora:latest
 RUN dnf install -y          \
     figlet                  \
@@ -60,47 +25,54 @@ RUN dnf install -y          \
     vim
 EOF
   else
-  cat >> Dockerfile <<EOF
-FROM ubuntu:disco
+    cat >> Dockerfile <<EOF
+FROM ubuntu:bionic
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install -y \
-bison \
-build-essential \
-cmake \
-cmake-curses-gui \
-figlet \
-flex \
-gdb \
-libevent-dev \
-liblz4-dev \
-libncurses5-dev \
-libprotobuf-c-dev \
-libprotobuf-c1 \
-libreadline-dev \
-libreadline8 \
-libsqlite3-0 \
-libsqlite3-dev \
-libssl-dev \
-libunwind-dev \
-libunwind8 \
-netcat-openbsd \
-ninja-build \
-openssl \
-protobuf-c-compiler \
-strace \
-tcl \
-tzdata \
-uuid-dev \
-valgrind \
-vim \
-zlib1g-dev
+RUN apt-get install -y      \
+    figlet                  \
+    gdb                     \
+    libevent-2.1            \
+    libevent-core-2.1       \
+    libevent-pthreads-2.1   \
+    libprotobuf-c1          \
+    libreadline7            \
+    libsqlite3-0            \
+    libunwind8              \
+    make                    \
+    netcat-openbsd          \
+    openssh-client          \
+    openssh-server          \
+    openssl                 \
+    strace                  \
+    tzdata                  \
+    valgrind                \
+    vim
 EOF
   fi
-    cat >> Dockerfile <<EOF
-COPY inputrc /root/.inputrc
-COPY bashrc  /root/.bashrc
-COPY gdbinit /root/.gdbinit
+  cp $HOME/.inputrc inputrc
+  cp $HOME/.gdbinit gdbinit
+  cp $HOME/.bash_aliases bashrc
+  cat >> bashrc <<'EOF'
+BLD=$HOME/src/build
+export PATH=$BLD/db:$BLD/tools/pmux:$BLD/tools/cdb2sql:$PATH
+EOF
+  ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
+  cat > config <<EOF
+LogLevel=quiet
+HOST c*
+    StrictHostKeyChecking no
+EOF
+  cat >> Dockerfile <<EOF
+RUN mkdir /root/.ssh /var/run/sshd
+RUN touch       /root/.hushlogin
+COPY config     /root/.ssh/config
+COPY id_rsa     /root/.ssh/id_rsa
+COPY id_rsa.pub /root/.ssh/id_rsa.pub
+COPY id_rsa.pub /root/.ssh/authorized_keys
+COPY inputrc    /root/.inputrc
+COPY bashrc     /root/.bashrc
+COPY gdbinit    /root/.gdbinit
 EOF
   docker build -t sikarwar:comdb2 .
   popd
@@ -113,9 +85,7 @@ function run {
   put clusternum $1
   for((i=1;i<=$n;++i)); do
     name=$(container-name $i)
-    #docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /root/src/build/tools/pmux/pmux -f -n
-    docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /usr/bin/cat
-    docker exec -it $(container-name $i) /root/bin/cluster copy
+    docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D
   done
   declare -a names
   for((i=1;i<$n;++i)); do
@@ -136,6 +106,9 @@ setattr directio off
 on parallel_count
 cache 512 mb
 EOF
+  for((i=1;i<$n;++i)); do
+    docker exec -it $(container-name $i) /root/bin/cluster copy
+  done
 }
 
 function do_docker {
@@ -240,6 +213,9 @@ function stop {
 
 if [[ "$1" == "build" ]]; then
   build
+elif [[ "$1" == "clean" ]]; then
+  do_docker "kill"
+  do_docker "rm"
 elif [[ "$1" == "run" ]]; then
   run $(($2+1))
 elif [[ "$1" == "stop" ]]; then

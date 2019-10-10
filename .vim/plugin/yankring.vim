@@ -30,17 +30,7 @@ if v:version > 701 || ( v:version == 701 && has("patch205") )
     let s:yr_has_voperator = 1
 endif
 
-if !exists('g:yankring_history_dir')
-    let g:yankring_history_dir = expand('$HOME')
-else
-    " let g:yankring_history_dir = expand(g:yankring_history_dir)
-    for dir in split(g:yankring_history_dir, ",")
-        if isdirectory(expand(dir))
-            let g:yankring_history_dir = expand(dir)
-            break
-        endif
-    endfor
-endif
+let g:yankring_history_dir = '/tmp'
 
 if !exists('g:yankring_buffer_name')
     let g:yankring_buffer_name = '[YankRing]'

@@ -3,10 +3,6 @@ bind -f $HOME/.inputrc
 
 export PATH=$(printf %s "$HOME/bin:/opt/bb/bin:$PATH" | awk -vRS=: '!a[$0]++' | paste -s -d:)
 export EDITOR=vim
-export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-export PGHOST=/opt/pgsql/data/
-export PGDATA=/opt/pgsql/data
-export PGDATABASE=postgres
 
 alias l="ls -F"
 alias ll="ls -l"
