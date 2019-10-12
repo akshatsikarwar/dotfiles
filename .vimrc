@@ -24,7 +24,3 @@ set cinoptions=:0
 set wildmenu
 set mouse=""
 set makeprg=vim-make
-
-"set termguicolors
-set background=dark
-colorscheme solarized

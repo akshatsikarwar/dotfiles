@@ -1,6 +1,7 @@
 *.swp
 /.ICEauthority
 /.Xauthority
+/.Xclients
 /.bash*
 /.cache
 /.cdb2sql_history
@@ -8,6 +9,7 @@
 /.config
 /.conky/
 /.dbus
+/.dir_colors
 /.dmrc
 /.esd_auth
 /.face
@@ -39,6 +41,7 @@
 /.wget-hsts
 /.xfce4-session.verbose-log
 /.xfce4-session.verbose-log.last
+/.xinitrc
 /.xscreensaver
 /.xsession-errors*
 /Desktop
