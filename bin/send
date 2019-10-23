@@ -3,8 +3,7 @@
 DB=$1
 shift
 if [[ $DB == "pmux" ]]; then
-    #exec 3<>/dev/tcp/localhost/5105
-    exec 3<>/dev/tcp/localhost/19900
+    exec 3<>/dev/tcp/localhost/5105
     echo "$*" >&3
     cat <&3 &
     sleep 0.05
