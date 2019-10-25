@@ -164,7 +164,7 @@ cmd list:
   build --------------- Build docker image
   client -------------- Client container
   copy  --------------- Setup /opt/bb
-  ev [on|off] --------- Set, clear, check event_net
+  ev [on|off] --------- Set, clear, check libevent
   gdb   --------------- Start database under gdb
   kill  --------------- Kill containers
   ps    --------------- List containers
@@ -188,17 +188,17 @@ function client {
 }
 
 function ev {
-  have=$(egrep '^event_net ' $LRL | wc -l)
+  have=$(egrep '^libevent ' $LRL | wc -l)
   if [[ "$1" == "on" ]] || [[ "$1" == "off" ]]; then
     if [[ $have -eq 1 ]]; then
-      sed -i 's/^event_net .*$/event_net '"$1/" $LRL
+      sed -i 's/^libevent .*$/libevent '"$1/" $LRL
     else
-      echo event_net $1 >> $LRL
+      echo libevent $1 >> $LRL
     fi
     have=1
   fi
   if [[ $have -eq 1 ]]; then
-    figlet $(grep event_net $LRL | awk '{print $2}')
+    figlet $(grep libevent $LRL | awk '{print $2}')
   else
     figlet missing
   fi

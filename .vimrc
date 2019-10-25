@@ -26,4 +26,9 @@ set cinoptions=:0
 set wildmenu
 set mouse=""
 set makeprg=vim-make
-colo ron
+set cursorline
+"set termguicolors
+"colo darkblue
+let g:aldmeris_termcolors = "tango"
+let g:aldmeris_transparent = 1
+colo aldmeris
