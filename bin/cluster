@@ -4,241 +4,244 @@ SRC=$HOME/src
 LRL=/opt/bb/var/cdb2/akdb/akdb.lrl
 
 function build {
-  DIR=$(mktemp -d)
-  pushd $DIR
-  if [ -f /etc/redhat-release ]; then
-    cat >> Dockerfile <<EOF
-FROM fedora:latest
-RUN dnf install -y          \
-    figlet                  \
-    gdb                     \
-    iputils                 \
-    libunwind               \
-    nmap-ncat               \
-    protobuf-c              \
-    procps                  \
-    sqlite                  \
-    strace                  \
-    telnet                  \
-    tcputils                \
-    valgrind                \
-    vim
-EOF
-  else
-    cat >> Dockerfile <<EOF
-FROM ubuntu:bionic
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update
-RUN apt-get install -y      \
-    figlet                  \
-    gdb                     \
-    libevent-2.1            \
-    libevent-core-2.1       \
-    libevent-pthreads-2.1   \
-    libprotobuf-c1          \
-    libreadline7            \
-    libsqlite3-0            \
-    libunwind8              \
-    make                    \
-    netcat-openbsd          \
-    openssh-client          \
-    openssh-server          \
-    openssl                 \
-    strace                  \
-    tzdata                  \
-    valgrind                \
-    vim
-EOF
-  fi
-  cp $HOME/.inputrc inputrc
-  cp $HOME/.gdbinit gdbinit
-  cp $HOME/.bash_aliases bashrc
-  cat >> bashrc <<'EOF'
-BLD=$HOME/src/build
-export PATH=$BLD/db:$BLD/tools/pmux:$BLD/tools/cdb2sql:$PATH
-EOF
-  ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
-  cat > config <<EOF
-LogLevel=quiet
-HOST c*
-    StrictHostKeyChecking no
-EOF
-  cat >> Dockerfile <<EOF
-RUN mkdir /root/.ssh /var/run/sshd
-RUN touch       /root/.hushlogin
-COPY config     /root/.ssh/config
-COPY id_rsa     /root/.ssh/id_rsa
-COPY id_rsa.pub /root/.ssh/id_rsa.pub
-COPY id_rsa.pub /root/.ssh/authorized_keys
-COPY inputrc    /root/.inputrc
-COPY bashrc     /root/.bashrc
-COPY gdbinit    /root/.gdbinit
-EOF
-  docker build -t sikarwar:comdb2 .
-  popd
-  rm -rf $DIR
+	DIR=$(mktemp -d)
+	pushd $DIR
+	if [ -f /etc/redhat-release ]; then
+		cat >> Dockerfile <<- EOF
+		FROM fedora:latest
+		RUN dnf install -y		\
+			figlet			\
+			gdb			\
+			iputils			\
+			libunwind		\
+			nmap-ncat		\
+			protobuf-c		\
+			procps			\
+			sqlite			\
+			strace			\
+			telnet			\
+			tcputils		\
+			valgrind		\
+			vim
+		EOF
+	else
+		cat >> Dockerfile <<- EOF
+		FROM ubuntu:bionic
+		ENV DEBIAN_FRONTEND=noninteractive
+		RUN apt-get update
+		RUN apt-get install -y		\
+			figlet			\
+			gawk			\
+			gdb			\
+			libevent-2.1		\
+			libevent-core-2.1	\
+			libevent-pthreads-2.1	\
+			libprotobuf-c1		\
+			libreadline7		\
+			libsqlite3-0		\
+			libunwind8		\
+			make			\
+			netcat-openbsd		\
+			openssh-client		\
+			openssh-server		\
+			openssl			\
+			strace			\
+			tzdata			\
+			valgrind		\
+			vim
+		EOF
+	fi
+	cp $HOME/.inputrc inputrc
+	cp $HOME/.gdbinit gdbinit
+	cp $HOME/.bash_aliases bashrc
+	cat >> bashrc <<- 'EOF'
+	BLD=$HOME/src/build
+	export PATH=$BLD/db:$BLD/tools/pmux:$BLD/tools/cdb2sql:$PATH
+	EOF
+	ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
+	cat > config <<- EOF
+	LogLevel=quiet
+	HOST c*
+		StrictHostKeyChecking no
+	EOF
+	cat >> Dockerfile <<- EOF
+	RUN mkdir /root/.ssh /var/run/sshd
+	RUN touch			 /root/.hushlogin
+	COPY config		 /root/.ssh/config
+	COPY id_rsa		 /root/.ssh/id_rsa
+	COPY id_rsa.pub /root/.ssh/id_rsa.pub
+	COPY id_rsa.pub /root/.ssh/authorized_keys
+	COPY inputrc		/root/.inputrc
+	COPY bashrc		 /root/.bashrc
+	COPY gdbinit		/root/.gdbinit
+	EOF
+	docker build -t sikarwar:comdb2 .
+	popd
+	rm -rf $DIR
 }
 
 function run {
-  n=$1
-  [[ $n -eq 1 ]] && usage
-  put clusternum $1
-  for((i=1;i<=$n;++i)); do
-    name=$(container-name $i)
-    docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D
-  done
-  declare -a names
-  for((i=1;i<$n;++i)); do
-    names+=($(container-name $i))
-  done
-  cmd='s/^num=.*$/num='"$((n - 1))/"
-  sed -i "$cmd" $HOME/bin/insert
-  mkdir -p $HOME/src/bb/etc/cdb2/config.d
-  cat > $HOME/src/bb/etc/cdb2/config.d/akdb.cfg <<EOF
-akdb ${names[@]}
-comdb2_config: default_type dev
-EOF
-  cat <<EOF > $HOME/src/bb/var/cdb2/akdb/akdb.lrl
-name akdb
-dir /opt/bb/var/cdb2/akdb
-cluster nodes ${names[@]}
-setattr directio off
-on parallel_count
-cache 512 mb
-EOF
-  for((i=1;i<$n;++i)); do
-    docker exec -it $(container-name $i) /root/bin/cluster copy
-  done
+	n=$1
+	[[ $n -eq 1 ]] && usage
+	put clusternum $1
+	for((i=1;i<=$n;++i)); do
+		name=$(container-name $i)
+		docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D
+	done
+	declare -a names
+	for((i=1;i<$n;++i)); do
+		names+=($(container-name $i))
+	done
+	cmd='s/^num=.*$/num='"$((n - 1))/"
+	sed -i "$cmd" $HOME/bin/insert
+	mkdir -p $HOME/src/bb/etc/cdb2/config.d
+	cat > $HOME/src/bb/etc/cdb2/config.d/akdb.cfg <<- EOF
+	akdb ${names[@]}
+	comdb2_config: default_type dev
+	EOF
+	cat > $HOME/src/bb/var/cdb2/akdb/akdb.lrl <<- EOF
+	name akdb
+	dir /opt/bb/var/cdb2/akdb
+	cluster nodes ${names[@]}
+	setattr directio off
+	on parallel_count
+	cache 512 mb
+	EOF
+	for((i=1;i<$n;++i)); do
+		docker exec -it $(container-name $i) /root/bin/cluster copy
+	done
 }
 
 function do_docker {
-  declare -a names
-  n=$(get clusternum)
-  for ((i=1;i<=${n};++i)); do
-    names+=($(container-name $i))
-  done
-  docker $1 ${names[@]}
+	declare -a names
+	n=$(get clusternum)
+	for ((i=1;i<=${n};++i)); do
+		names+=($(container-name $i))
+	done
+	docker $1 ${names[@]}
 }
 
 function tmux {
-  /usr/bin/tmux new-window
-  /usr/bin/tmux send-keys "$HOME/bin/c 1" Enter
-  n=$(get clusternum)
-  n=$((n-1))
-  for((i=2;i<=$n;++i)); do
-    /usr/bin/tmux split-window
-    /usr/bin/tmux send-keys "$HOME/bin/c ${i}" Enter
-    /usr/bin/tmux select-layout tiled
-  done
+	/usr/bin/tmux new-window
+	/usr/bin/tmux send-keys "$HOME/bin/c 1" Enter
+	n=$(get clusternum)
+	n=$((n-1))
+	for((i=2;i<=$n;++i)); do
+		/usr/bin/tmux split-window
+		/usr/bin/tmux send-keys "$HOME/bin/c ${i}" Enter
+		/usr/bin/tmux select-layout tiled
+	done
 }
 
 function akdb {
-  tmux
-  /usr/bin/tmux set-window-option synchronize-panes
-  /usr/bin/tmux send-keys "comdb2 akdb" Enter
-  /usr/bin/tmux set-option window-status-style "bg=colour124"
-  /usr/bin/tmux set-option pane-active-border-style "fg=colour124"
+	tmux
+	/usr/bin/tmux set-window-option synchronize-panes
+	/usr/bin/tmux send-keys "comdb2 akdb" Enter
+	/usr/bin/tmux set-option window-status-style "bg=colour124"
+	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
 function gdb {
-  tmux
-  /usr/bin/tmux set-window-option synchronize-panes
-  /usr/bin/tmux send-keys "gdb -q -ex run -args comdb2 akdb" Enter
-  /usr/bin/tmux set-option window-status-style "bg=colour124"
-  /usr/bin/tmux set-option pane-active-border-style "fg=colour124"
+	tmux
+	/usr/bin/tmux set-window-option synchronize-panes
+	/usr/bin/tmux send-keys "gdb -q -ex run -args comdb2 akdb" Enter
+	/usr/bin/tmux set-option window-status-style "bg=colour124"
+	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
 function vg {
-  tmux
-  /usr/bin/tmux set-window-option synchronize-panes
-  /usr/bin/tmux send-keys "valgrind comdb2 akdb" Enter
-  /usr/bin/tmux set-option window-status-style "bg=colour124"
-  /usr/bin/tmux set-option pane-active-border-style "fg=colour124"
+	tmux
+	/usr/bin/tmux set-window-option synchronize-panes
+	/usr/bin/tmux send-keys "valgrind comdb2 akdb" Enter
+	/usr/bin/tmux set-option window-status-style "bg=colour124"
+	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
 function usage {
-  cat >&2 <<EOF
-Usage: cluster <cmd> [arg]
-cmd list:
-  akdb  --------------- Start database
-  build --------------- Build docker image
-  client -------------- Client container
-  copy  --------------- Setup /opt/bb
-  ev [on|off] --------- Set, clear, check libevent
-  gdb   --------------- Start database under gdb
-  kill  --------------- Kill containers
-  ps    --------------- List containers
-  rm    --------------- Remove containers
-  run <cluster-size> -- Initial run of containers
-  start --------------- Start containers
-  stop  --------------- Stop containers
-  tmux  --------------- Container tmux panes
-  vg    --------------- Start database under valgrind
-EOF
-  exit 1
+	cat >&2 <<- EOF
+	Usage: cluster <cmd> [arg]
+	cmd list:
+		akdb	--------------- Start database
+		build --------------- Build docker image
+		client -------------- Client container
+		copy	--------------- Setup /opt/bb
+		ev [on|off] --------- Set, clear, check libevent
+		gdb	 --------------- Start database under gdb
+		kill	--------------- Kill containers
+		ps		--------------- List containers
+		rm		--------------- Remove containers
+		run <cluster-size> -- Initial run of containers
+		start --------------- Start containers
+		stop	--------------- Stop containers
+		tmux	--------------- Container tmux panes
+		vg		--------------- Start database under valgrind
+	EOF
+	exit 1
 }
 
 function copy {
-  cp -r $HOME/src/bb /opt
+	cp -r $HOME/src/bb /opt
 }
 
 function client {
-  n=$(get clusternum)
-  c $n
+	n=$(get clusternum)
+	c $n
 }
 
 function ev {
-  have=$(egrep '^libevent ' $LRL | wc -l)
-  if [[ "$1" == "on" ]] || [[ "$1" == "off" ]]; then
-    if [[ $have -eq 1 ]]; then
-      sed -i 's/^libevent .*$/libevent '"$1/" $LRL
-    else
-      echo libevent $1 >> $LRL
-    fi
-    have=1
-  fi
-  if [[ $have -eq 1 ]]; then
-    figlet $(grep libevent $LRL | awk '{print $2}')
-  else
-    figlet missing
-  fi
+	have=$(egrep '^libevent ' $LRL | wc -l)
+	if [[ "$1" == "on" ]] || [[ "$1" == "off" ]]; then
+		if [[ $have -eq 1 ]]; then
+			sed -i 's/^libevent .*$/libevent '"$1/" $LRL
+		else
+			echo libevent $1 >> $LRL
+		fi
+		have=1
+	fi
+	if [[ $have -eq 1 ]]; then
+		figlet $(grep libevent $LRL | awk '{print $2}')
+	else
+		figlet missing
+	fi
 }
 
 function stop {
-  n=$(get clusternum)
-  for ((i=1;i<=${n};++i)); do
-    docker exec -it $(container-name $i) /root/bin/send pmux exit
-  done
+	n=$(get clusternum)
+	for ((i=1;i<=${n};++i)); do
+		docker exec -it $(container-name $i) /root/bin/send pmux exit
+	done
 }
 
 if [[ "$1" == "build" ]]; then
-  build
+	build
 elif [[ "$1" == "clean" ]]; then
-  do_docker "kill"
-  do_docker "rm"
+	do_docker "kill"
+	do_docker "rm"
 elif [[ "$1" == "run" ]]; then
-  run $(($2+1))
+	run $(($2+1))
 elif [[ "$1" == "stop" ]]; then
-  stop $(($2+1))
+	stop $(($2+1))
 elif [[ "$1" == "rm" ]] || [[ "$1" == "stop" ]] || [[ "$1" == "kill" ]] || [[ "$1" == "start" ]]; then
-  do_docker "$1"
+	do_docker "$1"
 elif [[ "$1" == "tmux" ]]; then
-  tmux
+	tmux
 elif [[ "$1" == "akdb" ]]; then
-  akdb
+	akdb
 elif [[ "$1" == "gdb" ]]; then
-  gdb
+	gdb
 elif [[ "$1" == "vg" ]]; then
-  vg
+	vg
 elif [[ "$1" == "ps" ]]; then
-  figlet $(get clusternum)
-  docker ps -a
+	figlet $(get clusternum)
+	docker ps -a
 elif [[ "$1" == "client" ]] || [[ "$1" == "cl" ]]; then
-  client
+	client
 elif [[ "$1" == "copy" ]]; then
-  copy
+	copy
 elif [[ "$1" == "ev" ]]; then
-  ev "$2"
+	ev "$2"
 else
-  usage
+	usage
 fi
+
+# vim: set noet ts=8 sw=4:
