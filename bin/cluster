@@ -59,7 +59,7 @@ function build {
 	cp $HOME/.bash_aliases bash_profile
 	cat >> bash_profile <<- EOF
 	export SKIPSSL=1
-	export TESTDIR=/tmp
+	export TESTDIR=/tmp/testdir
 	EOF
 	ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
 	cat > config <<- EOF
