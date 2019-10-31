@@ -53,6 +53,7 @@ function build {
 			vim
 		EOF
 	fi
+	cp $HOME/.vimrc vimrc
 	cp $HOME/.inputrc inputrc
 	cp $HOME/.gdbinit gdbinit
 	cp $HOME/.bash_aliases bash_profile
@@ -86,6 +87,7 @@ function build {
 	COPY id_rsa		/root/.ssh/id_rsa
 	COPY id_rsa.pub		/root/.ssh/id_rsa.pub
 	COPY id_rsa.pub		/root/.ssh/authorized_keys
+	COPY vimrc		/root/.vimrc
 	COPY inputrc		/root/.inputrc
 	COPY bash_profile	/root/.bash_profile
 	COPY gdbinit		/root/.gdbinit
@@ -103,7 +105,9 @@ function run {
 	for((i=1;i<=$n;++i)); do
 		name=$(container-name $i)
 		[[ $i -lt $n ]] && names+=(${name})
-		docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb:exec --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D &
+		docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb:exec --network comdb2 \
+		    -v $HOME/bin:/root/bin -v $HOME/.vim:/root/.vim -v $SRC:/root/src \
+		    --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D &
 	done
 	wait
 	cluster_cmd='echo export CLUSTER=\"'"${names[@]}"'\" >> /root/.bash_profile'
@@ -162,6 +166,7 @@ function usage {
 	cmd list:
 	  akdb  ----------------- Start database
 	  build ----------------- Build docker image
+	  clean ----------------- Kill and remove containers
 	  client ---------------- Client container
 	  ev [on|off] ----------- Set, clear, check libevent
 	  gdb   ----------------- Start database under gdb
