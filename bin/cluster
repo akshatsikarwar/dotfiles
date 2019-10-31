@@ -30,6 +30,7 @@ function build {
 		ENV DEBIAN_FRONTEND=noninteractive
 		RUN apt-get update
 		RUN apt-get install -y		\
+			cmake			\
 			figlet			\
 			gawk			\
 			gdb			\
@@ -40,6 +41,7 @@ function build {
 			libreadline7		\
 			libsqlite3-0		\
 			libunwind8		\
+			liblz4-tool		\
 			make			\
 			netcat-openbsd		\
 			openssh-client		\
@@ -53,10 +55,10 @@ function build {
 	fi
 	cp $HOME/.inputrc inputrc
 	cp $HOME/.gdbinit gdbinit
-	cp $HOME/.bash_aliases bashrc
-	cat >> bashrc <<- 'EOF'
-	BLD=$HOME/src/build
-	export PATH=$BLD/db:$BLD/tools/pmux:$BLD/tools/cdb2sql:$PATH
+	cp $HOME/.bash_aliases bash_profile
+	cat >> bash_profile <<- EOF
+	export SKIPSSL=1
+	export TESTDIR=/tmp
 	EOF
 	ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
 	cat > config <<- EOF
@@ -65,14 +67,27 @@ function build {
 		StrictHostKeyChecking no
 	EOF
 	cat >> Dockerfile <<- EOF
-	RUN mkdir /root/.ssh /var/run/sshd
-	RUN touch			 /root/.hushlogin
-	COPY config		 /root/.ssh/config
-	COPY id_rsa		 /root/.ssh/id_rsa
-	COPY id_rsa.pub /root/.ssh/id_rsa.pub
-	COPY id_rsa.pub /root/.ssh/authorized_keys
+	RUN mkdir -p /opt/bb/bin /opt/bb/etc/cdb2/config/comdb2.d /opt/bb/include /opt/bb/lib/cdb2 /opt/bb/lib/pkgconfig /opt/bb/lib/systemd /opt/bb/lib/systemd/system /opt/bb/log/cdb2 /opt/bb/var/cdb2 /opt/bb/var/lib/cdb2 /opt/bb/var/log/cdb2
+	RUN ln -s /root/src/build/db/comdb2			/opt/bb/bin/
+	RUN ln -s /root/src/build/db/comdb2dumpcsc		/opt/bb/bin/
+	RUN ln -s /root/src/build/db/copycomdb2			/opt/bb/bin/
+	RUN ln -s /root/src/build/tools/pmux/pmux		/opt/bb/bin/
+	RUN ln -s /root/src/build/tools/comdb2ar/comdb2ar	/opt/bb/bin/
+	RUN ln -s /root/src/build/tools/cdb2sql/cdb2sql		/opt/bb/bin/
+	RUN ln -s /opt/bb/bin/comdb2	/opt/bb/bin/cdb2_dump
+	RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_printlog
+	RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_stat
+	RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_load
+	RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_sqlreply
+	RUN ln -s /opt/bb/bin/comdb2	/opt/bb/bin/cdb2_verify
+	RUN mkdir /root/.ssh	/var/run/sshd
+	RUN touch		/root/.hushlogin
+	COPY config		/root/.ssh/config
+	COPY id_rsa		/root/.ssh/id_rsa
+	COPY id_rsa.pub		/root/.ssh/id_rsa.pub
+	COPY id_rsa.pub		/root/.ssh/authorized_keys
 	COPY inputrc		/root/.inputrc
-	COPY bashrc		 /root/.bashrc
+	COPY bash_profile	/root/.bash_profile
 	COPY gdbinit		/root/.gdbinit
 	EOF
 	docker build -t sikarwar:comdb2 .
@@ -84,32 +99,15 @@ function run {
 	n=$1
 	[[ $n -eq 1 ]] && usage
 	put clusternum $1
+	declare -a names
 	for((i=1;i<=$n;++i)); do
 		name=$(container-name $i)
-		docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D
+		[[ $i -lt $n ]] && names+=(${name})
+		docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb:exec --network comdb2 -v $HOME/bin:/root/bin -v $SRC:/root/src --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D &
 	done
-	declare -a names
-	for((i=1;i<$n;++i)); do
-		names+=($(container-name $i))
-	done
-	cmd='s/^num=.*$/num='"$((n - 1))/"
-	sed -i "$cmd" $HOME/bin/insert
-	mkdir -p $HOME/src/bb/etc/cdb2/config.d
-	cat > $HOME/src/bb/etc/cdb2/config.d/akdb.cfg <<- EOF
-	akdb ${names[@]}
-	comdb2_config: default_type dev
-	EOF
-	cat > $HOME/src/bb/var/cdb2/akdb/akdb.lrl <<- EOF
-	name akdb
-	dir /opt/bb/var/cdb2/akdb
-	cluster nodes ${names[@]}
-	setattr directio off
-	on parallel_count
-	cache 512 mb
-	EOF
-	for((i=1;i<$n;++i)); do
-		docker exec -it $(container-name $i) /root/bin/cluster copy
-	done
+	wait
+	cluster_cmd='echo export CLUSTER=\"'"${names[@]}"'\" >> /root/.bash_profile'
+	docker exec -it ${name} /bin/bash -c  "${cluster_cmd}"
 }
 
 function do_docker {
@@ -160,27 +158,23 @@ function vg {
 function usage {
 	cat >&2 <<- EOF
 	Usage: cluster <cmd> [arg]
+
 	cmd list:
-		akdb	--------------- Start database
-		build --------------- Build docker image
-		client -------------- Client container
-		copy	--------------- Setup /opt/bb
-		ev [on|off] --------- Set, clear, check libevent
-		gdb	 --------------- Start database under gdb
-		kill	--------------- Kill containers
-		ps		--------------- List containers
-		rm		--------------- Remove containers
-		run <cluster-size> -- Initial run of containers
-		start --------------- Start containers
-		stop	--------------- Stop containers
-		tmux	--------------- Container tmux panes
-		vg		--------------- Start database under valgrind
+	  akdb  ----------------- Start database
+	  build ----------------- Build docker image
+	  client ---------------- Client container
+	  ev [on|off] ----------- Set, clear, check libevent
+	  gdb   ----------------- Start database under gdb
+	  kill  ----------------- Kill containers
+	  ps    ----------------- List containers
+	  rm    ----------------- Remove containers
+	  run <cluster-size> ---- Initial run of containers
+	  start ----------------- Start containers
+	  stop  ----------------- Stop containers
+	  tmux  ----------------- Container tmux panes
+	  vg    ----------------- Start database under valgrind
 	EOF
 	exit 1
-}
-
-function copy {
-	cp -r $HOME/src/bb /opt
 }
 
 function client {
@@ -205,13 +199,6 @@ function ev {
 	fi
 }
 
-function stop {
-	n=$(get clusternum)
-	for ((i=1;i<=${n};++i)); do
-		docker exec -it $(container-name $i) /root/bin/send pmux exit
-	done
-}
-
 if [[ "$1" == "build" ]]; then
 	build
 elif [[ "$1" == "clean" ]]; then
@@ -219,8 +206,6 @@ elif [[ "$1" == "clean" ]]; then
 	do_docker "rm"
 elif [[ "$1" == "run" ]]; then
 	run $(($2+1))
-elif [[ "$1" == "stop" ]]; then
-	stop $(($2+1))
 elif [[ "$1" == "rm" ]] || [[ "$1" == "stop" ]] || [[ "$1" == "kill" ]] || [[ "$1" == "start" ]]; then
 	do_docker "$1"
 elif [[ "$1" == "tmux" ]]; then
@@ -236,8 +221,6 @@ elif [[ "$1" == "ps" ]]; then
 	docker ps -a
 elif [[ "$1" == "client" ]] || [[ "$1" == "cl" ]]; then
 	client
-elif [[ "$1" == "copy" ]]; then
-	copy
 elif [[ "$1" == "ev" ]]; then
 	ev "$2"
 else
