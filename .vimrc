@@ -2,9 +2,9 @@ syntax enable
 filetype plugin indent on
 
 map <f4> :set ts=4 sw=4 et<cr>
-map <f5> :!format-berk<cr>
+map <f5> :set ts=8 sw=8 noet<cr>
 map <f6> :!format<cr>
-map <f8> :set ts=8 sw=8 noet<cr>
+map <f7> :!format-berk<cr>
 map <bs> :tabp<cr>
 map <space> :tabn<cr>
 
