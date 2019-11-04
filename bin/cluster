@@ -1,8 +1,5 @@
 #!/bin/bash
 
-SRC=$HOME/src
-LRL=/opt/bb/var/cdb2/akdb/akdb.lrl
-
 function build {
 	DIR=$(mktemp -d)
 	pushd $DIR
@@ -106,7 +103,7 @@ function run {
 		name=$(container-name $i)
 		[[ $i -lt $n ]] && names+=(${name})
 		docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb:exec --network comdb2 \
-		    -v $HOME/bin:/root/bin -v $HOME/.vim:/root/.vim -v $SRC:/root/src \
+		    -v $HOME/bin:/root/bin -v $HOME/.vim:/root/.vim -v $HOME/src:/root/src \
 		    --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D &
 	done
 	wait
@@ -168,7 +165,6 @@ function usage {
 	  build ----------------- Build docker image
 	  clean ----------------- Kill and remove containers
 	  client ---------------- Client container
-	  ev [on|off] ----------- Set, clear, check libevent
 	  gdb   ----------------- Start database under gdb
 	  kill  ----------------- Kill containers
 	  ps    ----------------- List containers
@@ -185,23 +181,6 @@ function usage {
 function client {
 	n=$(get clusternum)
 	c $n
-}
-
-function ev {
-	have=$(egrep '^libevent ' $LRL | wc -l)
-	if [[ "$1" == "on" ]] || [[ "$1" == "off" ]]; then
-		if [[ $have -eq 1 ]]; then
-			sed -i 's/^libevent .*$/libevent '"$1/" $LRL
-		else
-			echo libevent $1 >> $LRL
-		fi
-		have=1
-	fi
-	if [[ $have -eq 1 ]]; then
-		figlet $(grep libevent $LRL | awk '{print $2}')
-	else
-		figlet missing
-	fi
 }
 
 if [[ "$1" == "build" ]]; then
@@ -226,8 +205,6 @@ elif [[ "$1" == "ps" ]]; then
 	docker ps -a
 elif [[ "$1" == "client" ]] || [[ "$1" == "cl" ]]; then
 	client
-elif [[ "$1" == "ev" ]]; then
-	ev "$2"
 else
 	usage
 fi
