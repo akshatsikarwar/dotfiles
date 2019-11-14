@@ -23,7 +23,7 @@ function build {
 		EOF
 	else
 		cat >> Dockerfile <<- EOF
-		FROM ubuntu:bionic
+		FROM ubuntu:latest
 		ENV DEBIAN_FRONTEND=noninteractive
 		RUN apt-get update
 		RUN apt-get install -y		\
@@ -44,6 +44,7 @@ function build {
 			openssh-client		\
 			openssh-server		\
 			openssl			\
+			psmisc			\
 			strace			\
 			tzdata			\
 			valgrind		\
@@ -57,6 +58,8 @@ function build {
 	cat >> bash_profile <<- EOF
 	export SKIPSSL=1
 	export TESTDIR=/tmp/testdir
+	export SKIP_COPY_EXE=1
+	export SKIPDEBUG=1
 	EOF
 	ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
 	cat > config <<- EOF
