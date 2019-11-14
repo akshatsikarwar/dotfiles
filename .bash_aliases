@@ -16,6 +16,7 @@ alias vi="vim"
 alias g='git'
 alias ga='git add'
 alias gaa='git add --all'
+alias gai='git add --interactive'
 
 alias gb='git branch'
 alias gba='git branch -a'
@@ -54,6 +55,7 @@ alias glga='git log --oneline --decorate --graph --all'
 
 alias gp='git push'
 alias gpo='git push origin'
+alias gpo!='git push --force origin'
 alias gpu='git push upstream'
 alias gp!='git push --force'
 alias gpd='git push --dry-run'
