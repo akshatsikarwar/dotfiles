@@ -5,50 +5,50 @@ function build {
 	pushd $DIR
 	if [ -f /etc/redhat-release ]; then
 		cat >> Dockerfile <<- EOF
-		FROM fedora:latest
-		RUN dnf install -y		\
-			figlet			\
-			gdb			\
-			iputils			\
-			libunwind		\
-			nmap-ncat		\
-			protobuf-c		\
-			procps			\
-			sqlite			\
-			strace			\
-			telnet			\
-			tcputils		\
-			valgrind		\
-			vim
+		    FROM fedora:latest
+		    RUN dnf install -y			\
+			    figlet			\
+			    gdb				\
+			    iputils			\
+			    libunwind			\
+			    nmap-ncat			\
+			    protobuf-c			\
+			    procps			\
+			    sqlite			\
+			    strace			\
+			    telnet			\
+			    tcputils			\
+			    valgrind			\
+			    vim
 		EOF
 	else
 		cat >> Dockerfile <<- EOF
-		FROM ubuntu:latest
-		ENV DEBIAN_FRONTEND=noninteractive
-		RUN apt-get update
-		RUN apt-get install -y		\
-			cmake			\
-			figlet			\
-			gawk			\
-			gdb			\
-			libevent-2.1		\
-			libevent-core-2.1	\
-			libevent-pthreads-2.1	\
-			libprotobuf-c1		\
-			libreadline7		\
-			libsqlite3-0		\
-			libunwind8		\
-			liblz4-tool		\
-			make			\
-			netcat-openbsd		\
-			openssh-client		\
-			openssh-server		\
-			openssl			\
-			psmisc			\
-			strace			\
-			tzdata			\
-			valgrind		\
-			vim
+		    FROM ubuntu:latest
+		    ENV DEBIAN_FRONTEND=noninteractive
+		    RUN apt-get update
+		    RUN apt-get install -y		\
+			    cmake			\
+			    figlet			\
+			    gawk			\
+			    gdb				\
+			    libevent-2.1		\
+			    libevent-core-2.1		\
+			    libevent-pthreads-2.1	\
+			    libprotobuf-c1		\
+			    libreadline7		\
+			    libsqlite3-0		\
+			    libunwind8			\
+			    liblz4-tool			\
+			    make			\
+			    netcat-openbsd		\
+			    openssh-client		\
+			    openssh-server		\
+			    openssl			\
+			    psmisc			\
+			    strace			\
+			    tzdata			\
+			    valgrind			\
+			    vim
 		EOF
 	fi
 	cp $HOME/.vimrc vimrc
@@ -56,41 +56,41 @@ function build {
 	cp $HOME/.gdbinit gdbinit
 	cp $HOME/.bash_aliases bash_profile
 	cat >> bash_profile <<- EOF
-	export SKIPSSL=1
-	export TESTDIR=/tmp/testdir
-	export SKIP_COPY_EXE=1
-	export SKIPDEBUG=1
+	    export SKIPSSL=1
+	    export TESTDIR=/tmp/testdir
+	    export SKIP_COPY_EXE=1
+	    export SKIPDEBUG=1
 	EOF
 	ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
 	cat > config <<- EOF
-	LogLevel=quiet
-	HOST c*
-		StrictHostKeyChecking no
+	    LogLevel=quiet
+	    HOST c*
+		    StrictHostKeyChecking no
 	EOF
 	cat >> Dockerfile <<- EOF
-	RUN mkdir -p /opt/bb/bin /opt/bb/etc/cdb2/config/comdb2.d /opt/bb/include /opt/bb/lib/cdb2 /opt/bb/lib/pkgconfig /opt/bb/lib/systemd /opt/bb/lib/systemd/system /opt/bb/log/cdb2 /opt/bb/var/cdb2 /opt/bb/var/lib/cdb2 /opt/bb/var/log/cdb2
-	RUN ln -s /root/src/build/db/comdb2			/opt/bb/bin/
-	RUN ln -s /root/src/build/db/comdb2dumpcsc		/opt/bb/bin/
-	RUN ln -s /root/src/build/db/copycomdb2			/opt/bb/bin/
-	RUN ln -s /root/src/build/tools/pmux/pmux		/opt/bb/bin/
-	RUN ln -s /root/src/build/tools/comdb2ar/comdb2ar	/opt/bb/bin/
-	RUN ln -s /root/src/build/tools/cdb2sql/cdb2sql		/opt/bb/bin/
-	RUN ln -s /opt/bb/bin/comdb2	/opt/bb/bin/cdb2_dump
-	RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_printlog
-	RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_stat
-	RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_load
-	RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_sqlreply
-	RUN ln -s /opt/bb/bin/comdb2	/opt/bb/bin/cdb2_verify
-	RUN mkdir /root/.ssh	/var/run/sshd
-	RUN touch		/root/.hushlogin
-	COPY config		/root/.ssh/config
-	COPY id_rsa		/root/.ssh/id_rsa
-	COPY id_rsa.pub		/root/.ssh/id_rsa.pub
-	COPY id_rsa.pub		/root/.ssh/authorized_keys
-	COPY vimrc		/root/.vimrc
-	COPY inputrc		/root/.inputrc
-	COPY bash_profile	/root/.bash_profile
-	COPY gdbinit		/root/.gdbinit
+	    RUN mkdir -p /opt/bb/bin /opt/bb/etc/cdb2/config/comdb2.d /opt/bb/include /opt/bb/lib/cdb2 /opt/bb/lib/pkgconfig /opt/bb/lib/systemd /opt/bb/lib/systemd/system /opt/bb/log/cdb2 /opt/bb/var/cdb2 /opt/bb/var/lib/cdb2 /opt/bb/var/log/cdb2
+	    RUN ln -s /root/src/build/db/comdb2			/opt/bb/bin/
+	    RUN ln -s /root/src/build/db/comdb2dumpcsc		/opt/bb/bin/
+	    RUN ln -s /root/src/build/db/copycomdb2			/opt/bb/bin/
+	    RUN ln -s /root/src/build/tools/pmux/pmux		/opt/bb/bin/
+	    RUN ln -s /root/src/build/tools/comdb2ar/comdb2ar	/opt/bb/bin/
+	    RUN ln -s /root/src/build/tools/cdb2sql/cdb2sql		/opt/bb/bin/
+	    RUN ln -s /opt/bb/bin/comdb2	/opt/bb/bin/cdb2_dump
+	    RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_printlog
+	    RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_stat
+	    RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_load
+	    RUN ln -s /opt/bb/bin/comdb2 	/opt/bb/bin/cdb2_sqlreply
+	    RUN ln -s /opt/bb/bin/comdb2	/opt/bb/bin/cdb2_verify
+	    RUN mkdir /root/.ssh	/var/run/sshd
+	    RUN touch		/root/.hushlogin
+	    COPY config		/root/.ssh/config
+	    COPY id_rsa		/root/.ssh/id_rsa
+	    COPY id_rsa.pub		/root/.ssh/id_rsa.pub
+	    COPY id_rsa.pub		/root/.ssh/authorized_keys
+	    COPY vimrc		/root/.vimrc
+	    COPY inputrc		/root/.inputrc
+	    COPY bash_profile	/root/.bash_profile
+	    COPY gdbinit		/root/.gdbinit
 	EOF
 	docker build -t sikarwar:comdb2 .
 	popd
@@ -112,6 +112,14 @@ function run {
 	wait
 	cluster_cmd='echo export CLUSTER=\"'"${names[@]}"'\" >> /root/.bash_profile'
 	docker exec -it ${name} /bin/bash -c  "${cluster_cmd}"
+	akdb_cfg=$(mktemp)
+	cat > $akdb_cfg <<- EOF
+		akdb ${names[@]}
+		comdb2_config:default_type docker
+		comdb2_config:allow_pmux_route:true
+	EOF
+	docker cp $akdb_cfg ${name}:/opt/bb/etc/cdb2/config.d/akdb.cfg
+	rm $akdb_cfg
 }
 
 function do_docker {
@@ -161,22 +169,22 @@ function vg {
 
 function usage {
 	cat >&2 <<- EOF
-	Usage: cluster <cmd> [arg]
+		Usage: cluster <cmd> [arg]
 
-	cmd list:
-	  akdb  ----------------- Start database
-	  build ----------------- Build docker image
-	  clean ----------------- Kill and remove containers
-	  client ---------------- Client container
-	  gdb   ----------------- Start database under gdb
-	  kill  ----------------- Kill containers
-	  ps    ----------------- List containers
-	  rm    ----------------- Remove containers
-	  run <cluster-size> ---- Initial run of containers
-	  start ----------------- Start containers
-	  stop  ----------------- Stop containers
-	  tmux  ----------------- Container tmux panes
-	  vg    ----------------- Start database under valgrind
+		cmd list:
+		  akdb  ----------------- Start database
+		  build ----------------- Build docker image
+		  clean ----------------- Kill and remove containers
+		  client ---------------- Client container
+		  gdb   ----------------- Start database under gdb
+		  kill  ----------------- Kill containers
+		  ps    ----------------- List containers
+		  rm    ----------------- Remove containers
+		  run <cluster-size> ---- Initial run of containers
+		  start ----------------- Start containers
+		  stop  ----------------- Stop containers
+		  tmux  ----------------- Container tmux panes
+		  vg    ----------------- Start database under valgrind
 	EOF
 	exit 1
 }
