@@ -1,7 +1,15 @@
 #!/bin/bash
 
+target=default
 DB=$1
 shift
+
+if [[ $DB == '-m' ]]; then
+    DB=$1
+    shift
+    target='@'$(cdb2sql -tabs $DB $target "select host from comdb2_cluster where is_master='Y'")
+fi
+
 if [[ $DB == "pmux" ]]; then
     exec 3<>/dev/tcp/localhost/5105
     echo "$*" >&3
@@ -9,5 +17,5 @@ if [[ $DB == "pmux" ]]; then
     sleep 0.05
     kill %1
 else
-    cdb2sql -s $DB local "@send $*" | sed "s/^(out='//g;s/')$//g"
+    cdb2sql -tabs $DB $target "@send $*"
 fi
