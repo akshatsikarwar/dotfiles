@@ -54,10 +54,11 @@ alias glg='git log --oneline --decorate --graph'
 alias glga='git log --oneline --decorate --graph --all'
 
 alias gp='git push'
+alias gp!='git push --force'
 alias gpo='git push origin'
 alias gpo!='git push --force origin'
 alias gpu='git push upstream'
-alias gp!='git push --force'
+alias gpu!='git push --force upstream'
 alias gpd='git push --dry-run'
 
 alias gr='git remote'
