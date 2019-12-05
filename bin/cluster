@@ -27,6 +27,7 @@ function build {
 			ENV DEBIAN_FRONTEND=noninteractive
 			RUN apt-get update
 			RUN apt-get install -y		\
+				bc			\
 				cmake			\
 				figlet			\
 				gawk			\
