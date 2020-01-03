@@ -9,7 +9,7 @@ DEFAULT="$COMDB2"
 DIRS=()
 DIRS+=("$SRC")
 DIRS+=("$HOME")
-#DIRS+=("/opt/bb/var/cdb2")
+DIRS+=("/opt/bb/var/cdb2")
 
 function usage() {
 echo "Usage: go [-h] [DIRECTORY]

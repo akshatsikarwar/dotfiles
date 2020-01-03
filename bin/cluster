@@ -164,8 +164,10 @@ function pmux {
 
 function setup_akdb {
 	set -e
-	comdb2 --create --tunable "cluster nodes $CLUSTER" akdb
-	for c in $CLUSTER; do echo $c; copycomdb2 /opt/bb/var/cdb2/akdb/akdb.lrl $c: & done
+	lrl="/opt/bb/var/cdb2/akdb/akdb.lrl"
+	comdb2 --create akdb
+	echo "cluster nodes $CLUSTER" >> $lrl
+	for c in $CLUSTER; do echo $c; copycomdb2 $lrl $c: & done
 	wait
 }
 
