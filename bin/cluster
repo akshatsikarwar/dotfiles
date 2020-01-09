@@ -32,6 +32,7 @@ function build {
 				figlet			\
 				gawk			\
 				gdb			\
+				less			\
 				libevent-2.1		\
 				libevent-core-2.1	\
 				libevent-pthreads-2.1	\
@@ -164,10 +165,12 @@ function pmux {
 
 function setup_akdb {
 	set -e
+	dir="/opt/bb/var/cdb2/akdb"
 	lrl="/opt/bb/var/cdb2/akdb/akdb.lrl"
-	comdb2 --create akdb
+	rm -rf  $dir
+	comdb2 --create akdb --dir $dir
 	echo "cluster nodes $CLUSTER" >> $lrl
-	for c in $CLUSTER; do echo $c; copycomdb2 $lrl $c: & done
+	for c in $CLUSTER; do echo $c; ssh $c rm -rf $dir; copycomdb2 $lrl $c: & done
 	wait
 }
 

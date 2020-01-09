@@ -25,8 +25,8 @@ set et
 set cinoptions=:0
 set wildmenu
 set mouse=""
-set makeprg=vim-make
 set cursorline
+set makeprg=vim-make
 
 "set termguicolors
 "colo darkblue
@@ -35,5 +35,5 @@ let g:aldmeris_transparent = 1
 let g:aldmeris_termcolors = "tango"
 colo aldmeris
 
-"set background=light
-"colo solarized
+set grepprg=git\ grep\ -n
+nnoremap gG :silent lgrep! <cword><CR>:lopen<CR>

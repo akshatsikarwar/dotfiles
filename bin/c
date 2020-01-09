@@ -1,7 +1,10 @@
 #!/bin/bash
 if [ -n $1 ] && [ "$1" -eq "$1" ]; then
+    name=$(container-name $1)
+	printf '"'\033]2;%s\033\\'"' $name
+    clear
     figlet $1
-    docker exec -it $(container-name $1) /bin/bash -l
+    docker exec -it $name /bin/bash -l
 else
     echo >&2 "Usage: c <index>"
     exit 1
