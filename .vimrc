@@ -1,3 +1,4 @@
+let mapleader = ","
 syntax enable
 filetype plugin indent on
 
@@ -7,26 +8,29 @@ map <f6> :!format<cr>
 map <f7> :!format-berk<cr>
 map <bs> :tabp<cr>
 map <space> :tabn<cr>
+map <leader>g :lgrep! <cword><cr>:lopen<cr>
+map <leader>w :set wrap!<cr>
 
+set bs=indent,eol,start
+set cinoptions=:0
+set cursorline
+set et
+set grepprg=git\ grep\ -n
+set hlsearch
+set ignorecase
+set incsearch
+set laststatus=2
+set makeprg=vim-make
+set mouse=""
 set nobackup
 set nocp
-set bs=indent,eol,start
 set noshowmatch
-set hlsearch
-set incsearch
-set ignorecase
+set nowrap
 set number
 set statusline=%<%F\ %h%m%r%y%=%-14.(%l,%c%V%)\ %P
-set laststatus=2
-set nowrap
-set ts=4
 set sw=4
-set et
-set cinoptions=:0
+set ts=4
 set wildmenu
-set mouse=""
-set cursorline
-set makeprg=vim-make
 
 "set termguicolors
 "colo darkblue
@@ -34,6 +38,3 @@ set makeprg=vim-make
 let g:aldmeris_transparent = 1
 let g:aldmeris_termcolors = "tango"
 colo aldmeris
-
-set grepprg=git\ grep\ -n
-nnoremap gG :silent lgrep! <cword><CR>:lopen<CR>
