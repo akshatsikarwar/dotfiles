@@ -3,7 +3,7 @@
 shopt -s nocasematch
 
 SRC="$HOME/src"
-COMDB2="$SRC/comdb2"
+COMDB2="$SRC/net-thds"
 DEFAULT="$COMDB2"
 
 DIRS=()

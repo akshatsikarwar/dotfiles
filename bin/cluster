@@ -163,15 +163,25 @@ function pmux {
 	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
-function setup_akdb {
+function create_akdb {
 	set -e
 	dir="/opt/bb/var/cdb2/akdb"
-	lrl="/opt/bb/var/cdb2/akdb/akdb.lrl"
 	rm -rf  $dir
 	comdb2 --create akdb --dir $dir
+}
+
+function copy_akdb {
+	set -e
+	dir="/opt/bb/var/cdb2/akdb"
+	lrl="$dir/akdb.lrl"
 	echo "cluster nodes $CLUSTER" >> $lrl
 	for c in $CLUSTER; do echo $c; ssh $c rm -rf $dir; copycomdb2 $lrl $c: & done
 	wait
+}
+
+function setup_akdb {
+	create_akdb
+	copy_akdb
 }
 
 function gdb {
@@ -195,13 +205,14 @@ function usage {
 		Usage: cluster <cmd> [arg]
 
 		cmd list:
-		  akdb  ----------------- Start database
+		  akdb  ----------------- Start database cluster-wide
 		  build ----------------- Build docker image
 		  clean ----------------- Kill and remove containers
+		  copy-akdb ------------- Copy akdb cluster-wide
 		  setup-akdb ------------ Create akdb and copy it cluster-wide
-		  gdb   ----------------- Start database under gdb
+		  gdb   ----------------- Start database under gdb cluster-wide
 		  kill  ----------------- Kill containers
-		  pmux  ----------------- Start pmux
+		  pmux  ----------------- Start pmux cluster-wide
 		  ps    ----------------- List containers
 		  rm    ----------------- Remove containers
 		  run <cluster-size> ---- Initial run of containers
@@ -216,7 +227,7 @@ function usage {
 if [[ "$1" == "build" ]]; then
 	build
 elif [[ "$1" == "clean" ]]; then
-	do_docker "kill"
+	do_docker "kill" > /dev/null
 	do_docker "rm"
 elif [[ "$1" == "run" ]]; then
 	run $2
@@ -228,6 +239,8 @@ elif [[ "$1" == "akdb" ]]; then
 	akdb
 elif [[ "$1" == "pmux" ]]; then
 	pmux
+elif [[ "$1" == "copy-akdb" ]]; then
+	copy_akdb
 elif [[ "$1" == "setup-akdb" ]]; then
 	setup_akdb
 elif [[ "$1" == "gdb" ]]; then
