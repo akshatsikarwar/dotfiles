@@ -13,7 +13,7 @@ map <leader>w :set wrap!<cr>
 
 set bs=indent,eol,start
 set cinoptions=:0
-set cursorline
+"set cursorline
 set et
 set grepprg=git\ grep\ -n
 set hlsearch

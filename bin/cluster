@@ -35,6 +35,7 @@ function build {
 				less			\
 				libevent-2.1		\
 				libevent-core-2.1	\
+				libevent-openssl-2.1	\
 				libevent-pthreads-2.1	\
 				libprotobuf-c1		\
 				libreadline7		\
@@ -163,31 +164,31 @@ function pmux {
 	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
-function create_akdb {
+function create {
 	set -e
-	dir="/opt/bb/var/cdb2/akdb"
+	dir="/opt/bb/var/cdb2/$1"
 	rm -rf  $dir
-	comdb2 --create akdb --dir $dir
+	comdb2 --create $1 --dir $dir
 }
 
-function copy_akdb {
+function copy {
 	set -e
-	dir="/opt/bb/var/cdb2/akdb"
-	lrl="$dir/akdb.lrl"
+	dir="/opt/bb/var/cdb2/$1"
+	lrl="$dir/$1.lrl"
 	echo "cluster nodes $CLUSTER" >> $lrl
 	for c in $CLUSTER; do echo $c; ssh $c rm -rf $dir; copycomdb2 $lrl $c: & done
 	wait
 }
 
-function setup_akdb {
-	create_akdb
-	copy_akdb
+function setup {
+	create $1
+	copy $1
 }
 
 function gdb {
 	tmux
 	/usr/bin/tmux set-window-option synchronize-panes
-	/usr/bin/tmux send-keys "gdb -q -ex run -args comdb2 akdb" Enter
+	/usr/bin/tmux send-keys "gdb -q -ex run -args comdb2 $1" Enter
 	/usr/bin/tmux set-option window-status-style "bg=colour124"
 	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
@@ -208,9 +209,9 @@ function usage {
 		  akdb  ----------------- Start database cluster-wide
 		  build ----------------- Build docker image
 		  clean ----------------- Kill and remove containers
-		  copy-akdb ------------- Copy akdb cluster-wide
-		  setup-akdb ------------ Create akdb and copy it cluster-wide
-		  gdb   ----------------- Start database under gdb cluster-wide
+		  copy [dbname] --------- Copy db cluster-wide
+		  setup [dbname] -------- Create db and copy it cluster-wide
+		  gdb [dbname] ---------- Start db under gdb cluster-wide
 		  kill  ----------------- Kill containers
 		  pmux  ----------------- Start pmux cluster-wide
 		  ps    ----------------- List containers
@@ -239,12 +240,12 @@ elif [[ "$1" == "akdb" ]]; then
 	akdb
 elif [[ "$1" == "pmux" ]]; then
 	pmux
-elif [[ "$1" == "copy-akdb" ]]; then
-	copy_akdb
-elif [[ "$1" == "setup-akdb" ]]; then
-	setup_akdb
+elif [[ "$1" == "copy" ]]; then
+	copy ${2:-akdb}
+elif [[ "$1" == "setup" ]]; then
+	setup ${2:-akdb}
 elif [[ "$1" == "gdb" ]]; then
-	gdb
+	gdb ${2:-akdb}
 elif [[ "$1" == "vg" ]]; then
 	vg
 elif [[ "$1" == "ps" ]]; then
