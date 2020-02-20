@@ -1,0 +1,2 @@
+DB=${1:-akdb}
+ps -o nlwp $(awk '{print $2}' <<<$(psef $DB | grep -v PID))

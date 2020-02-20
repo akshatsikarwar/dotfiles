@@ -12,6 +12,7 @@
 /.dbus
 /.dir_colors
 /.dmrc
+/.docker/
 /.esd_auth
 /.face
 /.face.icon

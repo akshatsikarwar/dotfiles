@@ -151,7 +151,7 @@ function tmux {
 function akdb {
 	tmux
 	/usr/bin/tmux set-window-option synchronize-panes
-	/usr/bin/tmux send-keys "comdb2 akdb" Enter
+	/usr/bin/tmux send-keys "comdb2 $1" Enter
 	/usr/bin/tmux set-option window-status-style "bg=colour124"
 	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
@@ -168,7 +168,7 @@ function create {
 	set -e
 	dir="/opt/bb/var/cdb2/$1"
 	rm -rf  $dir
-	comdb2 --create $1 --dir $dir
+	comdb2 --create $1 --dir $dir --tunable 'sqlenginepool.maxt 50'
 }
 
 function copy {
@@ -176,13 +176,24 @@ function copy {
 	dir="/opt/bb/var/cdb2/$1"
 	lrl="$dir/$1.lrl"
 	echo "cluster nodes $CLUSTER" >> $lrl
-	for c in $CLUSTER; do echo $c; ssh $c rm -rf $dir; copycomdb2 $lrl $c: & done
+	for c in $CLUSTER; do echo -n "$c "; ssh $c rm -rf $dir; copycomdb2 $lrl $c: & done
 	wait
+	echo ""
+}
+
+function cfg {
+	cfg="/opt/bb/etc/cdb2/config.d/$1.cfg"
+	cat > $cfg <<- EOF
+		$1 ${CLUSTER}
+		comdb2_config:default_type docker
+		comdb2_config:allow_pmux_route:true
+	EOF
 }
 
 function setup {
 	create $1
 	copy $1
+	cfg $1
 }
 
 function gdb {
@@ -206,7 +217,7 @@ function usage {
 		Usage: cluster <cmd> [arg]
 
 		cmd list:
-		  akdb  ----------------- Start database cluster-wide
+		  db [dbname] ----------- Start database cluster-wide
 		  build ----------------- Build docker image
 		  clean ----------------- Kill and remove containers
 		  copy [dbname] --------- Copy db cluster-wide
@@ -236,14 +247,16 @@ elif [[ "$1" == "rm" ]] || [[ "$1" == "stop" ]] || [[ "$1" == "kill" ]] || [[ "$
 	do_docker "$1"
 elif [[ "$1" == "tmux" ]]; then
 	tmux
-elif [[ "$1" == "akdb" ]]; then
-	akdb
+elif [[ "$1" == "db" ]]; then
+	db ${2:-akdb}
 elif [[ "$1" == "pmux" ]]; then
 	pmux
 elif [[ "$1" == "copy" ]]; then
 	copy ${2:-akdb}
 elif [[ "$1" == "setup" ]]; then
 	setup ${2:-akdb}
+elif [[ "$1" == "cfg" ]]; then
+	cfg ${2:-akdb}
 elif [[ "$1" == "gdb" ]]; then
 	gdb ${2:-akdb}
 elif [[ "$1" == "vg" ]]; then

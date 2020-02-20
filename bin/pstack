@@ -1,1 +1,6 @@
-gdb -q -batch -p $1 -ex 'thread apply all where'
+if [[ -n $1 ]]; then
+    PID=$1
+else
+    PID=$(awk '{print $2}' <<<$(psef akdb | grep -v PID))
+fi
+gdb -q -batch -p $PID -ex 'thread apply all where'
