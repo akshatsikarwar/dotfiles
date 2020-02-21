@@ -1,6 +1,7 @@
 #!/bin/bash
 
-target=default
+admin='-admin'
+target='@localhost'
 DB=$1
 shift
 
@@ -8,10 +9,11 @@ if [[ $DB == '-m' ]]; then
     DB=$1
     shift
     target='@'$(cdb2sql -tabs $DB $target "select host from comdb2_cluster where is_master='Y'")
-elif [[ $DB == '-l' ]]; then
+elif [[ $DB == '-p' ]]; then
     DB=$1
     shift
-    target=local
+    admin=
+    target='default'
 fi
 
 if [[ $DB == "pmux" ]]; then
@@ -21,5 +23,5 @@ if [[ $DB == "pmux" ]]; then
     sleep 0.05
     kill %1
 else
-    cdb2sql -tabs $DB $target "@send $*"
+    cdb2sql $admin -tabs $DB $target "@send $*"
 fi

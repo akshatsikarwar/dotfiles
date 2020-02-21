@@ -172,11 +172,11 @@ function create {
 }
 
 function copy {
-	set -e
 	dir="/opt/bb/var/cdb2/$1"
 	lrl="$dir/$1.lrl"
+	cfg="/opt/bb/etc/cdb2/config.d/$1.cfg"
 	echo "cluster nodes $CLUSTER" >> $lrl
-	for c in $CLUSTER; do echo -n "$c "; ssh $c rm -rf $dir; copycomdb2 $lrl $c: & done
+	for c in $CLUSTER; do echo -n "$c "; ssh $c rm -rf $dir; scp $cfg $c: > /dev/null; copycomdb2 $lrl $c: & done
 	wait
 	echo ""
 }
@@ -191,9 +191,9 @@ function cfg {
 }
 
 function setup {
+	cfg $1
 	create $1
 	copy $1
-	cfg $1
 }
 
 function gdb {
