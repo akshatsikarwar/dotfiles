@@ -113,17 +113,11 @@ function run {
 		    --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D &
 	done
 	wait
-	name=$(container-name 0)
-	cluster_cmd='echo export CLUSTER=\"'"${names[@]}"'\" >> /root/.bash_profile'
-	docker exec -it ${name} /bin/bash -c  "${cluster_cmd}"
-	akdb_cfg=$(mktemp)
-	cat > $akdb_cfg <<- EOF
-		akdb ${names[@]}
-		comdb2_config:default_type docker
-		comdb2_config:allow_pmux_route:true
-	EOF
-	docker cp $akdb_cfg ${name}:/opt/bb/etc/cdb2/config.d/akdb.cfg
-	rm $akdb_cfg
+	for ((i=0;i<=$n;++i)); do
+		name=$(container-name $i)
+		cluster_cmd='echo export CLUSTER=\"'"${names[@]}"'\" >> /root/.bash_profile'
+		docker exec -it ${name} /bin/bash -c "${cluster_cmd}"
+	done
 }
 
 function do_docker {
