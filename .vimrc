@@ -32,9 +32,10 @@ set sw=4
 set ts=4
 set wildmenu
 
-"set termguicolors
+set termguicolors
 "colo darkblue
+colo desert
 
-let g:aldmeris_transparent = 1
-let g:aldmeris_termcolors = "tango"
-colo aldmeris
+"let g:aldmeris_transparent = 1
+"let g:aldmeris_termcolors = "tango"
+"colo aldmeris

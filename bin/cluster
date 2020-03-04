@@ -3,57 +3,39 @@
 function build {
 	DIR=$(mktemp -d)
 	pushd $DIR
-	if [ -f /etc/redhat-release ]; then
-		cat >> Dockerfile <<- EOF
-			FROM fedora:latest
-			RUN dnf install -y		\
-				figlet			\
-				gdb			\
-				iputils			\
-				libunwind		\
-				nmap-ncat		\
-				protobuf-c		\
-				procps			\
-				sqlite			\
-				strace			\
-				telnet			\
-				tcputils		\
-				valgrind		\
-				vim
-		EOF
-	else
-		cat >> Dockerfile <<- EOF
-			FROM ubuntu:latest
-			ENV DEBIAN_FRONTEND=noninteractive
-			RUN apt-get update
-			RUN apt-get install -y		\
-				bc			\
-				cmake			\
-				figlet			\
-				gawk			\
-				gdb			\
-				less			\
-				libevent-2.1		\
-				libevent-core-2.1	\
-				libevent-openssl-2.1	\
-				libevent-pthreads-2.1	\
-				libprotobuf-c1		\
-				libreadline7		\
-				libsqlite3-0		\
-				libunwind8		\
-				liblz4-tool		\
-				make			\
-				netcat-openbsd		\
-				openssh-client		\
-				openssh-server		\
-				openssl			\
-				psmisc			\
-				strace			\
-				tzdata			\
-				valgrind		\
-				vim
-		EOF
-	fi
+	cat >> Dockerfile <<- EOF
+		FROM ubuntu:latest
+		ENV DEBIAN_FRONTEND=noninteractive
+		RUN apt-get update
+		RUN apt-get install -y		\
+			bc			\
+			cmake			\
+			figlet			\
+			gawk			\
+			gdb			\
+			less			\
+			libevent-2.1		\
+			libevent-core-2.1	\
+			libevent-openssl-2.1	\
+			libevent-pthreads-2.1	\
+			libprotobuf-c1		\
+			libreadline7		\
+			libsqlite3-0		\
+			libunwind8		\
+			liblz4-tool		\
+			linux-tools-5.3.0-40-generic	\
+			linux-cloud-tools-5.3.0-40-generic	\
+			make			\
+			netcat-openbsd		\
+			openssh-client		\
+			openssh-server		\
+			openssl			\
+			psmisc			\
+			strace			\
+			tzdata			\
+			valgrind		\
+			vim
+	EOF
 	cp $HOME/.vimrc vimrc
 	cp $HOME/.inputrc inputrc
 	cp $HOME/.gdbinit gdbinit
@@ -102,7 +84,7 @@ function build {
 
 function run {
 	n=$1
-	[[ $n -le 1 ]] && usage
+	[[ $n -lt 1 ]] && usage
 	put clusternum $n
 	declare -a names
 	for ((i=0;i<=$n;++i)); do
@@ -129,7 +111,7 @@ function do_docker {
 	docker $1 ${names[@]}
 }
 
-function tmux {
+function tmux_int {
 	/usr/bin/tmux new-window
 	/usr/bin/tmux send-keys "printf '"'\033]2;%s\033\\'"' c1" Enter
 	/usr/bin/tmux send-keys "$HOME/bin/c 1" Enter
@@ -142,20 +124,27 @@ function tmux {
 	done
 }
 
-function akdb {
-	tmux
+function sync_panes {
 	/usr/bin/tmux set-window-option synchronize-panes
-	/usr/bin/tmux send-keys "comdb2 $1" Enter
 	/usr/bin/tmux set-option window-status-style "bg=colour124"
 	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
+function tmux {
+	tmux_int
+	sync_panes
+}
+
+function akdb {
+	tmux_int
+	sync_panes
+	/usr/bin/tmux send-keys "comdb2 $1" Enter
+}
+
 function pmux {
-	tmux
-	/usr/bin/tmux set-window-option synchronize-panes
+	tmux_int
+	sync_panes
 	/usr/bin/tmux send-keys "pmux -f" Enter
-	/usr/bin/tmux set-option window-status-style "bg=colour124"
-	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
 function create {
@@ -191,19 +180,15 @@ function setup {
 }
 
 function gdb {
-	tmux
-	/usr/bin/tmux set-window-option synchronize-panes
+	tmux_int
+	sync_panes
 	/usr/bin/tmux send-keys "gdb -q -ex run -args comdb2 $1" Enter
-	/usr/bin/tmux set-option window-status-style "bg=colour124"
-	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
 function vg {
-	tmux
-	/usr/bin/tmux set-window-option synchronize-panes
+	tmux_int
+	sync_panes
 	/usr/bin/tmux send-keys "valgrind comdb2 akdb" Enter
-	/usr/bin/tmux set-option window-status-style "bg=colour124"
-	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
 }
 
 function usage {
