@@ -1,8 +1,0 @@
-#!/bin/bash
-
-echo c$1
-#if [[ $(($1 % 2)) == 0 ]]; then
-#    echo "thisverylongname$1"
-#else
-#    echo "c$1"
-#fi

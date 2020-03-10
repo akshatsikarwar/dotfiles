@@ -1,5 +1,27 @@
 #!/bin/bash
 
+function container_name {
+	echo c$1
+	#if [[ $(($1 % 2)) == 0 ]]; then
+	#    echo "thisverylongname$1"
+	#else
+	#    echo "c$1"
+	#fi
+}
+
+function c {
+if [ -n $1 ] && [ "$1" -eq "$1" ]; then
+    name=$(container_name $1)
+	printf '"'\033]2;%s\033\\'"' $name
+    clear
+    figlet $1
+    docker exec -it $name /bin/bash -l
+else
+    echo >&2 "Usage: c <index>"
+    exit 1
+fi
+}
+
 function build {
 	DIR=$(mktemp -d)
 	pushd $DIR
@@ -88,7 +110,7 @@ function run {
 	put clusternum $n
 	declare -a names
 	for ((i=0;i<=$n;++i)); do
-		name=$(container-name $i)
+		name=$(container_name $i)
 		[[ $i -gt 0 ]] && names+=(${name})
 		docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb:exec --network comdb2 \
 		    -v $HOME/bin:/root/bin -v $HOME/.vim:/root/.vim -v $HOME/src:/root/src \
@@ -96,7 +118,7 @@ function run {
 	done
 	wait
 	for ((i=0;i<=$n;++i)); do
-		name=$(container-name $i)
+		name=$(container_name $i)
 		cluster_cmd='echo export CLUSTER=\"'"${names[@]}"'\" >> /root/.bash_profile'
 		docker exec -it ${name} /bin/bash -c "${cluster_cmd}"
 	done
@@ -106,7 +128,7 @@ function do_docker {
 	declare -a names
 	n=$(get clusternum)
 	for ((i=0;i<=${n};++i)); do
-		names+=($(container-name $i))
+		names+=($(container_name $i))
 	done
 	docker $1 ${names[@]}
 }
@@ -196,21 +218,23 @@ function usage {
 		Usage: cluster <cmd> [arg]
 
 		cmd list:
-		  db [dbname] ----------- Start database cluster-wide
 		  build ----------------- Build docker image
 		  clean ----------------- Kill and remove containers
+		  c <num> --------------- Connect to numbered container
+		  clnt ------------------ Connect to the container #0
 		  copy [dbname] --------- Copy db cluster-wide
-		  setup [dbname] -------- Create db and copy it cluster-wide
+		  db [dbname] ----------- Start database cluster-wide
 		  gdb [dbname] ---------- Start db under gdb cluster-wide
-		  kill  ----------------- Kill containers
-		  pmux  ----------------- Start pmux cluster-wide
-		  ps    ----------------- List containers
-		  rm    ----------------- Remove containers
+		  kill ------------------ Kill containers
+		  pmux ------------------ Start pmux cluster-wide
+		  ps -------------------- List containers
+		  rm -------------------- Remove containers
 		  run <cluster-size> ---- Initial run of containers
+		  setup [dbname] -------- Create db and copy it cluster-wide
 		  start ----------------- Start containers
-		  stop  ----------------- Stop containers
-		  tmux  ----------------- Container tmux panes
-		  vg    ----------------- Start database under valgrind
+		  stop ------------------ Stop containers
+		  tmux ------------------ Container tmux panes
+		  vg -------------------- Start database under valgrind
 	EOF
 	exit 1
 }
@@ -220,6 +244,10 @@ if [[ "$1" == "build" ]]; then
 elif [[ "$1" == "clean" ]]; then
 	do_docker "kill" > /dev/null
 	do_docker "rm"
+elif [[ "$1" == "c" ]]; then
+	c $2
+elif [[ "$1" == "clnt" ]]; then
+	c 0
 elif [[ "$1" == "run" ]]; then
 	run $2
 elif [[ "$1" == "rm" ]] || [[ "$1" == "stop" ]] || [[ "$1" == "kill" ]] || [[ "$1" == "start" ]]; then
