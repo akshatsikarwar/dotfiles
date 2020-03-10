@@ -10,16 +10,14 @@ function container_name {
 }
 
 function c {
-if [ -n $1 ] && [ "$1" -eq "$1" ]; then
-    name=$(container_name $1)
-	printf '"'\033]2;%s\033\\'"' $name
-    clear
-    figlet $1
-    docker exec -it $name /bin/bash -l
-else
-    echo >&2 "Usage: c <index>"
-    exit 1
-fi
+	if [ -n $1 ] && [ "$1" -eq "$1" ]; then
+		name=$(container_name $1)
+		/usr/bin/tmux send-keys "docker exec -it $name /bin/bash -l" Enter
+		/usr/bin/tmux send-keys "printf '"'\033]2;%s\033\\'"' $name" Enter
+		/usr/bin/tmux send-keys "clear; figlet $name" Enter
+	else
+		echo >&2 "Usage: c <index>"
+	fi
 }
 
 function build {
@@ -135,13 +133,11 @@ function do_docker {
 
 function tmux_int {
 	/usr/bin/tmux new-window
-	/usr/bin/tmux send-keys "printf '"'\033]2;%s\033\\'"' c1" Enter
-	/usr/bin/tmux send-keys "$HOME/bin/c 1" Enter
+	c 1
 	n=$(get clusternum)
 	for ((i=2;i<=$n;++i)); do
 		/usr/bin/tmux split-window
-		/usr/bin/tmux send-keys "printf '"'\033]2;%s\033\\'"' c${i}" Enter
-		/usr/bin/tmux send-keys "$HOME/bin/c ${i}" Enter
+		c $i
 		/usr/bin/tmux select-layout tiled
 	done
 }
