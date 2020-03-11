@@ -13,7 +13,6 @@ map <leader>w :set wrap!<cr>
 
 set bs=indent,eol,start
 set cinoptions=:0
-"set cursorline
 set et
 set grepprg=git\ grep\ -n
 set hlsearch
@@ -33,9 +32,4 @@ set ts=4
 set wildmenu
 
 set termguicolors
-"colo darkblue
 colo desert
-
-"let g:aldmeris_transparent = 1
-"let g:aldmeris_termcolors = "tango"
-"colo aldmeris
