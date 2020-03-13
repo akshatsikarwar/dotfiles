@@ -4,9 +4,7 @@ bind -f $HOME/.inputrc
 export PATH=$(printf %s "$HOME/bin:/opt/bb/bin:$PATH" | awk -vRS=: '!a[$0]++' | paste -s -d:)
 export EDITOR=vim
 
-alias c0="cluster c 0"
-alias c1="cluster c 1"
-alias c2="cluster c 2"
+alias c="cluster c"
 
 alias l="ls -F"
 alias ll="ls -l"
