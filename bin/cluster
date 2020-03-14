@@ -43,8 +43,6 @@ function build {
 			libsqlite3-0		\
 			libunwind8		\
 			liblz4-tool		\
-			linux-tools-5.3.0-40-generic	\
-			linux-cloud-tools-5.3.0-40-generic	\
 			make			\
 			netcat-openbsd		\
 			openssh-client		\
