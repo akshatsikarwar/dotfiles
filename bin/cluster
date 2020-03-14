@@ -151,7 +151,7 @@ function tmux {
 	sync_panes
 }
 
-function akdb {
+function db {
 	tmux_int
 	sync_panes
 	/usr/bin/tmux send-keys "comdb2 $1" Enter
