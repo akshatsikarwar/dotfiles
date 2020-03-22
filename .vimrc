@@ -1,4 +1,12 @@
-let mapleader = ","
+set nocompatible
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'ycm-core/YouCompleteMe'
+Plugin 'mMontu/increment.vim--Avadhanula'
+Plugin 'tomasr/molokai'
+call vundle#end()
 syntax enable
 filetype plugin indent on
 

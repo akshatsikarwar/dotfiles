@@ -41,8 +41,7 @@
 /.sudo_as_admin_successful
 /.thumbnails/
 /.tig_history
-/.vim/.netrwhist
-/.vim/colors
+/.vim
 /.viminfo
 /.wget-hsts
 /.xfce4-session.verbose-log
