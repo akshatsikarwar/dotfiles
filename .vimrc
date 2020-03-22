@@ -10,14 +10,20 @@ call vundle#end()
 syntax enable
 filetype plugin indent on
 
-map <f4> :set ts=4 sw=4 et<cr>
-map <f5> :set ts=8 sw=8 noet<cr>
-map <f6> :!format<cr>
-map <f7> :!format-berk<cr>
-map <bs> :tabp<cr>
-map <space> :tabn<cr>
-map <leader>g :lgrep! <cword><cr>:lopen<cr>
-map <leader>w :set wrap!<cr>
+let mapleader = ","
+nnoremap <leader>4 :set ts=4 sw=4 et<cr>
+vnoremap <leader>5 :!$HOME/bin/format<cr>
+nnoremap <leader>8 :set ts=8 sw=8 noet<cr>
+vnoremap <leader>9 :!$HOME/bin/format-berk<cr>
+nnoremap <bs> :tabp<cr>
+nnoremap <space> :tabn<cr>
+nnoremap <leader>g :lgrep! <cword><cr>:lopen<cr>
+nnoremap <leader>[ :YcmCompleter GoToReferences<cr>
+nnoremap <leader>] :YcmCompleter GoToDefinition<cr>
+nnoremap <leader>\ :YcmCompleter GoTo<cr>
+
+let g:ycm_auto_trigger = 0
+let g:ycm_autoclose_preview_window_after_completion = 1
 
 set bs=indent,eol,start
 set cinoptions=:0

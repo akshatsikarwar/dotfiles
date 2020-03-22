@@ -2,11 +2,13 @@
 /.ICEauthority
 /.Xauthority
 /.Xclients
+/.aptitude
 /.bash*
 /.cache
 /.cdb2sql_history
 /.cert
 /.cinnamon
+/.clangd
 /.config
 /.conky/
 /.dbus
