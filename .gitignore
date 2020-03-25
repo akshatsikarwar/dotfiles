@@ -1,4 +1,6 @@
 *.swp
+.clangd
+compile_commands.json
 /.ICEauthority
 /.Xauthority
 /.Xclients
@@ -8,7 +10,6 @@
 /.cdb2sql_history
 /.cert
 /.cinnamon
-/.clangd
 /.config
 /.conky/
 /.dbus
