@@ -4,8 +4,8 @@ bind -f $HOME/.inputrc
 export PATH=$(printf %s "$HOME/bin:/opt/bb/bin:$PATH" | awk -vRS=: '!a[$0]++' | paste -s -d:)
 export EDITOR=vim
 
+alias a="cluster all"
 alias c="cluster c"
-alias c0="cluster c 0"
 alias t="cluster tmux"
 
 alias l="ls -F"
