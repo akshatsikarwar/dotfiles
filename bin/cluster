@@ -2,6 +2,18 @@
 
 source $HOME/.bash_profile 2>/dev/null
 
+function wait_for_text {
+	local TEXT=${1}
+	local PANE=${2:-0}
+	while :; do
+		local capture=$(tmux capture-pane -t :${WINDOW}.${PANE} -p | grep "${TEXT}" | head -1)
+		if [[ -n ${capture} ]]; then
+			return
+		fi
+		sleep 1
+	done
+}
+
 function container_name {
 	echo c$1
 	#if [[ $(($1 % 2)) == 0 ]]; then
@@ -14,7 +26,7 @@ function container_name {
 function c {
 	local n=${1:-0}
 	if [ -n $n ] && [ "$n" -eq "$n" ]; then
-		name=$(container_name $n)
+		local name=$(container_name $n)
 		/usr/bin/tmux send-keys "docker exec -it $name /bin/bash -l" Enter
 		/usr/bin/tmux send-keys "printf '"'\033]2;%s\033\\'"' $name" Enter
 		/usr/bin/tmux send-keys "clear; figlet $name" Enter
@@ -34,6 +46,7 @@ function build {
 			figlet			\
 			gawk			\
 			gdb			\
+			iputils-ping		\
 			less			\
 			libevent-2.1		\
 			libevent-core-2.1	\
@@ -45,6 +58,8 @@ function build {
 			libunwind8		\
 			liblz4-tool		\
 			make			\
+			mariadb-client		\
+			mariadb-server		\
 			netcat-openbsd		\
 			openssh-client		\
 			openssh-server		\
@@ -134,6 +149,7 @@ function do_docker {
 function tmux_int {
 	first=${1:-1}
 	/usr/bin/tmux new-window
+	WINDOW=$(tmux display-message -p '#I')
 	c $first
 	first=$(($first + 1))
 	local n=$(get clusternum)
@@ -155,7 +171,7 @@ function all {
 	sync_panes
 }
 
-function tmux {
+function do_tmux {
 	tmux_int
 	sync_panes
 }
@@ -255,6 +271,42 @@ function usage {
 	exit 1
 }
 
+function mysql_start {
+	/usr/bin/tmux new-window
+	WINDOW=$(/usr/bin/tmux display-message -p '#I')
+	local DATADIR=/opt/bb/var/cdb2/mysql
+	local SOCKET=/tmp/mysql.socket
+	local MYSQL="mysqld --no-defaults --datadir=${DATADIR} --socket=${SOCKET} --wsrep_on=on --wsrep-provider=/usr/lib/libgalera_smm.so --binlog-format=ROW --skip-grant-tables --innodb-autoinc-lock-mode=2 --wsrep-cluster-address=gcomm://"
+	local CREATE_DIR="rm -rf ${DATADIR} ${SOCKET} && mkdir ${DATADIR} && chown mysql:mysql ${DATADIR}"
+	c 1
+	/usr/bin/tmux send-keys "${CREATE_DIR}" Enter
+	/usr/bin/tmux send-keys "su -s /bin/bash mysql" Enter
+	/usr/bin/tmux send-keys "mysql_install_db" Enter
+	/usr/bin/tmux send-keys "${MYSQL}" Enter
+	wait_for_text 'Synchronized with group, ready for connections'
+	declare -a names
+	local n=$(get clusternum)
+	for ((i=1;i<=${n};++i)); do
+		names+=($(container_name $i))
+	done
+	local CLUSTER=$(tr ' ' ',' <<< ${names[@]})
+	for ((i=2;i<=$n;++i)); do
+		/usr/bin/tmux split-window
+		c $i
+		/usr/bin/tmux send-keys "${CREATE_DIR}" Enter
+		/usr/bin/tmux send-keys "su -s /bin/bash mysql" Enter
+		/usr/bin/tmux send-keys "${MYSQL}${CLUSTER}" Enter
+		/usr/bin/tmux select-layout tiled
+	done
+}
+
+function do_mysql {
+	if [[ "$1" == "start" ]]; then
+		mysql_start
+		exit
+	fi
+}
+
 if [[ "$1" == "all" ]]; then
 	all
 elif [[ "$1" == "build" ]]; then
@@ -271,7 +323,7 @@ elif [[ "$1" == "run" ]]; then
 elif [[ "$1" == "rm" ]] || [[ "$1" == "stop" ]] || [[ "$1" == "kill" ]] || [[ "$1" == "start" ]]; then
 	do_docker "$1"
 elif [[ "$1" == "tmux" ]]; then
-	tmux
+	do_tmux
 elif [[ "$1" == "db" ]]; then
 	db ${2:-akdb}
 elif [[ "$1" == "pmux" ]]; then
@@ -289,6 +341,9 @@ elif [[ "$1" == "vg" ]]; then
 elif [[ "$1" == "ps" ]]; then
 	figlet $(get clusternum)
 	docker ps -a
+elif [[ "$1" == "mysql" ]]; then
+	shift
+	do_mysql $*
 else
 	usage
 fi

@@ -4,4 +4,4 @@ else
     PROCESS=${1:-akdb}
     PID=$(awk '{print $2}' <<<$(psef $PROCESS | grep -v PID))
 fi
-gdb -q -batch -p $PID -ex 'thread apply all where'
+kill -9 $PID
