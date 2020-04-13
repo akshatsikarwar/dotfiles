@@ -24,7 +24,6 @@ nnoremap <leader>] :YcmCompleter GoToDefinition<cr>
 nnoremap <leader>\ :YcmCompleter GoTo<cr>
 
 let g:ycm_auto_trigger = 0
-let g:ycm_autoclose_preview_window_after_completion = 1
 
 set bs=indent,eol,start
 set cinoptions=:0
