@@ -21,6 +21,7 @@ alias g='git'
 alias ga='git add'
 alias gaa='git add --all'
 alias gai='git add --interactive'
+alias gap='git add --patch'
 
 alias gb='git branch'
 alias gba='git branch -a'
