@@ -44,8 +44,8 @@ alias gcpa='git cherry-pick --abort'
 alias gcpc='git cherry-pick --continue'
 
 alias gd='git diff'
-alias gdc='git diff --cached'
-alias gdcw='git diff --cached --word-diff'
+alias gds='git diff --staged'
+alias gdsw='git diff --staged --word-diff'
 
 alias gf='git fetch'
 alias gfa='git fetch --all --prune'

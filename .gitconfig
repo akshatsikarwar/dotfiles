@@ -9,4 +9,4 @@
 	email = akshat.sikarwar@gmail.com
 	name = Akshat Sikarwar
 [push]
-	default = simple
+	default = upstream
