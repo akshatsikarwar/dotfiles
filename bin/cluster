@@ -149,7 +149,11 @@ function do_docker {
 
 function tmux_int {
 	first=${1:-1}
-	/usr/bin/tmux new-window
+	if [[ -z ${TMUX_WINDOW_NAME} ]]; then
+		/usr/bin/tmux new-window
+	else
+		/usr/bin/tmux new-window -n ${TMUX_WINDOW_NAME}
+	fi
 	WINDOW=$(tmux display-message -p '#I')
 	c $first
 	first=$(($first + 1))
@@ -178,12 +182,14 @@ function do_tmux {
 }
 
 function db {
+	TMUX_WINDOW_NAME="$1"
 	tmux_int
 	sync_panes
 	/usr/bin/tmux send-keys "/opt/bb/bin/comdb2 $1" Enter
 }
 
 function pmux {
+	TMUX_WINDOW_NAME="pmux"
 	tmux_int
 	sync_panes
 	/usr/bin/tmux send-keys "pmux -f" Enter
@@ -234,12 +240,14 @@ function setup {
 }
 
 function gdb {
+	TMUX_WINDOW_NAME="gdb:$1"
 	tmux_int
 	sync_panes
 	/usr/bin/tmux send-keys "gdb -q -ex run -args /opt/bb/bin/comdb2 $1" Enter
 }
 
 function vg {
+	TMUX_WINDOW_NAME="valgrind:$1"
 	tmux_int
 	sync_panes
 	/usr/bin/tmux send-keys "valgrind /opt/bb/bin/comdb2 akdb" Enter
