@@ -1,6 +1,7 @@
 *.swp
 .clangd
-compile_commands.json
+/.GA_ClientID
+/.ICAClient/
 /.ICEauthority
 /.Xauthority
 /.Xclients
@@ -63,3 +64,4 @@ compile_commands.json
 /src
 /var/akdb.tar.gz
 /var/comdb2.tar.gz
+compile_commands.json
