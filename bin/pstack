@@ -2,6 +2,6 @@ if [[ $# -eq 1 ]] && [[ $(($1 * 10)) == ${1}0 ]]; then
     PID=$1
 else
     PROCESS=${1:-akdb}
-    PID=$(awk '{print $2}' <<<$(psef $PROCESS | grep -v PID))
+    PID=$(awk '{print $2}' <<<$(psef "comdb2 $PROCESS" | grep -v PID))
 fi
-gdb -q -batch -p $PID -ex 'thread apply all where'
+sudo gdb -q -batch -p $PID -ex 'thread apply all where'

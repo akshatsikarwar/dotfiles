@@ -1,2 +1,2 @@
 DB=${1:-akdb}
-ps -o nlwp $(awk '{print $2}' <<<$(psef $DB | grep -v PID))
+ps -o nlwp $(awk '{print $2}' <<<$(psef "comdb2 $DB" | grep -v PID))
