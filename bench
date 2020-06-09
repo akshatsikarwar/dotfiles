@@ -1,0 +1,40 @@
+#!/bin/bash
+
+ROOT=${HOME}/src
+SRC=${ROOT}/bench
+BUILD=${ROOT}/build
+SIZE=${1:-3}
+COMMIT=${2:-"upstream/master"}
+
+function build {
+    cd ${SRC}
+    git reset --hard ${COMMIT}
+    mkdir -p ${BUILD}
+    cd ${BUILD}
+    cmake -GNinja ${SRC}
+    ninja
+}
+
+function setup_server {
+    cluster clean
+    cluster run ${SIZE}
+    cluster setup
+    cluster pmux
+    cluster db
+}
+
+function setup_client {
+    tmux new-window -n bench
+    WINDOW=$(tmux display-message -p '#I')
+    tmux send-keys -t ${WINDOW}.0 'cluster clnt' Enter
+    sleep 10
+    tmux send-keys -t ${WINDOW}.0 'cdb2sql akdb default "create table t(i int)"' Enter
+    for ((i = 0; i < 10; ++i)); do
+        tmux send-keys -t ${WINDOW}.0 'cdb2sql akdb default "insert into t select * from generate_series limit 10000" &' Enter
+    done
+    tmux send-keys -t ${WINDOW}.0 'time wait' Enter
+}
+
+#build
+#setup_server
+setup_client
