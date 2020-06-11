@@ -19,9 +19,9 @@ vnoremap <leader>9 :!$HOME/bin/format-berk<cr>
 nnoremap <bs> :tabp<cr>
 nnoremap <space> :tabn<cr>
 nnoremap <leader>g :lgrep! <cword><cr>:lopen<cr>
-nnoremap <leader>[ :YcmCompleter GoToReferences<cr>
-nnoremap <leader>] :YcmCompleter GoToDefinition<cr>
-nnoremap <leader>\ :YcmCompleter GoTo<cr>
+"nnoremap <leader>[ :YcmCompleter GoToReferences<cr>
+"nnoremap <leader>] :YcmCompleter GoToDefinition<cr>
+"nnoremap <leader>\ :YcmCompleter GoTo<cr>
 
 let g:ycm_auto_trigger = 0
 
@@ -46,4 +46,4 @@ set ts=4
 set wildmenu
 
 set termguicolors
-colo desert
+"colo desert
