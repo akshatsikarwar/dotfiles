@@ -7,6 +7,7 @@ COMDB2="$SRC/comdb2"
 DEFAULT="$COMDB2"
 
 DIRS=()
+DIRS+=("$COMDB2")
 DIRS+=("$SRC")
 DIRS+=("$HOME")
 DIRS+=("/opt/bb/var/cdb2")
