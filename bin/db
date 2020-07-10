@@ -46,8 +46,8 @@ if [[ -n $init ]] ; then
     tunables+=(--tunable "allow_lua_print")
     tunables+=(--tunable "dtastripe 1")
     tunables+=(--tunable "nowatch")
-    tunables+=(--tunable "setattr directio 0")
-    tunables+=(--tunable "event_net on")
+    #tunables+=(--tunable "setattr directio 0")
+    #tunables+=(--tunable "event_net on")
     #tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
     #tunables+=(--tunable "enable_snapshot_isolation")
     #tunables+=(--tunable "enable_sql_stmt_caching all")
@@ -64,15 +64,15 @@ if [[ -n $init ]] ; then
 fi
 
 if [[ -n $valgrind ]] ; then
-	echo valgrind --leak-check=full $comdb2 --pidfile /tmp/comdb2.$name.pid $name
-	exec valgrind --leak-check=full $comdb2 --pidfile /tmp/comdb2.$name.pid $name
+	echo valgrind --leak-check=full $comdb2 $name
+	exec valgrind --leak-check=full $comdb2 $name
 elif [[ -n $debug ]] ; then
-	echo gdb -q -ex run --arg $comdb2 --pidfile /tmp/comdb2.$name.pid $name
-	exec gdb -q -ex run --arg $comdb2 --pidfile /tmp/comdb2.$name.pid $name
+	echo gdb -q -ex run --arg $comdb2 $name
+	exec gdb -q -ex run --arg $comdb2 $name
 elif [[ -n $start ]] ; then
-	echo gdb -q -ex start --arg $comdb2 --pidfile /tmp/comdb2.$name.pid $name
-	exec gdb -q -ex start --arg $comdb2 --pidfile /tmp/comdb2.$name.pid $name
+	echo gdb -q -ex start --arg $comdb2 $name
+	exec gdb -q -ex start --arg $comdb2 $name
 else
-    echo $comdb2 --pidfile /tmp/comdb2.$name.pid $name
-    exec $comdb2 --pidfile /tmp/comdb2.$name.pid $name
+    echo $comdb2 $name
+    exec $comdb2 $name
 fi
