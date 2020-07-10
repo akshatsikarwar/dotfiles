@@ -1,0 +1,28 @@
+#!/bin/bash
+function setup {
+cdb2sql akdb local - <<'EOF'
+create table t(i int, j int)$$
+create procedure foo version 'bar' {
+local function main()
+    local c = db:consumer()
+    while true do
+        local e = c:get()
+        if e == nil then break end
+        print(
+              db:get_event_tid(e),
+              db:cast(db:get_event_epoch(e), "datetime"),
+              db:get_event_sequence(e)
+             )
+        c:consume()
+    end
+end
+}$$
+create lua consumer foo on (table t for insert)
+EOF
+cdb2sql akdb local "insert into t select value, sleep(1) from generate_series limit 5" &
+cdb2sql akdb local "insert into t select value, sleep(1) from generate_series limit 5" &
+wait
+}
+
+setup
+cdb2sql akdb local "exec procedure foo()"
