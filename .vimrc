@@ -45,5 +45,5 @@ set sw=4
 set ts=4
 set wildmenu
 
-set termguicolors
-colo desert
+"set termguicolors
+"colo desert
