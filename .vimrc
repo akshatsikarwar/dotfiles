@@ -7,6 +7,10 @@ Plugin 'VundleVim/Vundle.vim'
 "Plugin 'ycm-core/YouCompleteMe'
 Plugin 'mMontu/increment.vim--Avadhanula'
 Plugin 'tomasr/molokai'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'mitsuhiko/fruity-vim-colorscheme'
+Plugin 'ku-s-h/summerfruit256.vim'
+Plugin 'veloce/vim-aldmeris'
 call vundle#end()
 syntax enable
 filetype plugin indent on
@@ -46,4 +50,6 @@ set ts=4
 set wildmenu
 
 "set termguicolors
-"colo desert
+"let g:aldmeris_termcolors = "tango"
+let g:aldmeris_transparent = 1
+colo aldmeris
