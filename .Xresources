@@ -1,1 +1,2 @@
-xterm*font:    -misc-fixed-medium-r-*-*-14-*-*-*-*-*-*-*
+xterm*faceName: lucidasanstypewriter
+xterm*faceSize: 8

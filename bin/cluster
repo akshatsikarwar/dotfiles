@@ -41,52 +41,44 @@ function build {
 		ENV DEBIAN_FRONTEND=noninteractive
 		RUN apt-get update
 		RUN apt-get install -y		\
-bc \
-bison \
-build-essential \
-clang \
-cmake \
-cmake-curses-gui \
-figlet \
-flex \
-gawk \
-gdb \
-iputils-ping \
-jq \
-less \
-libevent-2.1 \
-libevent-core-2.1 \
-libevent-dev \
-libevent-openssl-2.1 \
-libevent-pthreads-2.1 \
-liblz4-dev \
-liblz4-tool \
-libprotobuf-c1 \
-libprotobuf-c-dev \
-libreadline8 \
-libreadline-dev \
-libsqlite3-0 \
-libsqlite3-dev \
-libssl-dev \
-libunwind8 \
-libunwind-dev \
-make \
-mariadb-client \
-mariadb-server \
-ncurses-dev \
-netcat-openbsd \
-openssh-client \
-openssh-server \
-openssl \
-protobuf-c-compiler \
-psmisc \
-strace \
-tcl \
-tzdata \
-uuid-dev \
-valgrind \
-vim \
-zlib1g-dev
+			bc			\
+			bison			\
+			build-essential		\
+			clang			\
+			cmake			\
+			figlet			\
+			flex			\
+			gawk			\
+			gdb			\
+			iputils-ping		\
+			jq			\
+			less			\
+			libevent-dev		\
+			liblz4-dev		\
+			liblz4-tool		\
+			libprotobuf-c-dev	\
+			libreadline-dev		\
+			libsqlite3-dev		\
+			libssl-dev		\
+			libunwind-dev		\
+			make			\
+			mariadb-client		\
+			mariadb-server		\
+			ncurses-dev		\
+			netcat-openbsd		\
+			ninja-build		\
+			openssh-client		\
+			openssh-server		\
+			openssl			\
+			protobuf-c-compiler	\
+			psmisc			\
+			strace			\
+			tcl			\
+			tzdata			\
+			uuid-dev		\
+			valgrind		\
+			vim			\
+			zlib1g-dev
 	EOF
 	cp $HOME/.vimrc vimrc
 	cp $HOME/.inputrc inputrc
