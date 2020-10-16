@@ -1,2 +1,0 @@
-xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 0.9
-xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Horizontal Scroll Enabled' 0

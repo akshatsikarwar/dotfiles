@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 sudo sysctl -w net.ipv4.neigh.default.gc_thresh1=8096
 sudo sysctl -w net.ipv4.neigh.default.gc_thresh2=12288

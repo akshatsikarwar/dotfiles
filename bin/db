@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 export HOSTNAME=$(hostname)
 name='akdb'
 tunables=()

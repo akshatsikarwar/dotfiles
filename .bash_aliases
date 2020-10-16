@@ -1,7 +1,7 @@
 #source $HOME/.bash_powerline
 bind -f $HOME/.inputrc
 
-export PATH=$(printf %s "$HOME/bin:/opt/bb/bin:$PATH" | awk -vRS=: '!a[$0]++' | paste -s -d:)
+export PATH=$(printf %s "$HOME/bin:/opt/bb/bin:$PATH" | gawk -vRS=: '!a[$0]++' | paste -s -d: -)
 export EDITOR="vim --clean"
 
 alias a="cluster all"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source $HOME/.bash_profile 2>/dev/null
 
@@ -27,9 +27,9 @@ function c {
 	local n=${1:-0}
 	if [ -n $n ] && [ "$n" -eq "$n" ]; then
 		local name=$(container_name $n)
-		/usr/bin/tmux send-keys "docker exec -it $name /bin/bash -l" Enter
-		/usr/bin/tmux send-keys "printf '"'\033]2;%s\033\\'"' $name" Enter
-		/usr/bin/tmux send-keys "clear; figlet $name" Enter
+		tmux send-keys "docker exec -it $name /usr/bin/env bash -l" Enter
+		tmux send-keys "printf '"'\033]2;%s\033\\'"' $name" Enter
+		tmux send-keys "clear; figlet $name" Enter
 	fi
 }
 
@@ -143,7 +143,7 @@ function run {
 	for ((i=0;i<=$n;++i)); do
 		name=$(container_name $i)
 		cluster_cmd='echo export CLUSTER=\"'"${names[@]}"'\" >> /root/.bash_profile'
-		docker exec -it ${name} /bin/bash -c "${cluster_cmd}"
+		docker exec -it ${name} /usr/bin/env bash -c "${cluster_cmd}"
 	done
 }
 
@@ -159,25 +159,25 @@ function do_docker {
 function tmux_int {
 	first=${1:-1}
 	if [[ -z ${TMUX_WINDOW_NAME} ]]; then
-		/usr/bin/tmux new-window
+		tmux new-window
 	else
-		/usr/bin/tmux new-window -n ${TMUX_WINDOW_NAME}
+		tmux new-window -n ${TMUX_WINDOW_NAME}
 	fi
 	WINDOW=$(tmux display-message -p '#I')
 	c $first
 	first=$(($first + 1))
 	local n=$(get clusternum)
 	for ((i=$first;i<=$n;++i)); do
-		/usr/bin/tmux split-window
+		tmux split-window
 		c $i
-		/usr/bin/tmux select-layout tiled
+		tmux select-layout tiled
 	done
 }
 
 function sync_panes {
-	/usr/bin/tmux set-window-option synchronize-panes
-	/usr/bin/tmux set-option window-status-style "bg=colour124"
-	/usr/bin/tmux set-option pane-active-border-style "fg=colour124"
+	tmux set-window-option synchronize-panes
+	tmux set-option window-status-style "bg=colour124"
+	tmux set-option pane-active-border-style "fg=colour124"
 }
 
 function all {
@@ -194,14 +194,14 @@ function db {
 	TMUX_WINDOW_NAME="$1"
 	tmux_int
 	sync_panes
-	/usr/bin/tmux send-keys "/opt/bb/bin/comdb2 $1" Enter
+	tmux send-keys "/opt/bb/bin/comdb2 $1" Enter
 }
 
 function pmux {
 	TMUX_WINDOW_NAME="pmux"
 	tmux_int
 	sync_panes
-	/usr/bin/tmux send-keys "pmux -f" Enter
+	tmux send-keys "pmux -f" Enter
 }
 
 function create {
@@ -252,14 +252,14 @@ function gdb {
 	TMUX_WINDOW_NAME="gdb:$1"
 	tmux_int
 	sync_panes
-	/usr/bin/tmux send-keys "gdb -q -ex run -args /opt/bb/bin/comdb2 $1" Enter
+	tmux send-keys "gdb -q -ex run -args /opt/bb/bin/comdb2 $1" Enter
 }
 
 function vg {
 	TMUX_WINDOW_NAME="valgrind:$1"
 	tmux_int
 	sync_panes
-	/usr/bin/tmux send-keys "valgrind /opt/bb/bin/comdb2 akdb" Enter
+	tmux send-keys "valgrind /opt/bb/bin/comdb2 akdb" Enter
 }
 
 function usage {
@@ -290,17 +290,17 @@ function usage {
 }
 
 function mysql_start {
-	/usr/bin/tmux new-window
-	WINDOW=$(/usr/bin/tmux display-message -p '#I')
+	tmux new-window
+	WINDOW=$(tmux display-message -p '#I')
 	local DATADIR=/opt/bb/var/cdb2/mysql
 	local SOCKET=/tmp/mysql.socket
 	local MYSQL="mysqld --no-defaults --datadir=${DATADIR} --socket=${SOCKET} --wsrep_on=on --wsrep-provider=/usr/lib/libgalera_smm.so --binlog-format=ROW --skip-grant-tables --innodb-autoinc-lock-mode=2 --wsrep-cluster-address=gcomm://"
 	local CREATE_DIR="rm -rf ${DATADIR} ${SOCKET} && mkdir ${DATADIR} && chown mysql:mysql ${DATADIR}"
 	c 1
-	/usr/bin/tmux send-keys "${CREATE_DIR}" Enter
-	/usr/bin/tmux send-keys "su -s /bin/bash mysql" Enter
-	/usr/bin/tmux send-keys "mysql_install_db" Enter
-	/usr/bin/tmux send-keys "${MYSQL}" Enter
+	tmux send-keys "${CREATE_DIR}" Enter
+	tmux send-keys "su -s /usr/bin/env bash mysql" Enter
+	tmux send-keys "mysql_install_db" Enter
+	tmux send-keys "${MYSQL}" Enter
 	wait_for_text 'Synchronized with group, ready for connections'
 	declare -a names
 	local n=$(get clusternum)
@@ -309,12 +309,12 @@ function mysql_start {
 	done
 	local CLUSTER=$(tr ' ' ',' <<< ${names[@]})
 	for ((i=2;i<=$n;++i)); do
-		/usr/bin/tmux split-window
+		tmux split-window
 		c $i
-		/usr/bin/tmux send-keys "${CREATE_DIR}" Enter
-		/usr/bin/tmux send-keys "su -s /bin/bash mysql" Enter
-		/usr/bin/tmux send-keys "${MYSQL}${CLUSTER}" Enter
-		/usr/bin/tmux select-layout tiled
+		tmux send-keys "${CREATE_DIR}" Enter
+		tmux send-keys "su -s /usr/bin/env bash mysql" Enter
+		tmux send-keys "${MYSQL}${CLUSTER}" Enter
+		tmux select-layout tiled
 	done
 }
 

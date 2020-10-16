@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 sqlite3 $HOME/.local/getput.sqlite3 <<EOF
 create table if not exists getput(k, v);

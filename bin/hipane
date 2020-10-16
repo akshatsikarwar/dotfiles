@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 #highlight a pane
 if [[ ${1} = "on" ]]; then
   tmux set-option window-status-style "bg=colour124"

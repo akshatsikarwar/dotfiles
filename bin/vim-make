@@ -1,6 +1,6 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 [ -d ninja ] && exec ninja -C ninja $@
+[ -d build ] && [ -f build/build.ninja ] && exec ninja -C build $@
 [ -d build ] && [ -f build/rules.ninja ] && exec ninja -C build $@
 [ -d build ] && [ -f build/Makefile ] && exec make -C build $@
 exec make $@
