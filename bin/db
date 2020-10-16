@@ -15,11 +15,11 @@ while [[ $# -gt 0 ]] ; do
 	;;
 	-n) name="$2"
 	shift
-    ;;
+	;;
 	-x) set -x
-    ;;
-    --tunable) tunables+=(--tunable "$2")
-    shift
+	;;
+	--tunable) tunables+=(--tunable "$2")
+	shift
 	;;
 	*) pfx="$1"
 	;;
@@ -29,38 +29,38 @@ done
 
 pfx=${pfx:-refactor}
 if [[ $pfx == "bb" ]]; then
-    comdb2="/opt/bb/bin/comdb2"
+	comdb2="/opt/bb/bin/comdb2"
 else
-    pfx="$(go -p $pfx)"
-    [[ -d $pfx/ninja ]] && pfx=$pfx/ninja
-    [[ -d $pfx/build ]] && pfx=$pfx/build
-    comdb2="${pfx}/db/comdb2"
+	pfx="$(go --print $pfx)"
+	[[ -d $pfx/ninja ]] && pfx=$pfx/ninja
+	[[ -d $pfx/build ]] && pfx=$pfx/build
+	comdb2="${pfx}/db/comdb2"
 fi
 
 [[ ! -x ${comdb2} ]] && echo 'comdb2 binary?' && exit 1
 
 if [[ -n $init ]] ; then
-    dir=/opt/bb/var/cdb2/$name
+	dir=/opt/bb/var/cdb2/$name
 	[[ -d $dir ]] && rm -rf $dir
-    mkdir -p $dir
-    tunables+=(--tunable "allow_lua_print")
-    tunables+=(--tunable "dtastripe 1")
-    tunables+=(--tunable "nowatch")
-    #tunables+=(--tunable "setattr directio 0")
-    #tunables+=(--tunable "event_net on")
-    #tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
-    #tunables+=(--tunable "enable_snapshot_isolation")
-    #tunables+=(--tunable "enable_sql_stmt_caching all")
-    #tunables+=(--tunable "logmsg level debug")
-    #tunables+=(--tunable "perfect_ckp 0")
+	mkdir -p $dir
+	tunables+=(--tunable "allow_lua_print")
+	tunables+=(--tunable "dtastripe 1")
+	tunables+=(--tunable "nowatch")
+	#tunables+=(--tunable "setattr directio 0")
+	#tunables+=(--tunable "event_net on")
+	#tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
+	#tunables+=(--tunable "enable_snapshot_isolation")
+	#tunables+=(--tunable "enable_sql_stmt_caching all")
+	#tunables+=(--tunable "logmsg level debug")
+	#tunables+=(--tunable "perfect_ckp 0")
 
-    if [[ -n $debug ]] ; then
-        gdb -batch -q -ex run --arg $comdb2 "${tunables[@]}" --create $name
-    else
-        echo $comdb2 "${tunables[@]}" --create $name
-        $comdb2 "${tunables[@]}" --create $name
-    fi
-    [[ $? -ne 0 ]] && figlet bad init && exit 1
+	if [[ -n $debug ]] ; then
+		gdb -batch -q -ex run --arg $comdb2 "${tunables[@]}" --create $name
+	else
+		echo $comdb2 "${tunables[@]}" --create $name
+		$comdb2 "${tunables[@]}" --create $name
+	fi
+	[[ $? -ne 0 ]] && figlet bad init && exit 1
 fi
 
 if [[ -n $valgrind ]] ; then
@@ -73,6 +73,6 @@ elif [[ -n $start ]] ; then
 	echo gdb -q -ex start --arg $comdb2 $name
 	exec gdb -q -ex start --arg $comdb2 $name
 else
-    echo $comdb2 $name
-    exec $comdb2 $name
+	echo $comdb2 $name
+	exec $comdb2 $name
 fi

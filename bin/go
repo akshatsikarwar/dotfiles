@@ -51,29 +51,26 @@ function find_dir {
 	done
 }
 
-function find_and_print() {
-	find_dir
-	echo "$TARGET"
-}
-
 function find_and_go() {
 	find_dir
+	print_and_go
+}
+
+function print_and_go() {
 	[[ -d $TARGET ]] && echo "$TARGET"
-	cd $TARGET
+	if [[ -z $PRINT_ONLY ]]; then
+		cd $TARGET
+	fi
 }
 
 if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
 	usage
 fi
 
-if [[ "$1" == "-p" ]] || [[ "$1" == "--print" ]]; then
+if [[ "$1" == "--print" ]]; then
 	shift
-	TARGET="$@"
-	find_and_print
-elif [[ "$1" == "c" ]]; then
-    echo $COMDB2
-    cd "$COMDB2"
-else
-	TARGET="$@"
-	find_and_go
+	PRINT_ONLY=1
 fi
+
+TARGET="$@"
+find_and_go
