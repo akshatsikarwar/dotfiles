@@ -49,8 +49,4 @@ set statusline=%<%F\ %h%m%r%y%=%-14.(%l,%c%V%)\ %P
 set sw=4
 set ts=4
 set wildmenu
-
-"set termguicolors
-"let g:aldmeris_termcolors = "tango"
-"let g:aldmeris_transparent = 1
-"colo aldmeris
+colo default
