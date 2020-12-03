@@ -8,7 +8,7 @@ shift
 if [[ $DB == '-m' ]]; then
     DB=$1
     shift
-    target='@'$(cdb2sql -tabs $DB $target "select host from comdb2_cluster where is_master='Y'")
+    target=$(cdb2sql -tabs $DB $target "select '@' || host from comdb2_cluster where is_master='Y'")
 elif [[ $DB == '-p' ]]; then
     DB=$1
     shift

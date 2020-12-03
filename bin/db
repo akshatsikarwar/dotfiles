@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 export HOSTNAME=$(hostname)
-name='akdb'
 tunables=()
 while [[ $# -gt 0 ]] ; do
 	key="$1"
@@ -27,7 +26,14 @@ while [[ $# -gt 0 ]] ; do
 	shift
 done
 
-pfx=${pfx:-refactor}
+name=${name:-akdb}
+
+if [[ $(uname) == "Darwin" ]]; then
+    GDB="lldb --one-line run --"
+else
+    GDB="gdb -q -ex run --arg"
+fi
+
 if [[ $pfx == "bb" ]]; then
 	comdb2="/opt/bb/bin/comdb2"
 else
@@ -47,7 +53,6 @@ if [[ -n $init ]] ; then
 	tunables+=(--tunable "dtastripe 1")
 	tunables+=(--tunable "nowatch")
 	#tunables+=(--tunable "setattr directio 0")
-	#tunables+=(--tunable "event_net on")
 	#tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
 	#tunables+=(--tunable "enable_snapshot_isolation")
 	#tunables+=(--tunable "enable_sql_stmt_caching all")
@@ -55,7 +60,7 @@ if [[ -n $init ]] ; then
 	#tunables+=(--tunable "perfect_ckp 0")
 
 	if [[ -n $debug ]] ; then
-		gdb -batch -q -ex run --arg $comdb2 "${tunables[@]}" --create $name
+		$GDB $comdb2 "${tunables[@]}" --create $name
 	else
 		echo $comdb2 "${tunables[@]}" --create $name
 		$comdb2 "${tunables[@]}" --create $name
@@ -67,12 +72,12 @@ if [[ -n $valgrind ]] ; then
 	echo valgrind --leak-check=full $comdb2 $name
 	exec valgrind --leak-check=full $comdb2 $name
 elif [[ -n $debug ]] ; then
-	echo gdb -q -ex run --arg $comdb2 $name
-	exec gdb -q -ex run --arg $comdb2 $name
+	echo $GDB $comdb2 $name
+	exec $GDB $comdb2 $name
 elif [[ -n $start ]] ; then
-	echo gdb -q -ex start --arg $comdb2 $name
-	exec gdb -q -ex start --arg $comdb2 $name
+	echo $GDB $comdb2 $name
+	exec $GDB -q -ex start --arg $comdb2 $name
 else
-	echo $comdb2 $name
-	exec $comdb2 $name
+	echo $comdb2 "${tunables[@]}" $name
+	exec $comdb2 "${tunables[@]}" $name
 fi
