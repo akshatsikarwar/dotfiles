@@ -49,9 +49,12 @@ if [[ -n $init ]] ; then
 	dir=/opt/bb/var/cdb2/$name
 	[[ -d $dir ]] && rm -rf $dir
 	mkdir -p $dir
+	mkdir -p /opt/bb/etc/cdb2/config.d
 	tunables+=(--tunable "allow_lua_print")
 	tunables+=(--tunable "dtastripe 1")
 	tunables+=(--tunable "nowatch")
+	tunables+=(--tunable "libevent_appsock on")
+	tunables+=(--tunable "libevent_rte_only on")
 	#tunables+=(--tunable "setattr directio 0")
 	#tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
 	#tunables+=(--tunable "enable_snapshot_isolation")
@@ -66,6 +69,7 @@ if [[ -n $init ]] ; then
 		$comdb2 "${tunables[@]}" --create $name
 	fi
 	[[ $? -ne 0 ]] && figlet bad init && exit 1
+	echo "comdb2_config: allow_pmux_route=true" > /opt/bb/etc/cdb2/config.d/$name.cfg
 fi
 
 if [[ -n $valgrind ]] ; then
@@ -81,3 +85,5 @@ else
 	echo $comdb2 "${tunables[@]}" $name
 	exec $comdb2 "${tunables[@]}" $name
 fi
+
+# vim: set noet:
