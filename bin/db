@@ -76,11 +76,11 @@ if [[ -n $valgrind ]] ; then
 	echo valgrind --leak-check=full $comdb2 $name
 	exec valgrind --leak-check=full $comdb2 $name
 elif [[ -n $debug ]] ; then
-	echo $GDB $comdb2 $name
-	exec $GDB $comdb2 $name
+	echo $GDB $comdb2 "${tunables[@]}" $name
+	exec $GDB $comdb2 "${tunables[@]}" $name
 elif [[ -n $start ]] ; then
-	echo $GDB $comdb2 $name
-	exec $GDB -q -ex start --arg $comdb2 $name
+	echo $GDB $comdb2 "${tunables[@]}" $name
+	exec $GDB -q -ex start --arg $comdb2 "${tunables[@]}" $name
 else
 	echo $comdb2 "${tunables[@]}" $name
 	exec $comdb2 "${tunables[@]}" $name

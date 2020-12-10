@@ -1,5 +1,5 @@
 DB=${1:-akdb}
-PID=$(awk '{print $2}' <<<$(psef "comdb2 $DB" | grep -v PID))
+PID=$(awk '{print $2}' <<<$(psef 'comdb2 ' | grep "$DB\$" | grep -v PID))
 [[ -z $PID ]] && echo "no process found" && exit 1
 THDS=$(ps -o nlwp $PID  | grep -v NLWP)
 echo "psef 'comdb2 $DB' PID:$PID THDS:$THDS"
