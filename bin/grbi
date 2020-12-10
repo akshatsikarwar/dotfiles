@@ -1,0 +1,7 @@
+if [[ $# -eq 1 ]] && [[ $(($1 * 10)) == ${1}0 ]]; then
+    NUM=$1
+else
+    echo "usage: grbi <count of commits to rebase>"
+    exit 1
+fi
+exec git rebase --interactive HEAD$(for i in $(seq $NUM); do echo -n \~; done)
