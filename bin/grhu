@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+local=$(git branch --verbose --show-current)
+upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+read -p "Set $local to $upstream? [y/n]: " yesno
+if [[ ${yesno} != 'y' ]]; then
+    echo 'Abort'
+    exit 1
+fi
+
+git reset --hard ${upstream}
