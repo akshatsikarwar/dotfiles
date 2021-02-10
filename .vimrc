@@ -12,6 +12,7 @@ Plugin 'mitsuhiko/fruity-vim-colorscheme'
 Plugin 'ku-s-h/summerfruit256.vim'
 Plugin 'veloce/vim-aldmeris'
 Plugin 'jpo/vim-railscasts-theme'
+Plugin 'desert256.vim'
 call vundle#end()
 syntax enable
 filetype plugin indent on
@@ -49,4 +50,4 @@ set statusline=%<%F\ %h%m%r%y%=%-14.(%l,%c%V%)\ %P
 set sw=4
 set ts=4
 set wildmenu
-colo default
+colo desert256

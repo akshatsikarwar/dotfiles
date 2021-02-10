@@ -57,7 +57,7 @@ if [[ -n $init ]] ; then
 	tunables+=(--tunable "allow_lua_print")
 	tunables+=(--tunable "dtastripe 1")
 	tunables+=(--tunable "nowatch")
-	tunables+=(--tunable "libevent_rte_only on")
+	#tunables+=(--tunable "libevent_rte_only on")
 	#tunables+=(--tunable "setattr directio 0")
 	#tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
 	#tunables+=(--tunable "enable_snapshot_isolation")
