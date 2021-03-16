@@ -2,7 +2,7 @@
 
 local=$(git branch --verbose --show-current)
 upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
-read -p "Set $local to $upstream? [y/n]: " yesno
+read -p "Reset $local to $upstream? [y/n]: " yesno
 if [[ ${yesno} != 'y' ]]; then
     echo 'Abort'
     exit 1
