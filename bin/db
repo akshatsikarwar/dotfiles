@@ -27,6 +27,7 @@ while [[ $# -gt 0 ]] ; do
 done
 
 name=${name:-akdb}
+tunables+=(--pidfile /tmp/$name.pid)
 
 if [[ $(uname) == "Darwin" ]]; then
 	DBG="lldb"
@@ -54,9 +55,9 @@ if [[ -n $init ]] ; then
 	[[ -d $dir ]] && rm -rf $dir
 	mkdir -p $dir
 	mkdir -p /opt/bb/etc/cdb2/config.d
-	tunables+=(--tunable "allow_lua_print")
-	tunables+=(--tunable "dtastripe 1")
-	tunables+=(--tunable "nowatch")
+	#tunables+=(--tunable "allow_lua_print")
+	#tunables+=(--tunable "dtastripe 16")
+	#tunables+=(--tunable "nowatch")
 	#tunables+=(--tunable "libevent_rte_only on")
 	#tunables+=(--tunable "setattr directio 0")
 	#tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
@@ -76,8 +77,8 @@ if [[ -n $init ]] ; then
 		exec $comdb2 "${tunables[@]}" --create $name
 	fi
 elif [[ -n $valgrind ]] ; then
-	echo valgrind --leak-check=full $comdb2 "${tunables[@]}" $name
-	exec valgrind --leak-check=full $comdb2 "${tunables[@]}" $name
+	echo valgrind --leak-check=full --track-origins=yes $comdb2 "${tunables[@]}" $name
+	exec valgrind --leak-check=full --track-origins=yes $comdb2 "${tunables[@]}" $name
 elif [[ -n $debug ]] ; then
 	echo $DBG $DBG_RUN $comdb2 "${tunables[@]}" $name
 	exec $DBG $DBG_RUN $comdb2 "${tunables[@]}" $name

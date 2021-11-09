@@ -4,15 +4,16 @@ filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
-"Plugin 'ycm-core/YouCompleteMe'
 Plugin 'mMontu/increment.vim--Avadhanula'
-Plugin 'tomasr/molokai'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'mitsuhiko/fruity-vim-colorscheme'
-Plugin 'ku-s-h/summerfruit256.vim'
-Plugin 'veloce/vim-aldmeris'
-Plugin 'jpo/vim-railscasts-theme'
+
 Plugin 'desert256.vim'
+Plugin 'fruity.vim'
+Plugin 'molokai'
+Plugin 'NLKNguyen/papercolor-theme'
+Plugin 'Railscasts-Theme-GUIand256color'
+Plugin 'Solarized'
+Plugin 'summerfruit256.vim'
+Plugin 'veloce/vim-aldmeris'
 call vundle#end()
 syntax enable
 filetype plugin indent on
@@ -50,4 +51,4 @@ set statusline=%<%F\ %h%m%r%y%=%-14.(%l,%c%V%)\ %P
 set sw=4
 set ts=4
 set wildmenu
-colo desert256
+colo PaperColor

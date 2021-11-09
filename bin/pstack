@@ -4,4 +4,9 @@ else
     PROCESS=${1:-akdb}
     PID=$(awk '{print $2}' <<<$(psef "comdb2 $PROCESS" | grep -v PID))
 fi
-sudo gdb -q -batch -p $PID -ex 'thread apply all where'
+
+if [[ $(id -u) -eq 0 ]]; then
+    gdb -q -batch -p $PID -ex 'thread apply all where'
+else
+    sudo gdb -q -batch -p $PID -ex 'thread apply all where'
+fi

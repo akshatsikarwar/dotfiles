@@ -4,9 +4,7 @@ bind -f $HOME/.inputrc
 export PATH=$(printf %s "$HOME/bin:/opt/bb/bin:$PATH" | gawk -vRS=: '!a[$0]++' | paste -s -d: -)
 export EDITOR="vim --clean"
 
-alias a="cluster all"
-alias c="cluster c"
-alias t="cluster tmux"
+alias c="cluster"
 
 alias ls="ls -F"
 alias l="ls"
@@ -79,6 +77,7 @@ alias grh='git reset --hard'
 alias grhh='git reset --hard HEAD'
 
 alias gsb='git status -sb'
+alias gsign='git commit --amend --no-edit --signoff'
 alias gss='git status -s'
 alias gst='git status'
 alias gshow='git show'

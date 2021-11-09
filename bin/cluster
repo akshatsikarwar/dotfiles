@@ -16,11 +16,7 @@ function wait_for_text {
 
 function container_name {
 	echo c$1
-	#if [[ $(($1 % 2)) == 0 ]]; then
-	#    echo "thisverylongname$1"
-	#else
-	#    echo "c$1"
-	#fi
+	#echo "this_very_long_host_name_$1"
 }
 
 function c {
@@ -29,7 +25,7 @@ function c {
 		local name=$(container_name $n)
 		tmux send-keys "docker exec -it $name /usr/bin/env bash -l" Enter
 		tmux send-keys "printf '"'\033]2;%s\033\\'"' $name" Enter
-		tmux send-keys "clear; figlet $name" Enter
+		tmux send-keys "clear; figlet -t $name" Enter
 	fi
 }
 
@@ -85,16 +81,19 @@ function build {
 	cp $HOME/.gdbinit gdbinit
 	cat > bash_profile <<- EOF
 		[[ -n \$CLUSTER ]] && return
-		export SKIPSSL=1
-		export TESTDIR=/tmp/testdir
+		#export SKIPSSL=1
+		export TESTDIR=/opt/bb/tmp/testdir
 		export SKIP_COPY_EXE=1
-		export SKIPDEBUG=1
+		#export SKIPDEBUG=1
+		export http_proxy=http://devproxy.bloomberg.com:82
+		export https_proxy=http://devproxy.bloomberg.com:82
+		export no_proxy=bloomberg.com
 	EOF
 	cat $HOME/.bash_aliases >> bash_profile
 	ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
 	cat > config <<- EOF
 		LogLevel=quiet
-		HOST c*
+		HOST *
 			StrictHostKeyChecking no
 	EOF
 	cat >> Dockerfile <<- EOF
@@ -135,9 +134,10 @@ function run {
 	for ((i=0;i<=$n;++i)); do
 		name=$(container_name $i)
 		[[ $i -gt 0 ]] && names+=(${name})
-		docker run -it -d --privileged --mount type=tmpfs,destination=/opt/bb:exec --network comdb2 \
-		    -v $HOME/bin:/root/bin -v $HOME/.vim:/root/.vim -v $HOME/src:/root/src \
-		    --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D &
+		docker run --ulimit nofile=100000:100000 -it -d --privileged --mount type=tmpfs,destination=/opt/bb:exec \
+			   --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --network comdb2  \
+		           -v $HOME/bin:/root/bin -v $HOME/.vim:/root/.vim -v $HOME/src:/root/src \
+		           --name ${name} --hostname ${name} sikarwar:comdb2 /usr/sbin/sshd -D &
 	done
 	wait
 	for ((i=0;i<=$n;++i)); do
@@ -208,7 +208,21 @@ function create {
 	set -e
 	dir="/opt/bb/var/cdb2/$1"
 	rm -rf  $dir
-	/opt/bb/bin/comdb2 --create $1 --dir $dir
+	local tunables=()
+	#tunables+=(--tunable "enable_snapshot_isolation")
+	#tunables+=(--tunable "release_locks_trace on")
+	#tunables+=(--tunable "maxosqltransfer 1000000")
+	#tunables+=(--tunable "rep_release_wait_ms 10")
+	#tunables+=(--tunable "rep_wait_core_ms 12000")
+	#tunables+=(--tunable "logmsg level info")
+	#tunables+=(--tunable "random_fail_client_write_lock 2")
+	#tunables+=(--tunable "rep_release_wait_ms 500")
+	#tunables+=(--tunable "client_heartbeat_ms 1")
+	#tunables+=(--tunable "random_get_curtran_failures 8000")
+	#tunables+=(--tunable "setattr checkpointtime 20")
+	#tunables+=(--tunable "cache 512 mb")
+	#tunables+=(--tunable "nowatch")
+	/opt/bb/bin/comdb2 --create $1 --dir $dir "${tunables[@]}"
 }
 
 function copy {
@@ -275,6 +289,7 @@ function usage {
 		  copy [dbname] --------- Copy db cluster-wide
 		  db [dbname] ----------- Start database cluster-wide
 		  gdb [dbname] ---------- Start db under gdb cluster-wide
+		  help ------------------ This message
 		  kill ------------------ Kill containers
 		  pmux ------------------ Start pmux cluster-wide
 		  ps -------------------- List containers
@@ -325,44 +340,52 @@ function do_mysql {
 	fi
 }
 
-if [[ "$1" == "all" ]]; then
+if [[ -z $1 ]] || [[ $(( $1 * 10 )) == "${1}0" ]]; then
+	arg1="c"
+	arg2="$1"
+elif [[ $1 == "t" ]]; then
+	arg1="tmux"
+else
+	arg1="$1"
+	arg2="$2"
+fi
+
+if [[ "$arg1" == "all" ]]; then
 	all
-elif [[ "$1" == "build" ]]; then
+elif [[ "$arg1" == "build" ]]; then
 	build
-elif [[ "$1" == "clean" ]]; then
+elif [[ "$arg1" == "clean" ]]; then
 	do_docker "kill" > /dev/null
 	do_docker "rm"
-elif [[ "$1" == "c" ]]; then
-	c $2
-elif [[ "$1" == "clnt" ]]; then
-	c 0
-elif [[ "$1" == "run" ]]; then
-	run $2
-elif [[ "$1" == "rm" ]] || [[ "$1" == "stop" ]] || [[ "$1" == "kill" ]] || [[ "$1" == "start" ]]; then
-	do_docker "$1"
-elif [[ "$1" == "tmux" ]]; then
+elif [[ "$arg1" == "c" ]]; then
+	c $arg2
+elif [[ "$arg1" == "run" ]]; then
+	run $arg2
+elif [[ "$arg1" == "rm" ]] || [[ "$arg1" == "stop" ]] || [[ "$arg1" == "kill" ]] || [[ "$arg1" == "start" ]]; then
+	do_docker "$arg1"
+elif [[ "$arg1" == "tmux" ]]; then
 	do_tmux
-elif [[ "$1" == "db" ]]; then
+elif [[ "$arg1" == "db" ]]; then
 	db ${2:-akdb}
-elif [[ "$1" == "pmux" ]]; then
+elif [[ "$arg1" == "pmux" ]]; then
 	pmux
-elif [[ "$1" == "copy" ]]; then
+elif [[ "$arg1" == "copy" ]]; then
 	copy ${2:-akdb}
-elif [[ "$1" == "setup" ]]; then
+elif [[ "$arg1" == "setup" ]]; then
 	setup ${2:-akdb}
-elif [[ "$1" == "cfg" ]]; then
+elif [[ "$arg1" == "cfg" ]]; then
 	cfg ${2:-akdb}
-elif [[ "$1" == "gdb" ]]; then
+elif [[ "$arg1" == "gdb" ]]; then
 	gdb ${2:-akdb}
-elif [[ "$1" == "vg" ]]; then
+elif [[ "$arg1" == "vg" ]]; then
 	vg
-elif [[ "$1" == "ps" ]]; then
-	figlet $(get clusternum)
+elif [[ "$arg1" == "ps" ]]; then
+	figlet -t $(get clusternum)
 	docker ps -a
-elif [[ "$1" == "mysql" ]]; then
+elif [[ "$arg1" == "mysql" ]]; then
 	shift
 	do_mysql $*
-else
+elif [[ "$arg1" == "help" ]]; then
 	usage
 fi
 
