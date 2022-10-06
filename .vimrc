@@ -6,6 +6,7 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'tpope/vim-fugitive'
 Plugin 'mMontu/increment.vim--Avadhanula'
+Plugin 'flazz/vim-colorschemes'
 
 Plugin 'desert256.vim'
 Plugin 'fruity.vim'
