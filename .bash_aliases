@@ -5,6 +5,7 @@ export PATH=$(printf %s "$HOME/bin:/opt/bb/bin:$PATH" | gawk -vRS=: '!a[$0]++' |
 export EDITOR="vim --clean"
 
 alias c="cluster"
+alias gdb="gdb -q"
 
 alias ls="ls -F"
 alias l="ls"
@@ -15,6 +16,9 @@ alias go=". $HOME/bin/go"
 alias vim="vim -p -X"
 alias vit="vim -t"
 alias vi="vim"
+function vil {
+    vi $(echo $1 | sed 's!:! +!')
+}
 
 alias g='git'
 alias ga='git add'

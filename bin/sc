@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+set -e
+if [[ $1 == '-m' ]]; then
+    shift
+    want_master=1
+fi
 
 db="$1"
 shift
@@ -11,11 +16,16 @@ shift
 
 arg="$@"
 
+tier='default'
+if [[ -z $want_master ]]; then
+    tier=$(cdb2sql -tabs $db $tier "select '@'||host from comdb2_cluster where is_master='Y'")
+fi
 case $cmd in
-add) cdb2sql $db default "create table $tbl {$(<$arg)}" ;;
-drop) cdb2sql $db default "drop table $tbl" ;;
-fastinit) cdb2sql $db default "truncate table $tbl" ;;
-analyze) cdb2sql $db default "exec procedure sys.cmd.analyze('$tbl')";;
-rebuild) cdb2sql $db default "rebuild table $tbl";;
+add) cdb2sql -tabs $db $tier "create table $tbl {$(<$arg)}" ;;
+drop) cdb2sql -tabs $db $tier "drop table $tbl" ;;
+fastinit) cdb2sql -tabs $db $tier "truncate table $tbl" ;;
+analyze) cdb2sql -tabs $db $tier "exec procedure sys.cmd.analyze('$tbl')";;
+rebuild) cdb2sql -tabs $db $tier "rebuild $tbl";;
+send) cdb2sql -tabs $db $tier "@send $tbl $arg";;
 *) echo >&2 "unknown cmd:$cmd" ;;
 esac

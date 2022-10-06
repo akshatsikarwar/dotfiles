@@ -8,7 +8,8 @@ shift
 if [[ $DB == '-m' ]]; then
     DB=$1
     shift
-    target=$(cdb2sql -tabs $DB $target "select '@' || host from comdb2_cluster where is_master='Y'")
+    admin=
+    target=$(cdb2sql -tabs $DB default "select '@' || host from comdb2_cluster where is_master='Y'")
 elif [[ $DB == '-p' ]]; then
     DB=$1
     shift
@@ -23,5 +24,5 @@ if [[ $DB == "pmux" ]]; then
     sleep 0.05
     kill %1
 else
-    cdb2sql $admin -tabs $DB $target "@send $*"
+    cdb2sql $admin -tabs $DB $target "exec procedure sys.cmd.send('$*')"
 fi

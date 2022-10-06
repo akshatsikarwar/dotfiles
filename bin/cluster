@@ -81,10 +81,11 @@ function build {
 	cp $HOME/.gdbinit gdbinit
 	cat > bash_profile <<- EOF
 		[[ -n \$CLUSTER ]] && return
-		#export SKIPSSL=1
-		export TESTDIR=/opt/bb/tmp/testdir
+		export LANG=C
+		export SKIPDEBUG=1
+		export SKIPSSL=1
 		export SKIP_COPY_EXE=1
-		#export SKIPDEBUG=1
+		export TESTDIR=/opt/bb/tmp/testdir
 		export http_proxy=http://devproxy.bloomberg.com:82
 		export https_proxy=http://devproxy.bloomberg.com:82
 		export no_proxy=bloomberg.com
@@ -311,9 +312,10 @@ function mysql_start {
 	local SOCKET=/tmp/mysql.socket
 	local MYSQL="mysqld --no-defaults --datadir=${DATADIR} --socket=${SOCKET} --wsrep_on=on --wsrep-provider=/usr/lib/libgalera_smm.so --binlog-format=ROW --skip-grant-tables --innodb-autoinc-lock-mode=2 --wsrep-cluster-address=gcomm://"
 	local CREATE_DIR="rm -rf ${DATADIR} ${SOCKET} && mkdir ${DATADIR} && chown mysql:mysql ${DATADIR}"
+	local MYSQL_USER="su -s /bin/bash mysql"
 	c 1
 	tmux send-keys "${CREATE_DIR}" Enter
-	tmux send-keys "su -s /usr/bin/env bash mysql" Enter
+	tmux send-keys "${MYSQL_USER}" Enter
 	tmux send-keys "mysql_install_db" Enter
 	tmux send-keys "${MYSQL}" Enter
 	wait_for_text 'Synchronized with group, ready for connections'
@@ -327,7 +329,7 @@ function mysql_start {
 		tmux split-window
 		c $i
 		tmux send-keys "${CREATE_DIR}" Enter
-		tmux send-keys "su -s /usr/bin/env bash mysql" Enter
+		tmux send-keys "${MYSQL_USER}" Enter
 		tmux send-keys "${MYSQL}${CLUSTER}" Enter
 		tmux select-layout tiled
 	done

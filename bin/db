@@ -6,6 +6,8 @@ while [[ $# -gt 0 ]] ; do
 	case $key in
 	-d) debug="yes"
 	;;
+	-e) encrypt="yes"
+	;;
 	-s) start="yes"
 	;;
 	-i) init="yes"
@@ -69,6 +71,12 @@ if [[ -n $init ]] ; then
 		comdb2_config:default_type=local
 		comdb2_config: allow_pmux_route=true
 	EOF
+	if [[ -n $encrypt ]]; then
+		figlet secure
+		tunables+=(--tunable "ssl_client_mode REQUIRE")
+		openssl ecparam -genkey -name prime256v1 -noout -out $dir/server.key
+		openssl req -x509 -new -nodes -key $dir/server.key -subj "/CN=$name" -out $dir/server.crt
+	fi
 	if [[ -n $debug ]] ; then
 		echo $DBG $DBG_RUN $comdb2 "${tunables[@]}" --create $name
 		exec $DBG $DBG_RUN $comdb2 "${tunables[@]}" --create $name
@@ -77,8 +85,8 @@ if [[ -n $init ]] ; then
 		exec $comdb2 "${tunables[@]}" --create $name
 	fi
 elif [[ -n $valgrind ]] ; then
-	echo valgrind --leak-check=full --track-origins=yes $comdb2 "${tunables[@]}" $name
-	exec valgrind --leak-check=full --track-origins=yes $comdb2 "${tunables[@]}" $name
+	echo valgrind -q --leak-check=full --track-origins=yes $comdb2 "${tunables[@]}" $name
+	exec valgrind -q --leak-check=full --track-origins=yes $comdb2 "${tunables[@]}" $name
 elif [[ -n $debug ]] ; then
 	echo $DBG $DBG_RUN $comdb2 "${tunables[@]}" $name
 	exec $DBG $DBG_RUN $comdb2 "${tunables[@]}" $name
