@@ -3,6 +3,7 @@ set height 0
 set pagination off
 set print pretty on
 set confirm off
+handle SIGPIPE nostop noprint pass
 
 define whereall
 thread apply all where
