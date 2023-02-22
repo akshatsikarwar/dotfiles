@@ -3,6 +3,13 @@
 function setup {
     remote=$1
     abort=$2
+    exists=$(git ls-remote --heads $remote | grep refs/heads/$local | wc -l)
+    if [[ $exists -eq 0 ]]; then
+        read -p "Create $remote/$local? [y/n]: " yesno
+        if [[ ${yesno} == 'y' ]]; then
+            git push $remote HEAD:$local
+        fi
+    fi
     read -p "Set upstream to $remote/$local? [y/n]: " yesno
     if [[ ${yesno} != 'y' ]]; then
         if [[ ${abort} -eq 0 ]]; then
