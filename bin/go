@@ -36,8 +36,8 @@ function find_dir {
 	elif [[ "$TARGET" == "bb" ]]; then
 		TARGET=/opt/bb
 		return
-	elif [[ "$TARGET" == "test" ]] || [[ "$TARGET" == "tests" ]]; then
-		TARGET=/opt/bb/tmp/testdir
+	elif [[ "$TARGET" == "test" ]] || [[ "$TARGET" == "tests" ]] || [[ "$TARGET" == "logs" ]]; then
+		TARGET=/opt/bb/tmp/testdir/logs
 		return
 	fi
 	for DIR in "${DIRS[@]}"

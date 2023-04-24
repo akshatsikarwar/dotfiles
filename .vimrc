@@ -45,4 +45,5 @@ set sw=4
 set ts=4
 set wildmenu
 
-colo desert256
+let g:aldmeris_transparent = 1
+colo aldmeris
