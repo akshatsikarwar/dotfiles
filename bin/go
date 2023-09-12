@@ -4,7 +4,7 @@ shopt -s nocasematch
 
 SRC="$HOME/src"
 COMDB2="$SRC/comdb2"
-DEFAULT="$COMDB2/master"
+DEFAULT="$COMDB2/main"
 
 DIRS=()
 DIRS+=("$COMDB2")

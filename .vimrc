@@ -7,6 +7,7 @@ Plug 'NLKNguyen/papercolor-theme'
 Plug 'tomasr/molokai'
 Plug 'veloce/vim-aldmeris'
 Plug 'vim-scripts/desert256.vim'
+Plug 'vim-scripts/github-theme'
 Plug 'vim-scripts/summerfruit256.vim'
 call plug#end()
 
@@ -45,5 +46,4 @@ set sw=4
 set ts=4
 set wildmenu
 
-let g:aldmeris_transparent = 1
-colo aldmeris
+colo github
