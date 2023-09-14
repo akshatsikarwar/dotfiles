@@ -3,6 +3,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'mMontu/increment.vim--Avadhanula'
 
 Plug 'altercation/vim-colors-solarized'
+Plug 'joshdick/onedark.vim'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'tomasr/molokai'
 Plug 'veloce/vim-aldmeris'
@@ -46,4 +47,4 @@ set sw=4
 set ts=4
 set wildmenu
 
-colo github
+colo onedark
