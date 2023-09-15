@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 function setup {
     remote=$1
     abort=$2

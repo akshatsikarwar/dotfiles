@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 EXCLUDE=" $$ "
 TMP="/tmp/$$.psef"
 HDR=1

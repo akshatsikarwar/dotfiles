@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 cdb2sql akdb default <<EOF
 drop table if exists t
 create table t (i int)

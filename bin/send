@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 admin='-admin'
 target='@localhost'
 DB=$1

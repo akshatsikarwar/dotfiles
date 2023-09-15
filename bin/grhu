@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 local=$(git branch --verbose --show-current)
 upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
 read -p "Reset $local to $upstream? [y/n]: " yesno
