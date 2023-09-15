@@ -44,7 +44,9 @@ set nowrap
 set number
 set statusline=%<%F\ %h%m%r%y%=%-14.(%l,%c%V%)\ %P
 set sw=4
+set tabpagemax=32
 set ts=4
 set wildmenu
 
-colo onedark
+
+colo github
