@@ -14,8 +14,10 @@ alias lla="ls -la"
 alias ltr="ls -ltr"
 alias go=". $HOME/bin/go"
 alias vim="vim -p -X"
-alias vit="vim -t"
 alias vi="vim"
+alias vit="vim -t"
+alias view="vim -R"
+alias vimdiff="vim -d"
 function vil {
     vi $(echo $1 | sed 's!:! +!')
 }
@@ -76,7 +78,7 @@ alias grba='git rebase --abort'
 alias grbc='git rebase --continue'
 alias grbm='git rebase master'
 alias grbs='git rebase --skip'
-alias grbu='git rebase upstream/master'
+alias grbu='git rebase upstream/main'
 alias grh='git reset --hard'
 alias grhh='git reset --hard HEAD'
 
