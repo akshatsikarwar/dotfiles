@@ -47,6 +47,3 @@ set sw=4
 set tabpagemax=32
 set ts=4
 set wildmenu
-
-
-colo github
