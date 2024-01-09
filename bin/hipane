@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #highlight a pane
 if [[ ${1} = "on" ]]; then
-  #tmux set-option window-status-style "bg=colour124"
-  tmux set-option pane-active-border-style "fg=colour124"
+  tmux set-option pane-active-border-style "fg=red"
+  tmux set-option window-status-current-style "fg=white,bg=red"
 else
-  #tmux set-option window-status-style "bg=colour106"
-  tmux set-option pane-active-border-style "fg=colour106"
+  tmux set-option pane-active-border-style "fg=green"
+  tmux set-option window-status-current-style "fg=white,bg=black"
 fi
