@@ -60,7 +60,7 @@ alias gg='git grep'
 
 alias gl='git pull'
 alias glog='tig'
-alias glg='git log --oneline --decorate --graph'
+alias glg='git log --oneline --decorate --graph --decorate-refs-exclude=refs/tags'
 alias glga='git log --oneline --decorate --graph --all'
 
 alias gp='git push'
