@@ -74,5 +74,17 @@ if [[ "$1" == "--print" ]]; then
 	PRINT_ONLY=1
 fi
 
-TARGET="$@"
+if [[ "$1" == "-p" ]]; then
+    shift
+    TARGET="$@"
+    if [[ -z "$TARGET" ]]; then
+        DEFAULT="$SRC/bb-plugins/main"
+    else
+        DEFAULT="$SRC/bb-plugins"
+    fi
+    DIRS=("$DEFAULT")
+else
+    TARGET="$@"
+fi
 find_and_go
+TARGET=
