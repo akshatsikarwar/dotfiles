@@ -1,8 +1,18 @@
 #source $HOME/.bash_powerline
 bind -f $HOME/.inputrc
 
-export PATH=$(printf %s "$HOME/bin:/opt/bb/bin:$PATH" | gawk -vRS=: '!a[$0]++' | paste -s -d: -)
-export EDITOR="vim --clean"
+if [[ ! $PATH == *":$HOME/bin:"* ]]; then
+    path="/opt/bb/bin:$HOME/bin:$HOME/.local/bin"
+    for dir in $HOME/local/**/bin; do
+        if [[ -d $dir ]];then
+            path=$dir:$path
+        fi
+    done
+    export PATH=$path:$PATH
+fi
+export CMAKE_EXPORT_COMPILE_COMMANDS=1
+export CMAKE_GENERATOR=Ninja
+export EDITOR="nvim"
 
 alias c="cluster"
 alias gdb="gdb -q"
@@ -12,8 +22,8 @@ alias l="ls"
 alias ll="ls -l"
 alias lla="ls -la"
 alias ltr="ls -ltr"
-alias go=". $HOME/bin/go"
-alias vim="vim -p -X"
+alias g=". $HOME/bin/go"
+alias vim="nvim -p"
 alias vi="vim"
 alias vit="vim -t"
 alias view="vim -R"
@@ -22,7 +32,6 @@ function vil {
     vi $(echo $1 | sed 's!:! +!')
 }
 
-alias g='git'
 alias ga='git add'
 alias gaa='git add --all'
 alias gai='git add --interactive'

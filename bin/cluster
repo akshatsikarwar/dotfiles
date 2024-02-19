@@ -77,21 +77,34 @@ function build {
 			vim			\
 			zlib1g-dev
 	EOF
-	cp $HOME/.vimrc vimrc
 	cp $HOME/.inputrc inputrc
 	cp $HOME/.gdbinit gdbinit
-	cat > bash_profile <<- EOF
-		[[ -n \$CLUSTER ]] && return
-		export LANG=C
-		export SKIPDEBUG=1
-		export SKIPSSL=1
-		export SKIP_COPY_EXE=1
-		export TESTDIR=/opt/bb/tmp/testdir
-		export http_proxy=http://devproxy.bloomberg.com:82
-		export https_proxy=http://devproxy.bloomberg.com:82
-		export no_proxy=bloomberg.com
+	cat <<-'EOF' > bash_profile
+	export LANG=C
+	export SKIPDEBUG=1
+	export SKIPSSL=1
+	export SKIP_COPY_EXE=1
+	export TESTDIR=/opt/bb/tmp/testdir
+	export http_proxy=http://devproxy.bloomberg.com:82
+	export https_proxy=http://devproxy.bloomberg.com:82
+	export no_proxy=bloomberg.com
+	export PATH=$PATH:$HOME/bin:/opt/bb/bin
+
+	bind -f $HOME/.inputrc
+	alias c="$HOME/bin/cluster"
+	alias g=". $HOME/bin/go"
+	alias gdb="gdb -q"
+	alias ls="ls -F"
+	alias l="ls"
+	alias ll="ls -l"
+	alias lla="ls -la"
+	alias ltr="ls -ltr"
+	alias g=". $HOME/bin/go"
+	alias vim="vim -p -X"
+	alias ..='cd ..'
+	alias ...='cd ../..'
+	alias ....='cd ../../..'
 	EOF
-	cat $HOME/.bash_aliases >> bash_profile
 	ssh-keygen -q -t rsa -N '' -f $PWD/id_rsa
 	cat > config <<- EOF
 		LogLevel=quiet
@@ -106,7 +119,6 @@ function build {
 		COPY id_rsa		/root/.ssh/id_rsa
 		COPY id_rsa.pub		/root/.ssh/id_rsa.pub
 		COPY id_rsa.pub		/root/.ssh/authorized_keys
-		COPY vimrc		/root/.vimrc
 		COPY inputrc		/root/.inputrc
 		COPY bash_profile	/root/.bash_profile
 		COPY gdbinit		/root/.gdbinit
@@ -127,7 +139,6 @@ function run {
 		docker run --ulimit nofile=100000:100000 -it -d --privileged --mount type=tmpfs,destination=/opt/bb:exec \
 			   --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --network comdb2  \
 		           -v $HOME/bin:/root/bin \
-			   -v $HOME/.vim:/root/.vim \
 			   -v $HOME/src:/root/src \
 			   -v /opt/bb/bin:/opt/bb/bin \
 			   -v /opt/bb/include:/opt/bb/include\

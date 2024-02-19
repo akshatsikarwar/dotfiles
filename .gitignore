@@ -1,6 +1,5 @@
 *.swp
 /.*
-/Applications
 /Desktop
 /Documents
 /Downloads
@@ -9,11 +8,5 @@
 /Music
 /Pictures
 /Public
-/Qt
-/documents
-/downloads
-/include
-/lib
-/snap
+/local/**
 /src/**
-/vm
