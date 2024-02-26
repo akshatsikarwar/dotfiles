@@ -28,12 +28,12 @@ set expandtab
 set grepprg=git\ grep\ -n
 set ignorecase
 set incsearch
+set laststatus=2
 set makeprg=vim-make
 set nobackup
 set nocompatible
 set noshowmatch
 set nowrap
-set number
 set relativenumber
 set sw=4
 set tabpagemax=32
