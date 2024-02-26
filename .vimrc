@@ -21,8 +21,8 @@ nnoremap <leader>g :lgrep! <cword><cr>:lopen<cr>
 nnoremap <bs> :tabp<cr>
 nnoremap <space> :tabn<cr>
 
-"set backspace=indent,eol,start
 "set cinoptions=:0
+set backspace=indent,eol,start
 set cursorline
 set expandtab
 set grepprg=git\ grep\ -n
