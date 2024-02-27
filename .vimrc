@@ -34,6 +34,7 @@ set nobackup
 set nocompatible
 set noshowmatch
 set nowrap
+set number
 set relativenumber
 set sw=4
 set tabpagemax=32
