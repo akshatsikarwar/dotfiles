@@ -58,15 +58,17 @@ if [[ -n $init ]] ; then
 	mkdir -p $dir
 	mkdir -p /opt/bb/etc/cdb2/config.d
 	#tunables+=(--tunable "allow_lua_print")
-	#tunables+=(--tunable "dtastripe 16")
-	#tunables+=(--tunable "nowatch")
-	#tunables+=(--tunable "libevent_rte_only on")
-	#tunables+=(--tunable "setattr directio 0")
 	#tunables+=(--tunable "crypto $HOME/.local/db/comdb2/passwd")
+	#tunables+=(--tunable "dtastripe 16")
 	#tunables+=(--tunable "enable_snapshot_isolation")
 	#tunables+=(--tunable "enable_sql_stmt_caching all")
+	#tunables+=(--tunable "libevent_rte_only on")
 	#tunables+=(--tunable "logmsg level debug")
+	#tunables+=(--tunable "nowatch")
 	#tunables+=(--tunable "perfect_ckp 0")
+	#tunables+=(--tunable "setattr directio 0")
+	tunables+=(--tunable "allow_lua_print")
+	tunables+=(--tunable "nowatch")
 	cat > /opt/bb/etc/cdb2/config.d/$name.cfg <<-EOF
 		comdb2_config:default_type=local
 		comdb2_config: allow_pmux_route=true

@@ -28,22 +28,25 @@ set backspace=indent,eol,start
 set cursorline
 set expandtab
 set grepprg=git\ grep\ -n
+set guicursor=""
 set ignorecase
 set incsearch
 set laststatus=2
 set makeprg=vim-make
 set nobackup
 set nocompatible
+set nohlsearch
 set noshowmatch
 set nowrap
 set number
 set relativenumber
-set sw=4
+set shiftwidth=4
 set tabpagemax=32
-set ts=4
+set tabstop=4
 set wildmenu
+
 set termguicolors
-colo dracula
+colorscheme dracula
 
 "if executable('pylsp')
 "    " pip install python-lsp-server
@@ -89,3 +92,6 @@ augroup END
 "    autocmd!
 "    autocmd VimEnter * call NoMoMatchParen()
 "augroup END
+
+let g:lsp_document_highlight_enabled = 0
+let g:lsp_document_code_action_signs_enabled = 0

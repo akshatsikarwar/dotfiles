@@ -1,0 +1,4 @@
+if [[ $HOSTNAME == "dev-10-34-16-147" ]]; then 
+    exec cdb2sql akdb local "$@"
+fi
+exec cdb2sql akdb default "$*"

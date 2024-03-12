@@ -12,7 +12,7 @@ if [[ ! $PATH == *":$HOME/bin:"* ]]; then
 fi
 export CMAKE_EXPORT_COMPILE_COMMANDS=1
 export CMAKE_GENERATOR=Ninja
-export EDITOR="nvim"
+export EDITOR="vim -X"
 
 alias c="cluster"
 alias gdb="gdb -q"
@@ -23,7 +23,7 @@ alias ll="ls -l"
 alias lla="ls -la"
 alias ltr="ls -ltr"
 alias g=". $HOME/bin/go"
-alias vim="nvim -p"
+alias vim="nvim -pX"
 alias vi="vim"
 alias vit="vim -t"
 alias view="vim -R"
