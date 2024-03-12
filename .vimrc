@@ -6,6 +6,8 @@ Plug 'mattn/vim-lsp-settings'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/vim-lsp'
+
+Plug 'dracula/vim'
 call plug#end()
 
 filetype on
@@ -41,7 +43,7 @@ set tabpagemax=32
 set ts=4
 set wildmenu
 set termguicolors
-colo morning
+colo dracula
 
 "if executable('pylsp')
 "    " pip install python-lsp-server
@@ -55,7 +57,7 @@ colo morning
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
     setlocal signcolumn=yes
-    "if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
     nmap <buffer> gd <plug>(lsp-definition)
     nmap <buffer> gs <plug>(lsp-document-symbol-search)
     nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
@@ -65,7 +67,7 @@ function! s:on_lsp_buffer_enabled() abort
     "nmap <buffer> <leader>rn <plug>(lsp-rename)
     nmap <buffer> [g <plug>(lsp-previous-diagnostic)
     nmap <buffer> ]g <plug>(lsp-next-diagnostic)
-    "nmap <buffer> K <plug>(lsp-hover)
+    nmap <buffer> K <plug>(lsp-hover)
     "nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
     "nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
     "let g:lsp_format_sync_timeout = 1000
@@ -80,10 +82,10 @@ augroup END
 "inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 "inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
 
-function! g:NoMoMatchParen()
-    :NoMatchParen
-endfunction
-augroup plugin_initialize
-    autocmd!
-    autocmd VimEnter * call NoMoMatchParen()
-augroup END
+"function! g:NoMoMatchParen()
+"    :NoMatchParen
+"endfunction
+"augroup plugin_initialize
+"    autocmd!
+"    autocmd VimEnter * call NoMoMatchParen()
+"augroup END
