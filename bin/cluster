@@ -210,6 +210,7 @@ function tmux_int {
 		c $i
 		tmux select-layout tiled
 	done
+	tmux set pane-border-status top
 }
 
 function sync_panes {
