@@ -3,8 +3,8 @@ Plug 'mMontu/increment.vim--Avadhanula'
 Plug 'tpope/vim-fugitive'
 
 Plug 'mattn/vim-lsp-settings'
-Plug 'prabirshrestha/asyncomplete-lsp.vim'
-Plug 'prabirshrestha/asyncomplete.vim'
+"Plug 'prabirshrestha/asyncomplete-lsp.vim'
+"Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/vim-lsp'
 
 Plug 'dracula/vim'
@@ -48,6 +48,7 @@ set tabstop=4
 set wildmenu
 
 set termguicolors
+"let g:dracula_italic = 0
 colorscheme dracula
 
 "if executable('pylsp')
