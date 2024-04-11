@@ -19,7 +19,9 @@ nnoremap <leader>4 :set ts=4 sw=4 et<cr>
 vnoremap <leader>5 :!$HOME/bin/format<cr>
 nnoremap <leader>8 :set ts=8 sw=8 noet<cr>
 vnoremap <leader>9 :!$HOME/bin/format-berk<cr>
+nnoremap <leader>c :sp CMakeLists.txt<cr><esc>:r$HOME/bin/cmake.template<cr><esc>:wincmd w<cr><esc>:r$HOME/bin/cdb2.template<cr>
 nnoremap <leader>g :lgrep! <cword><cr>:lopen<cr>
+nnoremap <leader>n :set number! relativenumber!<cr>
 nnoremap <bs> :tabp<cr>
 nnoremap <space> :tabn<cr>
 
