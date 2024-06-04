@@ -13,7 +13,9 @@ fi
 export CMAKE_EXPORT_COMPILE_COMMANDS=1
 export CMAKE_GENERATOR=Ninja
 export EDITOR="vim -X"
+export SKIPSSL=1
 
+alias all="ninja test-tools all"
 alias c="cluster"
 alias gdb="gdb -q"
 
@@ -42,13 +44,13 @@ alias gba='git branch -a'
 alias gbd='git branch -d'
 alias gblame='git blame'
 
-alias gc='git commit -v'
-alias gc!='git commit -v --amend'
-alias gcn!='git commit -v --no-edit --amend'
-alias gca='git commit -v -a'
-alias gcam='git commit -v -a -m'
-alias gca!='git commit -v -a --amend'
-alias gcm='git commit -m'
+alias gc='git commit -s -v'
+alias gc!='git commit -s -v --amend'
+alias gcn!='git commit -s -v --no-edit --amend'
+alias gca='git commit -s -v -a'
+alias gcam='git commit -s -v -a -m'
+alias gca!='git commit -s -v -a --amend'
+alias gcm='git commit -s -m'
 alias gclean='git clean -fd'
 alias gpristine='git reset --hard && git clean -dfx'
 alias gco='git checkout'
