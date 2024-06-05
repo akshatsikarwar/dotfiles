@@ -1,9 +1,12 @@
 call plug#begin()
     Plug 'mMontu/increment.vim--Avadhanula'
     Plug 'tpope/vim-fugitive'
-    Plug 'dracula/vim'
+    Plug 'akshatsikarwar/draculavim'
+    Plug 'akshatsikarwar/nordvim'
+    Plug 'altercation/vim-colors-solarized'
     if has('nvim')
         Plug 'neovim/nvim-lspconfig'
+        Plug 'nvim-treesitter/nvim-treesitter'
     endif
 call plug#end()
 
@@ -45,10 +48,8 @@ set tabpagemax=32
 set tabstop=4
 set wildmenu
 
-set termguicolors
-let g:dracula_italic = 0
-colorscheme dracula
-
 if has('nvim')
     lua require('lspconfig').clangd.setup({})
 endif
+
+colorscheme nord
