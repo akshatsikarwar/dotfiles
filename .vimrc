@@ -4,6 +4,8 @@ call plug#begin()
     Plug 'akshatsikarwar/draculavim'
     Plug 'akshatsikarwar/nordvim'
     Plug 'altercation/vim-colors-solarized'
+    Plug 'NLKNguyen/papercolor-theme'
+    Plug 'tpope/vim-vividchalk'
     if has('nvim')
         Plug 'neovim/nvim-lspconfig'
         Plug 'nvim-treesitter/nvim-treesitter'
@@ -50,6 +52,17 @@ set wildmenu
 
 if has('nvim')
     lua require('lspconfig').clangd.setup({})
+    lua require('nvim-treesitter.configs').setup({highligh = {enable = true}})
 endif
 
-colorscheme nord
+"set termguicolors
+"colorscheme nord
+
+set background=light
+colorscheme PaperColor
+
+"set background=dark
+"colorscheme vividchalk
+
+noremap <F1> <lt>F1>
+inoremap <F1> <lt>F1>
