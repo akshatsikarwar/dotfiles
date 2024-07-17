@@ -144,7 +144,7 @@ function build {
 	EOF
 	cat >> Dockerfile <<- EOF
 		RUN mkdir -p /opt/bb/etc/cdb2/config.d /opt/bb/log/cdb2 /opt/bb/var/cdb2 /opt/bb/var/lib/cdb2 /opt/bb/var/log/cdb2
-		RUN mkdir /root/.ssh /var/run/sshd
+		RUN mkdir -p /root/.ssh /var/run/sshd
 		RUN touch		/root/.hushlogin
 		COPY config		/root/.ssh/config
 		COPY id_rsa		/root/.ssh/id_rsa

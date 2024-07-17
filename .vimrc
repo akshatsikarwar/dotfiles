@@ -55,14 +55,8 @@ if has('nvim')
     lua require('nvim-treesitter.configs').setup({highligh = {enable = true}})
 endif
 
-"set termguicolors
-"colorscheme nord
-
-set background=light
-colorscheme PaperColor
-
-"set background=dark
-"colorscheme vividchalk
+set termguicolors
+colorscheme nord
 
 noremap <F1> <lt>F1>
 inoremap <F1> <lt>F1>
