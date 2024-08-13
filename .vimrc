@@ -39,24 +39,24 @@ set incsearch
 set laststatus=2
 set makeprg=vim-make
 set nobackup
-set nocompatible
 set noshowmatch
 set nowrap
 set number
 set relativenumber
 set scrolloff=8
 set shiftwidth=4
+set sidescroll=1
+set sidescrolloff=8
 set tabpagemax=32
 set tabstop=4
 set wildmenu
 
 if has('nvim')
     lua require('lspconfig').clangd.setup({})
-    lua require('nvim-treesitter.configs').setup({highligh = {enable = true}})
+    lua require('nvim-treesitter.configs').setup({highlight = {enable = true}})
 endif
-
-set termguicolors
-colorscheme nord
 
 noremap <F1> <lt>F1>
 inoremap <F1> <lt>F1>
+
+colorscheme nord
