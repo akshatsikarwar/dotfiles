@@ -62,4 +62,5 @@ endif
 noremap <F1> <lt>F1>
 inoremap <F1> <lt>F1>
 
+set termguicolors
 colorscheme nord
