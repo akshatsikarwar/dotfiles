@@ -1,11 +1,14 @@
 call plug#begin()
     Plug 'mMontu/increment.vim--Avadhanula'
     Plug 'tpope/vim-fugitive'
+
+    Plug 'NLKNguyen/papercolor-theme'
     Plug 'akshatsikarwar/draculavim'
     Plug 'akshatsikarwar/nordvim'
     Plug 'altercation/vim-colors-solarized'
-    Plug 'NLKNguyen/papercolor-theme'
+    Plug 'endel/vim-github-colorscheme'
     Plug 'tpope/vim-vividchalk'
+    Plug 'vim-scripts/desert256.vim'
     if has('nvim')
         Plug 'neovim/nvim-lspconfig'
         Plug 'nvim-treesitter/nvim-treesitter'
