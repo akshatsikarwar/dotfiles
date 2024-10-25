@@ -44,7 +44,7 @@ fi
 if [[ $pfx == "bb" ]]; then
 	comdb2="/opt/bb/bin/comdb2"
 else
-	pfx="$($HOME/bin/go --print $pfx)"
+	pfx="$($HOME/bin/g --print $pfx)"
 	[[ -d $pfx/ninja ]] && pfx=$pfx/ninja
 	[[ -d $pfx/build ]] && pfx=$pfx/build
 	comdb2="${pfx}/db/comdb2"

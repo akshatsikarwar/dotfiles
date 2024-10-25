@@ -79,14 +79,14 @@ function build {
 
 	bind -f $HOME/.inputrc
 	alias c="$HOME/bin/cluster"
-	alias g=". $HOME/bin/go"
+	alias g=". $HOME/bin/g"
 	alias gdb="gdb -q"
 	alias ls="ls -F"
 	alias l="ls"
 	alias ll="ls -l"
 	alias lla="ls -la"
 	alias ltr="ls -ltr"
-	alias g=". $HOME/bin/go"
+	alias g=". $HOME/bin/g"
 	alias vim="vim -p -X"
 	alias ..='cd ..'
 	alias ...='cd ../..'

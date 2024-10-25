@@ -12,7 +12,7 @@ DIRS+=("$HOME")
 DIRS+=("/opt/bb/var/cdb2")
 
 function usage() {
-echo "Usage: go [-h] [DIRECTORY]
+echo "Usage: g [-h] [DIRECTORY]
 Go to directory matching regex [DIRECTORY].
 Following locations are searched to find match:"
 for DIR in "${DIRS[@]}"
