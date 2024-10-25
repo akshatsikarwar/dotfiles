@@ -1,2 +1,29 @@
 #!/usr/bin/env bash
-tmux attach || tmux
+
+if [[ $1 == ls ]]; then
+    exec tmux ls
+elif [[ $1 == new ]]; then
+    exec tmux
+fi
+
+session="$1"
+num=$(tmux ls 2> /dev/null | wc -l)
+
+if [[ -n $session ]]; then
+    if [[ $num -eq 0 ]]; then
+        exec tmux new -s $session
+    fi
+    sessions=$(tmux ls 2>/dev/null | cut -d: -f1 | tr '\n' ' ')
+    for s in $sessions; do
+        if [[ $session == $s ]]; then
+            exec tmux attach -d -t $session
+        fi
+    done
+    exec tmux new -s $session
+fi
+
+if [[ $num -eq 1 ]]; then
+    exec tmux attach -d
+else
+    exec tmux
+fi
