@@ -1,3 +1,4 @@
+set debuginfod enabled off
 set print thread-events off
 set height 0
 set pagination off
