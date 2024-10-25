@@ -1,18 +1,22 @@
 call plug#begin()
     Plug 'mMontu/increment.vim--Avadhanula'
+    Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
+    if has('nvim')
+        Plug 'neovim/nvim-lspconfig'
+        Plug 'nvim-treesitter/nvim-treesitter'
+    endif
 
     Plug 'NLKNguyen/papercolor-theme'
     Plug 'akshatsikarwar/draculavim'
     Plug 'akshatsikarwar/nordvim'
     Plug 'altercation/vim-colors-solarized'
-    Plug 'endel/vim-github-colorscheme'
+    Plug 'carakan/new-railscasts-theme'
+    Plug 'cormacrelf/vim-colors-github'
+    "Plug 'endel/vim-github-colorscheme'
+    Plug 'jpo/vim-railscasts-theme'
     Plug 'tpope/vim-vividchalk'
     Plug 'vim-scripts/desert256.vim'
-    if has('nvim')
-        Plug 'neovim/nvim-lspconfig'
-        Plug 'nvim-treesitter/nvim-treesitter'
-    endif
 call plug#end()
 
 filetype on
@@ -26,7 +30,7 @@ nnoremap <leader>8 :set ts=8 sw=8 noet<cr>
 vnoremap <leader>9 :!$HOME/bin/format-berk<cr>
 nnoremap <leader>c :sp CMakeLists.txt<cr><esc>:r$HOME/bin/cmake.template<cr><esc>:wincmd w<cr><esc>:r$HOME/bin/cdb2.template<cr>
 nnoremap <leader>g :lgrep! <cword><cr>:lopen<cr>
-nnoremap <leader>h :set hlsearch!<cr>
+nnoremap <leader>h :noh<cr>
 nnoremap <leader>n :set number! relativenumber!<cr>
 nnoremap <bs> :tabp<cr>
 nnoremap <space> :tabn<cr>
@@ -63,4 +67,4 @@ noremap <F1> <lt>F1>
 inoremap <F1> <lt>F1>
 
 set termguicolors
-colorscheme nord
+colorscheme dracula
