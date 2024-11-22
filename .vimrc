@@ -17,6 +17,7 @@ call plug#begin()
     Plug 'jpo/vim-railscasts-theme'
     Plug 'tpope/vim-vividchalk'
     Plug 'vim-scripts/desert256.vim'
+    Plug 'vim-scripts/Tango-colour-scheme'
 call plug#end()
 
 filetype on
@@ -47,6 +48,7 @@ set laststatus=2
 set makeprg=vim-make
 set nobackup
 set noshowmatch
+set nofoldenable
 set nowrap
 set number
 set relativenumber
