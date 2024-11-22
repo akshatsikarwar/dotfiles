@@ -13,7 +13,6 @@ call plug#begin()
     Plug 'altercation/vim-colors-solarized'
     Plug 'carakan/new-railscasts-theme'
     Plug 'cormacrelf/vim-colors-github'
-    "Plug 'endel/vim-github-colorscheme'
     Plug 'jpo/vim-railscasts-theme'
     Plug 'tpope/vim-vividchalk'
     Plug 'vim-scripts/desert256.vim'
