@@ -60,6 +60,7 @@ set tabstop=4
 set wildmenu
 
 if has('nvim')
+    set shortmess+=S
     lua require('lspconfig').clangd.setup({})
     lua require('lspconfig').gopls.setup({})
     lua require('nvim-treesitter.configs').setup({highlight = {enable = true}})
