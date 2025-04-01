@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+pid=$(pidof comdb2)
+count=$(echo $pid | wc -w)
+if [[ $count -ne 1 ]]; then
+    echo count:$count pid:$pid
+    exit 1
+fi
+
+psef=$(psef " $pid " | grep -v PPID | tr -s ' ')
+cmd=$(echo "$psef" | cut -d ' ' -f8-)
+pidfile=$(echo $cmd | awk -F ' --pidfile ' '{print $2}')
+if [[ -n $pidfile ]]; then
+    echo mkdir -p $(dirname $pidfile)
+    mkdir -p $(dirname $pidfile)
+fi
+
+echo kill -9 $pid
+kill -9 $pid
+
+if [[ -z $1 ]]; then
+    echo gdb -ex run -args $cmd
+    sleep 1
+    gdb -ex run -args $cmd
+else
+    echo $cmd
+    sleep 1
+    $cmd
+fi

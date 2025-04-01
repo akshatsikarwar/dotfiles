@@ -10,3 +10,5 @@
 	name = Akshat Sikarwar
 [push]
 	default = upstream
+[init]
+	defaultBranch = main
