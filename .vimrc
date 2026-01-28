@@ -61,9 +61,10 @@ set wildmenu
 
 if has('nvim')
     set shortmess+=S
-    lua require('lspconfig').clangd.setup({})
-    lua require('lspconfig').gopls.setup({})
+    lua vim.lsp.config('clangd', {})
+    lua vim.lsp.enable('clangd')
     lua require('nvim-treesitter.configs').setup({highlight = {enable = true}})
+
 endif
 
 noremap <F1> <lt>F1>
