@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 function setup {
     remote=$1
-    abort=$2
     exists=$(git ls-remote --heads $remote | grep refs/heads/$local | wc -l)
     if [[ $exists -eq 0 ]]; then
         read -p "Create $remote/$local? [y/n]: " yesno
@@ -11,16 +10,15 @@ function setup {
     fi
     read -p "Set upstream to $remote/$local? [y/n]: " yesno
     if [[ ${yesno} != 'y' ]]; then
-        if [[ ${abort} -eq 0 ]]; then
             return
-        fi
-        exit 1
     fi
     git branch --set-upstream-to=${remote}/${local}
-    exit $?
+    exit 0
 }
 
 local=$(git branch --verbose --show-current)
-setup origin 0
-setup upstream
+
+for up in $(git remote); do
+    setup $up
+done
 exit 1

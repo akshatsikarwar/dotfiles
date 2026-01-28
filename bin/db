@@ -71,7 +71,8 @@ if [[ -n $init ]] ; then
 	tunables+=(--tunable "nowatch")
 	tunables+=(--tunable "timer_pstack_interval 0")
 	tunables+=(--tunable "timer_warn_interval 0")
-	tunables+=(--tunable "disable_sql_dlmalloc 1")
+	tunables+=(--tunable "setattr SQL_QUEUEING_DISABLE_TRACE 1")
+	tunables+=(--tunable "setattr SQL_QUEUEING_CRITICAL_TRACE 100000")
 	cat > /opt/bb/etc/cdb2/config.d/$name.cfg <<-EOF
 		comdb2_config:default_type=local
 		comdb2_config: allow_pmux_route=true
